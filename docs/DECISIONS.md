@@ -79,3 +79,11 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-07 · Riziko: Smart App Control (doplněk k §16)
 - **Zjištění:** Windows 11 se zapnutým *Smart App Control* nepodepsané aplikace bez reputace zablokuje úplně. Neukáže jen varování SmartScreen.
 - **Co s tím:** zatím jen zaznamenáno. Podepsání je rozhodnutí uživatele (§16).
+
+### 2026-10-07 · Zkratky a hook
+- **Rozhodnutí:** hook chytá globální zkratky a vnitřní zkratky s volbou „přebít Windows“. Vnitřní zkratky bez přebití obsluhuje přímo okno aplikace. Zkratky ze scriptů hook chytá vždy a kombinaci si nechá. Hook se každou minutu znovu připojí. Simulované klávesy (makra, `SendInput`) hook ignoruje.
+- **Důvod:** okno vidí klávesy jen samo pro sebe. Ignorování simulovaných kláves brání smyčkám, kdy by makro spouštělo samo sebe.
+
+### 2026-10-07 · Kompaktní lišta
+- **Rozhodnutí:** lišta se ukazuje dole uprostřed hlavního monitoru, stejně jako pole hledání v aplikaci a na ploše. Když je v popředí okno aplikace, globální zkratka otevře hledání přímo v něm.
+- **Důvod:** specifikace pozici lišty neurčuje. Hledání má být všude stejné (§6.1).

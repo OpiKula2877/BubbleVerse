@@ -13,7 +13,7 @@
 - Uživatelský mód (klik = aktivace / rozbalení, kolečko = zoom, tažení = posun, `Home`), 👁 přepínače.
 - Edit mód: lišta, strom (hledání, tažení = rodič / pořadí), inspektor (Základ, Skin, Uchycení, Pohyb, Fyzika, Spojení, Hover, Akce; více bublin = „—“), kontextová menu, rychlé okénko, výběr (klik, Ctrl/Shift, obdélník, Ctrl+A), přesun s mřížkou, Alt + tažení = změna rodiče, autosave 2 s, Ctrl+S, odchod z edit módu, obnova konceptu po restartu.
 - Nastavení: Obecné, Vzhled (Světlý / Tmavý).
-- Testy: 97 TS testů, 44 Rust testů. End-to-end přes skutečné jádro: Uložit → záloha → aktivace → spuštění programu.
+- Testy (stav na konci fáze 1): 91 TS testů, 44 Rust testů. End-to-end přes skutečné jádro: Uložit → záloha → aktivace → spuštění programu.
 
 **Ruční checklist (na 2 monitorech)**
 - [ ] Okno pokryje oba monitory, UI je jen na hlavním, velikosti bublin sedí i při různém DPI.
@@ -24,3 +24,20 @@
 **Známé problémy**
 - Na tomto PC je teď aktivní jen jeden monitor, takže vícemonitorové chování jsem ověřil jen výpočty a testy.
 - Uživatel nemá zatím klávesovou zkratku na otevření okna (`Ctrl+Alt+B` je ve fázi 2), okno jde otevřít z tray.
+
+## Fáze 2 – Vyhledávání: hotovo (ruční kontrola zbývá)
+
+**Hotovo a ověřené automaticky**
+- Vyhledávací engine §6: začátek jména, fuzzy záloha (`mcgui` najde „Minecraft auto gui“), diakritika, úrovně (TAB, Enter, Backspace), předchozí/další, ghost text, počítadlo, `:` globální mód s červenou cestou u duplicit, historie 50, řazení podle četnosti, hledání i ve sbalených složkách.
+- `Ctrl+F` v aplikaci: zešednutí, barevné možnosti, zvýrazněná cesta, kamera na bublinu a její děti, dočasné rozbalení, návrat kamery. V edit módu Enter bublinu vybere.
+- Low-level klávesový hook ve vlastním vlákně, venkovní / vnitřní platnost, přebití Windows (i potlačení menu po Alt / Win), znovupřipojení.
+- Kompaktní lišta: předem vytvořené skryté okno nad vším, otevření do 15 ms (měřeno přes IPC), TAB a Enter spustí akci.
+- Nastavení Zkratky: zachytávání kombinace, platnost, přebít Windows, kolize navzájem i se zkratkami Windows, zkratky ze scriptů v jednom seznamu. Volba řazení podle četnosti.
+- Testy: 107 TS, 49 Rust.
+
+**Ruční checklist**
+- [ ] `Alt+Space` v jiném programu (prohlížeč) otevře lištu, nabídka okna Windows se neotevře.
+- [ ] Jen klávesnicí najít a spustit akci 3 úrovně hluboko z aplikace i z lišty.
+- [ ] Historie: po otevření je šedě poslední příkaz, ↑/↓ listuje, TAB vypíše, Enter spustí.
+- [ ] `:` najde bublinu v jiné větvi, u stejných jmen je vidět červená cesta.
+- [ ] `Ctrl+Alt+B` otevře a skryje okno aplikace.
