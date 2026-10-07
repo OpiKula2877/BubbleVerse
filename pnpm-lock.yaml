@@ -313,6 +313,9 @@ importers:
 
   packages/blocks:
     dependencies:
+      '@bv/world':
+        specifier: workspace:*
+        version: link:../world
       blockly:
         specifier: ^13.3.0
         version: 13.3.0(jsdom@29.1.1)

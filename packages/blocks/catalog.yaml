@@ -1,0 +1,1459 @@
+# BubbleVerse block catalog – the single source of truth (spec §8.3).
+# `pnpm gen:blocks` generates packages/blocks/src/generated/catalog.ts (Blockly side)
+# and src-tauri/src/script/generated/opcodes.rs (interpreter side).
+#
+# shape:  hat | stack | c | c2 | cap | reporter | boolean
+#         c = one substack, c2 = two substacks (if/else, try/catch); `cap: true` = nothing can follow.
+# input types (order = argument order in the compact format, spec §9.3):
+#   num, text, any, bool      value inputs (literal or a reporter block)
+#   numf, textf, combo, time  fields (always a literal)
+#   menu                      dropdown field, `options: [[value, en, cs], ...]`
+#   check                     checkbox field (true/false)
+#   days                      seven checkboxes Mon..Sun, stored as a mask string like "1111100"
+#   var                       variable reference "<scope>:<name>", scope s = script, b = bubble, g = global
+#   stack                     substack (list of nodes)
+# danger: true marks blocks shown with ⚠ and listed in the import preview (spec §5.6).
+
+version: 1
+
+categories:
+  - { id: events, colour: '#FFBF00', en: Events, cs: Události }
+  - { id: control, colour: '#FFAB19', en: Control, cs: Ovládání }
+  - { id: sensing, colour: '#5CB1D6', en: Sensing, cs: Zjišťování }
+  - { id: operators, colour: '#59C059', en: Operators, cs: Operátory }
+  - { id: variables, colour: '#FF8C1A', en: Variables, cs: Proměnné }
+  - { id: lists, colour: '#FF661A', en: Lists, cs: Seznamy }
+  - { id: system, colour: '#4C97FF', en: System & launch, cs: Systém a spouštění }
+  - { id: windows, colour: '#855CD6', en: Windows & processes, cs: Okna a procesy }
+  - { id: input, colour: '#E05297', en: Keyboard & mouse, cs: Klávesnice a myš }
+  - { id: files, colour: '#0FBD8C', en: 'Files, clipboard, web', cs: 'Soubory, schránka, web' }
+  - { id: bubbles, colour: '#9966FF', en: Bubbles & UI, cs: Bubliny a UI }
+  - { id: custom, colour: '#FF6680', en: My blocks, cs: Vlastní bloky }
+
+blocks:
+  # ───────────── Events / triggers ─────────────
+  - op: 1
+    id: ev_activate
+    cat: events
+    shape: hat
+    en: when activated
+    cs: po aktivaci
+    keywords: { en: click enter search run, cs: klik spustit hledání }
+  - op: 2
+    id: ev_hotkey
+    cat: events
+    shape: hat
+    en: when %COMBO is pressed %SCOPE
+    cs: při stisku %COMBO %SCOPE
+    inputs:
+      - { name: COMBO, type: combo, default: Ctrl+Alt+K }
+      - name: SCOPE
+        type: menu
+        options: [[global, everywhere, všude], [app, only in BubbleVerse, jen v BubbleVerse]]
+    keywords: { en: shortcut keyboard key, cs: zkratka klávesa }
+  - op: 3
+    id: ev_every
+    cat: events
+    shape: hat
+    en: every %N %UNIT
+    cs: každých %N %UNIT
+    inputs:
+      - { name: N, type: numf, default: 10 }
+      - { name: UNIT, type: menu, options: [[s, s, s], [min, min, min], [h, h, h]] }
+    keywords: { en: timer interval repeat, cs: časovač interval }
+  - op: 4
+    id: ev_at_time
+    cat: events
+    shape: hat
+    en: at %TIME on %DAYS
+    cs: v čase %TIME ve dny %DAYS
+    inputs:
+      - { name: TIME, type: time, default: '08:00' }
+      - { name: DAYS, type: days, default: '1111111' }
+    keywords: { en: clock schedule alarm, cs: čas plán budík }
+  - op: 5
+    id: ev_startup
+    cat: events
+    shape: hat
+    en: when %WHAT starts
+    cs: při startu %WHAT
+    inputs:
+      - name: WHAT
+        type: menu
+        options: [[pc, PC, PC], [app, BubbleVerse, BubbleVerse]]
+  - op: 6
+    id: ev_message
+    cat: events
+    shape: hat
+    en: when I receive %MSG
+    cs: při zprávě %MSG
+    inputs: [{ name: MSG, type: textf, default: message1 }]
+    keywords: { en: broadcast message, cs: zpráva vyslat }
+  - op: 7
+    id: ev_proc_start
+    cat: events
+    shape: hat
+    en: when process %NAME starts
+    cs: při spuštění procesu %NAME
+    inputs: [{ name: NAME, type: textf, default: notepad.exe }]
+  - op: 8
+    id: ev_proc_stop
+    cat: events
+    shape: hat
+    en: when process %NAME ends
+    cs: při ukončení procesu %NAME
+    inputs: [{ name: NAME, type: textf, default: notepad.exe }]
+  - op: 9
+    id: ev_window_change
+    cat: events
+    shape: hat
+    en: when the active window changes
+    cs: při změně aktivního okna
+  - op: 10
+    id: ev_clipboard
+    cat: events
+    shape: hat
+    en: when the clipboard changes
+    cs: při změně schránky
+  - op: 11
+    id: ev_device
+    cat: events
+    shape: hat
+    en: when %KIND is %STATE
+    cs: při %STATE %KIND
+    inputs:
+      - name: KIND
+        type: menu
+        options: [[usb, a USB device, USB zařízení], [disk, a disk, disku]]
+      - name: STATE
+        type: menu
+        options: [[on, connected, připojení], [off, disconnected, odpojení]]
+  - op: 12
+    id: ev_unlock
+    cat: events
+    shape: hat
+    en: when the PC is unlocked
+    cs: při odemknutí PC
+  - op: 13
+    id: ev_wake
+    cat: events
+    shape: hat
+    en: when the PC wakes from sleep
+    cs: při probuzení ze spánku
+  - op: 14
+    id: ev_internet
+    cat: events
+    shape: hat
+    en: when the internet is %STATE
+    cs: při %STATE internetu
+    inputs:
+      - name: STATE
+        type: menu
+        options: [[on, connected, připojení], [off, disconnected, odpojení]]
+  - op: 15
+    id: ev_broadcast
+    cat: events
+    shape: stack
+    en: broadcast %MSG
+    cs: vyslat zprávu %MSG
+    inputs: [{ name: MSG, type: text, default: message1 }]
+  - op: 16
+    id: ev_broadcast_wait
+    cat: events
+    shape: stack
+    en: broadcast %MSG and wait
+    cs: vyslat zprávu %MSG a počkat
+    inputs: [{ name: MSG, type: text, default: message1 }]
+
+  # ───────────── Control ─────────────
+  - op: 50
+    id: ctl_wait
+    cat: control
+    shape: stack
+    en: wait %N %UNIT
+    cs: počkej %N %UNIT
+    inputs:
+      - { name: N, type: num, default: 1 }
+      - { name: UNIT, type: menu, options: [[s, s, s], [ms, ms, ms], [min, min, min], [h, h, h]] }
+    keywords: { en: pause sleep delay, cs: pauza čekat }
+  - op: 51
+    id: ctl_repeat
+    cat: control
+    shape: c
+    en: repeat %N times %DO
+    cs: opakuj %N× %DO
+    inputs: [{ name: N, type: num, default: 10 }, { name: DO, type: stack }]
+    keywords: { en: loop, cs: smyčka cyklus }
+  - op: 52
+    id: ctl_forever
+    cat: control
+    shape: c
+    cap: true
+    en: forever %DO
+    cs: opakuj stále %DO
+    inputs: [{ name: DO, type: stack }]
+    keywords: { en: loop, cs: smyčka cyklus }
+  - op: 53
+    id: ctl_repeat_until
+    cat: control
+    shape: c
+    en: repeat until %COND %DO
+    cs: opakuj dokud %COND %DO
+    inputs: [{ name: COND, type: bool }, { name: DO, type: stack }]
+  - op: 54
+    id: ctl_for_each
+    cat: control
+    shape: c
+    en: for each %VAR in list %LIST %DO
+    cs: pro každou položku %VAR v seznamu %LIST %DO
+    inputs:
+      - { name: VAR, type: var, default: 's:item' }
+      - { name: LIST, type: any }
+      - { name: DO, type: stack }
+  - op: 55
+    id: ctl_if
+    cat: control
+    shape: c
+    en: if %COND then %DO
+    cs: když %COND pak %DO
+    inputs: [{ name: COND, type: bool }, { name: DO, type: stack }]
+  - op: 56
+    id: ctl_if_else
+    cat: control
+    shape: c2
+    en: if %COND then %DO else %ELSE
+    cs: když %COND pak %DO jinak %ELSE
+    inputs: [{ name: COND, type: bool }, { name: DO, type: stack }, { name: ELSE, type: stack }]
+  - op: 57
+    id: ctl_wait_until
+    cat: control
+    shape: stack
+    en: wait until %COND timeout %T s (0 = none)
+    cs: čekej dokud %COND limit %T s (0 = bez limitu)
+    inputs: [{ name: COND, type: bool }, { name: T, type: num, default: 0 }]
+  - op: 58
+    id: ctl_try
+    cat: control
+    shape: c2
+    en: try %DO on error, save message to %VAR %CATCH
+    cs: zkus %DO při chybě ulož text do %VAR %CATCH
+    inputs:
+      - { name: DO, type: stack }
+      - { name: VAR, type: var, default: 's:error' }
+      - { name: CATCH, type: stack }
+  - op: 59
+    id: ctl_stop
+    cat: control
+    shape: stack
+    en: stop %WHAT
+    cs: zastav %WHAT
+    inputs:
+      - name: WHAT
+        type: menu
+        options:
+          - [this, this script, tento script]
+          - [bubble, other scripts of this bubble, ostatní scripty bubliny]
+          - [all, all scripts, všechny scripty]
+  - op: 60
+    id: ctl_log
+    cat: control
+    shape: stack
+    en: print %VALUE to the console
+    cs: vypiš %VALUE do konzole
+    inputs: [{ name: VALUE, type: any, default: Hello }]
+    keywords: { en: debug log output, cs: debug výpis }
+
+  # ───────────── Sensing ─────────────
+  - op: 100
+    id: sen_key_pressed
+    cat: sensing
+    shape: boolean
+    en: key %KEY pressed?
+    cs: je stisknutá klávesa %KEY?
+    inputs: [{ name: KEY, type: text, default: space }]
+  - op: 101
+    id: sen_mouse_x
+    cat: sensing
+    shape: reporter
+    en: mouse x
+    cs: pozice myši X
+  - op: 102
+    id: sen_mouse_y
+    cat: sensing
+    shape: reporter
+    en: mouse y
+    cs: pozice myši Y
+  - op: 103
+    id: sen_current
+    cat: sensing
+    shape: reporter
+    en: current %PART
+    cs: aktuální %PART
+    inputs:
+      - name: PART
+        type: menu
+        options:
+          - [year, year, rok]
+          - [month, month, měsíc]
+          - [date, date, den]
+          - [weekday, day of week, den v týdnu]
+          - [hour, hour, hodina]
+          - [minute, minute, minuta]
+          - [second, second, sekunda]
+  - op: 104
+    id: sen_timestamp
+    cat: sensing
+    shape: reporter
+    en: timestamp
+    cs: časové razítko
+  - op: 105
+    id: sen_proc_running
+    cat: sensing
+    shape: boolean
+    en: process %NAME running?
+    cs: běží proces %NAME?
+    inputs: [{ name: NAME, type: text, default: notepad.exe }]
+  - op: 106
+    id: sen_active_window
+    cat: sensing
+    shape: reporter
+    en: active window %WHAT
+    cs: aktivní okno %WHAT
+    inputs:
+      - name: WHAT
+        type: menu
+        options: [[title, title, název], [process, process, proces]]
+  - op: 107
+    id: sen_exists
+    cat: sensing
+    shape: boolean
+    en: '%KIND %PATH exists?'
+    cs: existuje %KIND %PATH?
+    inputs:
+      - { name: KIND, type: menu, options: [[file, file, soubor], [folder, folder, složka]] }
+      - { name: PATH, type: text, default: 'C:\' }
+  - op: 108
+    id: sen_internet
+    cat: sensing
+    shape: boolean
+    en: internet connected?
+    cs: je připojen internet?
+  - op: 109
+    id: sen_battery
+    cat: sensing
+    shape: reporter
+    en: battery %
+    cs: baterie %
+  - op: 110
+    id: sen_charging
+    cat: sensing
+    shape: boolean
+    en: charging?
+    cs: nabíjí se?
+  - op: 111
+    id: sen_idle
+    cat: sensing
+    shape: reporter
+    en: user idle time (s)
+    cs: nečinnost uživatele (s)
+  - op: 112
+    id: sen_pixel
+    cat: sensing
+    shape: reporter
+    en: pixel color at x %X y %Y
+    cs: barva pixelu na x %X y %Y
+    inputs: [{ name: X, type: num, default: 0 }, { name: Y, type: num, default: 0 }]
+  - op: 113
+    id: sen_monitors
+    cat: sensing
+    shape: reporter
+    en: monitor count
+    cs: počet monitorů
+  - op: 114
+    id: sen_username
+    cat: sensing
+    shape: reporter
+    en: user name
+    cs: jméno uživatele
+  - op: 115
+    id: sen_pcname
+    cat: sensing
+    shape: reporter
+    en: PC name
+    cs: název PC
+  - op: 116
+    id: sen_answer
+    cat: sensing
+    shape: reporter
+    en: answer
+    cs: odpověď
+  - op: 117
+    id: sen_timer
+    cat: sensing
+    shape: reporter
+    en: stopwatch
+    cs: stopky
+  - op: 118
+    id: sen_timer_reset
+    cat: sensing
+    shape: stack
+    en: reset stopwatch
+    cs: vynuluj stopky
+
+  # ───────────── Operators ─────────────
+  - {
+      op: 150,
+      id: op_add,
+      cat: operators,
+      shape: reporter,
+      en: '%A + %B',
+      cs: '%A + %B',
+      inputs: [{ name: A, type: num }, { name: B, type: num }],
+    }
+  - {
+      op: 151,
+      id: op_sub,
+      cat: operators,
+      shape: reporter,
+      en: '%A − %B',
+      cs: '%A − %B',
+      inputs: [{ name: A, type: num }, { name: B, type: num }],
+    }
+  - {
+      op: 152,
+      id: op_mul,
+      cat: operators,
+      shape: reporter,
+      en: '%A × %B',
+      cs: '%A × %B',
+      inputs: [{ name: A, type: num }, { name: B, type: num }],
+    }
+  - {
+      op: 153,
+      id: op_div,
+      cat: operators,
+      shape: reporter,
+      en: '%A ÷ %B',
+      cs: '%A ÷ %B',
+      inputs: [{ name: A, type: num }, { name: B, type: num }],
+    }
+  - {
+      op: 154,
+      id: op_mod,
+      cat: operators,
+      shape: reporter,
+      en: '%A mod %B',
+      cs: zbytek po dělení %A / %B,
+      inputs: [{ name: A, type: num }, { name: B, type: num }],
+    }
+  - {
+      op: 155,
+      id: op_round,
+      cat: operators,
+      shape: reporter,
+      en: round %A,
+      cs: zaokrouhli %A,
+      inputs: [{ name: A, type: num }],
+    }
+  - op: 156
+    id: op_math
+    cat: operators
+    shape: reporter
+    en: '%FN of %A'
+    cs: '%FN z %A'
+    inputs:
+      - name: FN
+        type: menu
+        options:
+          - [abs, abs, abs]
+          - [floor, floor, dolů]
+          - [ceil, ceiling, nahoru]
+          - [sqrt, sqrt, odmocnina]
+          - [sin, sin, sin]
+          - [cos, cos, cos]
+          - [tan, tan, tan]
+          - [asin, asin, asin]
+          - [acos, acos, acos]
+          - [atan, atan, atan]
+          - [ln, ln, ln]
+          - [log, log, log]
+          - [exp, e ^, e ^]
+          - [pow10, 10 ^, 10 ^]
+      - { name: A, type: num }
+  - {
+      op: 157,
+      id: op_random,
+      cat: operators,
+      shape: reporter,
+      en: pick random %A to %B,
+      cs: náhodné číslo od %A do %B,
+      inputs: [{ name: A, type: num, default: 1 }, { name: B, type: num, default: 10 }],
+    }
+  - {
+      op: 158,
+      id: op_lt,
+      cat: operators,
+      shape: boolean,
+      en: '%A < %B',
+      cs: '%A < %B',
+      inputs: [{ name: A, type: any }, { name: B, type: any, default: 50 }],
+    }
+  - {
+      op: 159,
+      id: op_eq,
+      cat: operators,
+      shape: boolean,
+      en: '%A = %B',
+      cs: '%A = %B',
+      inputs: [{ name: A, type: any }, { name: B, type: any, default: 50 }],
+    }
+  - {
+      op: 160,
+      id: op_gt,
+      cat: operators,
+      shape: boolean,
+      en: '%A > %B',
+      cs: '%A > %B',
+      inputs: [{ name: A, type: any }, { name: B, type: any, default: 50 }],
+    }
+  - {
+      op: 161,
+      id: op_le,
+      cat: operators,
+      shape: boolean,
+      en: '%A ≤ %B',
+      cs: '%A ≤ %B',
+      inputs: [{ name: A, type: any }, { name: B, type: any, default: 50 }],
+    }
+  - {
+      op: 162,
+      id: op_ge,
+      cat: operators,
+      shape: boolean,
+      en: '%A ≥ %B',
+      cs: '%A ≥ %B',
+      inputs: [{ name: A, type: any }, { name: B, type: any, default: 50 }],
+    }
+  - {
+      op: 163,
+      id: op_ne,
+      cat: operators,
+      shape: boolean,
+      en: '%A ≠ %B',
+      cs: '%A ≠ %B',
+      inputs: [{ name: A, type: any }, { name: B, type: any, default: 50 }],
+    }
+  - {
+      op: 164,
+      id: op_and,
+      cat: operators,
+      shape: boolean,
+      en: '%A and %B',
+      cs: '%A a %B',
+      inputs: [{ name: A, type: bool }, { name: B, type: bool }],
+    }
+  - {
+      op: 165,
+      id: op_or,
+      cat: operators,
+      shape: boolean,
+      en: '%A or %B',
+      cs: '%A nebo %B',
+      inputs: [{ name: A, type: bool }, { name: B, type: bool }],
+    }
+  - {
+      op: 166,
+      id: op_not,
+      cat: operators,
+      shape: boolean,
+      en: not %A,
+      cs: ne %A,
+      inputs: [{ name: A, type: bool }],
+    }
+  - {
+      op: 167,
+      id: op_join,
+      cat: operators,
+      shape: reporter,
+      en: join %A %B,
+      cs: spoj %A %B,
+      inputs: [{ name: A, type: text, default: apple }, { name: B, type: text, default: banana }],
+    }
+  - {
+      op: 168,
+      id: op_letter,
+      cat: operators,
+      shape: reporter,
+      en: letter %N of %S,
+      cs: znak %N z %S,
+      inputs: [{ name: N, type: num, default: 1 }, { name: S, type: text, default: apple }],
+    }
+  - {
+      op: 169,
+      id: op_length,
+      cat: operators,
+      shape: reporter,
+      en: length of %S,
+      cs: délka %S,
+      inputs: [{ name: S, type: text, default: apple }],
+    }
+  - {
+      op: 170,
+      id: op_contains,
+      cat: operators,
+      shape: boolean,
+      en: '%S contains %T?',
+      cs: '%S obsahuje %T?',
+      inputs: [{ name: S, type: text, default: apple }, { name: T, type: text, default: a }],
+    }
+  - {
+      op: 171,
+      id: op_replace,
+      cat: operators,
+      shape: reporter,
+      en: replace %A with %B in %S,
+      cs: nahraď %A za %B v %S,
+      inputs:
+        [
+          { name: A, type: text, default: a },
+          { name: B, type: text, default: o },
+          { name: S, type: text, default: banana },
+        ],
+    }
+  - {
+      op: 172,
+      id: op_split,
+      cat: operators,
+      shape: reporter,
+      en: split %S by %SEP,
+      cs: rozděl %S podle %SEP,
+      inputs: [{ name: S, type: text, default: 'a,b,c' }, { name: SEP, type: text, default: ',' }],
+    }
+  - op: 173
+    id: op_case
+    cat: operators
+    shape: reporter
+    en: '%CASE of %S'
+    cs: '%CASE %S'
+    inputs:
+      - {
+          name: CASE,
+          type: menu,
+          options: [[upper, upper case, velká písmena], [lower, lower case, malá písmena]],
+        }
+      - { name: S, type: text, default: Hello }
+  - {
+      op: 174,
+      id: op_trim,
+      cat: operators,
+      shape: reporter,
+      en: trim spaces of %S,
+      cs: ořízni mezery %S,
+      inputs: [{ name: S, type: text, default: ' hello ' }],
+    }
+  - {
+      op: 175,
+      id: op_regex,
+      cat: operators,
+      shape: boolean,
+      en: '%S matches regex %R?',
+      cs: '%S odpovídá regulárnímu výrazu %R?',
+      inputs: [{ name: S, type: text, default: abc123 }, { name: R, type: text, default: '\d+' }],
+    }
+  - {
+      op: 176,
+      id: op_to_number,
+      cat: operators,
+      shape: reporter,
+      en: '%S as number',
+      cs: převeď %S na číslo,
+      inputs: [{ name: S, type: text, default: '42' }],
+    }
+  - {
+      op: 177,
+      id: op_to_text,
+      cat: operators,
+      shape: reporter,
+      en: '%A as text',
+      cs: převeď %A na text,
+      inputs: [{ name: A, type: any, default: 42 }],
+    }
+  - {
+      op: 178,
+      id: op_format_date,
+      cat: operators,
+      shape: reporter,
+      en: format date %TS as %FMT,
+      cs: formátuj datum %TS jako %FMT,
+      inputs:
+        [
+          { name: TS, type: num, default: 0 },
+          { name: FMT, type: text, default: 'YYYY-MM-DD HH:mm' },
+        ],
+    }
+
+  # ───────────── Variables & objects ─────────────
+  - {
+      op: 220,
+      id: var_set,
+      cat: variables,
+      shape: stack,
+      en: set %VAR to %VALUE,
+      cs: nastav %VAR na %VALUE,
+      inputs:
+        [
+          { name: VAR, type: var, default: 's:my variable' },
+          { name: VALUE, type: any, default: 0 },
+        ],
+    }
+  - {
+      op: 221,
+      id: var_change,
+      cat: variables,
+      shape: stack,
+      en: change %VAR by %N,
+      cs: změň %VAR o %N,
+      inputs:
+        [{ name: VAR, type: var, default: 's:my variable' }, { name: N, type: num, default: 1 }],
+    }
+  - {
+      op: 222,
+      id: var_get,
+      cat: variables,
+      shape: reporter,
+      en: '%VAR',
+      cs: '%VAR',
+      inputs: [{ name: VAR, type: var, default: 's:my variable' }],
+    }
+  - {
+      op: 223,
+      id: obj_get,
+      cat: variables,
+      shape: reporter,
+      en: get %KEY from %OBJ,
+      cs: získej %KEY z %OBJ,
+      inputs: [{ name: KEY, type: text, default: key }, { name: OBJ, type: any }],
+    }
+  - {
+      op: 224,
+      id: obj_set,
+      cat: variables,
+      shape: stack,
+      en: set %KEY of object %VAR to %VALUE,
+      cs: nastav %KEY objektu %VAR na %VALUE,
+      inputs:
+        [
+          { name: KEY, type: text, default: key },
+          { name: VAR, type: var, default: 's:object' },
+          { name: VALUE, type: any, default: value },
+        ],
+    }
+
+  # ───────────── Lists ─────────────
+  - {
+      op: 260,
+      id: list_add,
+      cat: lists,
+      shape: stack,
+      en: add %ITEM to %LIST,
+      cs: přidej %ITEM do %LIST,
+      inputs:
+        [
+          { name: ITEM, type: any, default: thing },
+          { name: LIST, type: var, default: 's:my list' },
+        ],
+    }
+  - {
+      op: 261,
+      id: list_insert,
+      cat: lists,
+      shape: stack,
+      en: insert %ITEM at %N of %LIST,
+      cs: vlož %ITEM na pozici %N do %LIST,
+      inputs:
+        [
+          { name: ITEM, type: any, default: thing },
+          { name: N, type: num, default: 1 },
+          { name: LIST, type: var, default: 's:my list' },
+        ],
+    }
+  - {
+      op: 262,
+      id: list_delete,
+      cat: lists,
+      shape: stack,
+      en: delete item %N of %LIST,
+      cs: smaž položku %N z %LIST,
+      inputs: [{ name: N, type: num, default: 1 }, { name: LIST, type: var, default: 's:my list' }],
+    }
+  - {
+      op: 263,
+      id: list_clear,
+      cat: lists,
+      shape: stack,
+      en: delete all of %LIST,
+      cs: smaž vše z %LIST,
+      inputs: [{ name: LIST, type: var, default: 's:my list' }],
+    }
+  - {
+      op: 264,
+      id: list_item,
+      cat: lists,
+      shape: reporter,
+      en: item %N of %LIST,
+      cs: položka %N z %LIST,
+      inputs: [{ name: N, type: num, default: 1 }, { name: LIST, type: any }],
+    }
+  - {
+      op: 265,
+      id: list_length,
+      cat: lists,
+      shape: reporter,
+      en: length of list %LIST,
+      cs: délka seznamu %LIST,
+      inputs: [{ name: LIST, type: any }],
+    }
+  - {
+      op: 266,
+      id: list_contains,
+      cat: lists,
+      shape: boolean,
+      en: '%LIST contains %ITEM?',
+      cs: '%LIST obsahuje %ITEM?',
+      inputs: [{ name: LIST, type: any }, { name: ITEM, type: any, default: thing }],
+    }
+  - {
+      op: 267,
+      id: list_index,
+      cat: lists,
+      shape: reporter,
+      en: index of %ITEM in %LIST,
+      cs: index %ITEM v %LIST,
+      inputs: [{ name: ITEM, type: any, default: thing }, { name: LIST, type: any }],
+    }
+
+  # ───────────── System & launch ─────────────
+  - op: 300
+    id: sys_run_file
+    cat: system
+    shape: stack
+    danger: true
+    en: run file %PATH arguments %ARGS as admin %ADMIN wait %WAIT hidden %HIDDEN
+    cs: spustit soubor %PATH argumenty %ARGS jako správce %ADMIN počkat %WAIT skrytě %HIDDEN
+    inputs:
+      - { name: PATH, type: text, default: 'C:\Windows\notepad.exe' }
+      - { name: ARGS, type: text, default: '' }
+      - { name: ADMIN, type: check, default: false }
+      - { name: WAIT, type: check, default: false }
+      - { name: HIDDEN, type: check, default: false }
+    keywords: { en: launch start program exe open, cs: spustit program otevřít }
+  - op: 301
+    id: sys_open_url
+    cat: system
+    shape: stack
+    en: open URL %URL in browser %BROWSER
+    cs: otevřít URL %URL v prohlížeči %BROWSER
+    inputs:
+      - { name: URL, type: text, default: 'https://example.com' }
+      - { name: BROWSER, type: text, default: '' }
+    keywords: { en: web link website, cs: web odkaz stránka }
+  - {
+      op: 302,
+      id: sys_open_folder,
+      cat: system,
+      shape: stack,
+      en: open folder %PATH in Explorer,
+      cs: otevřít složku %PATH v Průzkumníku,
+      inputs: [{ name: PATH, type: text, default: 'C:\' }],
+    }
+  - op: 303
+    id: sys_cmd
+    cat: system
+    shape: stack
+    danger: true
+    en: run CMD %CMD window %WIN output to %VAR
+    cs: CMD příkaz %CMD okno %WIN výstup do %VAR
+    inputs:
+      - { name: CMD, type: text, default: 'echo hello' }
+      - {
+          name: WIN,
+          type: menu,
+          options: [[hidden, hidden, skryté], [visible, visible, viditelné]],
+        }
+      - { name: VAR, type: var, default: 's:output' }
+  - op: 304
+    id: sys_powershell
+    cat: system
+    shape: stack
+    danger: true
+    en: run PowerShell %CMD window %WIN output to %VAR
+    cs: PowerShell %CMD okno %WIN výstup do %VAR
+    inputs:
+      - { name: CMD, type: text, default: 'Get-Date' }
+      - {
+          name: WIN,
+          type: menu,
+          options: [[hidden, hidden, skryté], [visible, visible, viditelné]],
+        }
+      - { name: VAR, type: var, default: 's:output' }
+  - { op: 305, id: sys_lock, cat: system, shape: stack, en: lock the PC, cs: zamknout PC }
+  - op: 306
+    id: sys_power
+    cat: system
+    shape: stack
+    danger: true
+    en: '%ACTION the PC after a %N s countdown'
+    cs: '%ACTION PC po odpočtu %N s'
+    inputs:
+      - name: ACTION
+        type: menu
+        options:
+          [[sleep, sleep, uspat], [restart, restart, restartovat], [shutdown, shut down, vypnout]]
+      - { name: N, type: num, default: 30 }
+  - {
+      op: 307,
+      id: sys_volume_set,
+      cat: system,
+      shape: stack,
+      en: set volume to %N %,
+      cs: nastav hlasitost na %N %,
+      inputs: [{ name: N, type: num, default: 50 }],
+    }
+  - op: 308
+    id: sys_volume_mute
+    cat: system
+    shape: stack
+    en: '%MUTE sound'
+    cs: '%MUTE zvuk'
+    inputs:
+      - name: MUTE
+        type: menu
+        options:
+          [[mute, mute, ztlum], [unmute, unmute, zapni], [toggle, toggle mute of, přepni ztlumení]]
+  - op: 309
+    id: sys_media
+    cat: system
+    shape: stack
+    en: media %KEY
+    cs: média %KEY
+    inputs:
+      - name: KEY
+        type: menu
+        options:
+          [[playpause, play/pause, přehrát/pauza], [next, next, další], [prev, previous, předchozí]]
+
+  # ───────────── Windows & processes ─────────────
+  - {
+      op: 350,
+      id: win_kill,
+      cat: windows,
+      shape: stack,
+      danger: true,
+      en: end process %NAME,
+      cs: ukončit proces %NAME,
+      inputs: [{ name: NAME, type: text, default: notepad.exe }],
+    }
+  - {
+      op: 351,
+      id: win_focus,
+      cat: windows,
+      shape: stack,
+      en: switch to window %TITLE,
+      cs: přepni na okno %TITLE,
+      inputs: [{ name: TITLE, type: text, default: Notepad }],
+    }
+  - op: 352
+    id: win_state
+    cat: windows
+    shape: stack
+    en: '%ACTION window %TITLE'
+    cs: '%ACTION okno %TITLE'
+    inputs:
+      - name: ACTION
+        type: menu
+        options:
+          [
+            [minimize, minimize, minimalizuj],
+            [maximize, maximize, maximalizuj],
+            [restore, restore, obnov],
+            [close, close, zavři],
+          ]
+      - { name: TITLE, type: text, default: Notepad }
+  - {
+      op: 353,
+      id: win_move_monitor,
+      cat: windows,
+      shape: stack,
+      en: move window %TITLE to monitor %N,
+      cs: přesuň okno %TITLE na monitor %N,
+      inputs: [{ name: TITLE, type: text, default: Notepad }, { name: N, type: num, default: 1 }],
+    }
+  - {
+      op: 354,
+      id: win_move,
+      cat: windows,
+      shape: stack,
+      en: move window %TITLE to x %X y %Y,
+      cs: přesuň okno %TITLE na x %X y %Y,
+      inputs:
+        [
+          { name: TITLE, type: text, default: Notepad },
+          { name: X, type: num, default: 0 },
+          { name: Y, type: num, default: 0 },
+        ],
+    }
+  - {
+      op: 355,
+      id: win_resize,
+      cat: windows,
+      shape: stack,
+      en: resize window %TITLE to %W × %H,
+      cs: změň velikost okna %TITLE na %W × %H,
+      inputs:
+        [
+          { name: TITLE, type: text, default: Notepad },
+          { name: W, type: num, default: 800 },
+          { name: H, type: num, default: 600 },
+        ],
+    }
+  - op: 356
+    id: win_topmost
+    cat: windows
+    shape: stack
+    en: window %TITLE always on top %ON
+    cs: okno %TITLE vždy navrchu %ON
+    inputs:
+      - { name: TITLE, type: text, default: Notepad }
+      - { name: ON, type: menu, options: [[on, on, zap], [off, off, vyp]] }
+  - {
+      op: 357,
+      id: win_wait,
+      cat: windows,
+      shape: stack,
+      en: wait for window %TITLE timeout %T s (0 = none),
+      cs: čekej na okno %TITLE limit %T s (0 = bez limitu),
+      inputs: [{ name: TITLE, type: text, default: Notepad }, { name: T, type: num, default: 10 }],
+    }
+  - {
+      op: 358,
+      id: win_processes,
+      cat: windows,
+      shape: reporter,
+      en: running processes,
+      cs: seznam běžících procesů,
+    }
+
+  # ───────────── Keyboard & mouse (macros) ─────────────
+  - {
+      op: 400,
+      id: in_press,
+      cat: input,
+      shape: stack,
+      danger: true,
+      en: press %COMBO,
+      cs: stiskni %COMBO,
+      inputs: [{ name: COMBO, type: text, default: Ctrl+C }],
+    }
+  - op: 401
+    id: in_hold
+    cat: input
+    shape: stack
+    danger: true
+    en: '%ACTION key %KEY'
+    cs: '%ACTION klávesu %KEY'
+    inputs:
+      - { name: ACTION, type: menu, options: [[hold, hold, drž], [release, release, pusť]] }
+      - { name: KEY, type: text, default: Shift }
+  - {
+      op: 402,
+      id: in_type,
+      cat: input,
+      shape: stack,
+      danger: true,
+      en: type %TEXT at %CPS chars per second,
+      cs: napiš text %TEXT rychlostí %CPS znaků za sekundu,
+      inputs: [{ name: TEXT, type: text, default: Hello }, { name: CPS, type: num, default: 30 }],
+    }
+  - op: 403
+    id: in_click
+    cat: input
+    shape: stack
+    danger: true
+    en: '%BUTTON click at x %X y %Y'
+    cs: klikni %BUTTON na x %X y %Y
+    inputs:
+      - {
+          name: BUTTON,
+          type: menu,
+          options: [[left, left, levým], [right, right, pravým], [middle, middle, středním]],
+        }
+      - { name: X, type: num, default: 0 }
+      - { name: Y, type: num, default: 0 }
+  - {
+      op: 404,
+      id: in_dblclick,
+      cat: input,
+      shape: stack,
+      danger: true,
+      en: double-click at x %X y %Y,
+      cs: dvojklik na x %X y %Y,
+      inputs: [{ name: X, type: num, default: 0 }, { name: Y, type: num, default: 0 }],
+    }
+  - {
+      op: 405,
+      id: in_move,
+      cat: input,
+      shape: stack,
+      danger: true,
+      en: move mouse to x %X y %Y in %MS ms,
+      cs: pohni myší na x %X y %Y za %MS ms,
+      inputs:
+        [
+          { name: X, type: num, default: 0 },
+          { name: Y, type: num, default: 0 },
+          { name: MS, type: num, default: 0 },
+        ],
+    }
+  - {
+      op: 406,
+      id: in_wheel,
+      cat: input,
+      shape: stack,
+      danger: true,
+      en: scroll the wheel by %N,
+      cs: otoč kolečkem o %N,
+      inputs: [{ name: N, type: num, default: -3 }],
+    }
+
+  # ───────────── Files, clipboard, web ─────────────
+  - {
+      op: 450,
+      id: fs_read,
+      cat: files,
+      shape: reporter,
+      en: read text of file %PATH,
+      cs: čti text ze souboru %PATH,
+      inputs: [{ name: PATH, type: text, default: 'C:\notes.txt' }],
+    }
+  - op: 451
+    id: fs_write
+    cat: files
+    shape: stack
+    danger: true
+    en: '%MODE %TEXT to file %PATH'
+    cs: '%MODE %TEXT do souboru %PATH'
+    inputs:
+      - { name: MODE, type: menu, options: [[write, write, zapiš], [append, append, připiš]] }
+      - { name: TEXT, type: text, default: Hello }
+      - { name: PATH, type: text, default: 'C:\notes.txt' }
+  - op: 452
+    id: fs_copy
+    cat: files
+    shape: stack
+    danger: true
+    en: '%OP %FROM to %TO'
+    cs: '%OP %FROM do %TO'
+    inputs:
+      - { name: OP, type: menu, options: [[copy, copy, kopíruj], [move, move, přesuň]] }
+      - { name: FROM, type: text, default: 'C:\a.txt' }
+      - { name: TO, type: text, default: 'C:\b.txt' }
+  - {
+      op: 453,
+      id: fs_rename,
+      cat: files,
+      shape: stack,
+      danger: true,
+      en: rename %PATH to %NAME,
+      cs: přejmenuj %PATH na %NAME,
+      inputs:
+        [
+          { name: PATH, type: text, default: 'C:\a.txt' },
+          { name: NAME, type: text, default: b.txt },
+        ],
+    }
+  - {
+      op: 454,
+      id: fs_delete,
+      cat: files,
+      shape: stack,
+      danger: true,
+      en: delete %PATH to the recycle bin,
+      cs: smaž %PATH do koše,
+      inputs: [{ name: PATH, type: text, default: 'C:\a.txt' }],
+    }
+  - {
+      op: 455,
+      id: fs_mkdir,
+      cat: files,
+      shape: stack,
+      en: create folder %PATH,
+      cs: vytvoř složku %PATH,
+      inputs: [{ name: PATH, type: text, default: 'C:\New folder' }],
+    }
+  - {
+      op: 456,
+      id: fs_list,
+      cat: files,
+      shape: reporter,
+      en: files in %PATH filter %FILTER including subfolders %REC,
+      cs: seznam souborů ve %PATH filtr %FILTER včetně podsložek %REC,
+      inputs:
+        [
+          { name: PATH, type: text, default: 'C:\' },
+          { name: FILTER, type: text, default: '*.*' },
+          { name: REC, type: check, default: false },
+        ],
+    }
+  - {
+      op: 457,
+      id: fs_unzip,
+      cat: files,
+      shape: stack,
+      danger: true,
+      en: extract ZIP %ZIP to %DEST,
+      cs: rozbal ZIP %ZIP do %DEST,
+      inputs:
+        [
+          { name: ZIP, type: text, default: 'C:\a.zip' },
+          { name: DEST, type: text, default: 'C:\a' },
+        ],
+    }
+  - {
+      op: 458,
+      id: fs_zip,
+      cat: files,
+      shape: stack,
+      danger: true,
+      en: compress %SRC to ZIP %ZIP,
+      cs: zabal %SRC do ZIP %ZIP,
+      inputs:
+        [
+          { name: SRC, type: text, default: 'C:\a' },
+          { name: ZIP, type: text, default: 'C:\a.zip' },
+        ],
+    }
+  - { op: 459, id: clip_get, cat: files, shape: reporter, en: clipboard text, cs: text ze schránky }
+  - {
+      op: 460,
+      id: clip_set,
+      cat: files,
+      shape: stack,
+      en: set clipboard to %TEXT,
+      cs: nastav schránku na %TEXT,
+      inputs: [{ name: TEXT, type: text, default: Hello }],
+    }
+  - op: 461
+    id: http_request
+    cat: files
+    shape: reporter
+    danger: true
+    en: HTTP %METHOD %URL body %BODY headers %HEADERS
+    cs: HTTP %METHOD %URL tělo %BODY hlavičky %HEADERS
+    inputs:
+      - {
+          name: METHOD,
+          type: menu,
+          options: [[GET, GET, GET], [POST, POST, POST], [PUT, PUT, PUT], [DELETE, DELETE, DELETE]],
+        }
+      - { name: URL, type: text, default: 'https://example.com' }
+      - { name: BODY, type: text, default: '' }
+      - { name: HEADERS, type: any, default: '' }
+  - {
+      op: 462,
+      id: http_download,
+      cat: files,
+      shape: stack,
+      danger: true,
+      en: download %URL to %PATH,
+      cs: stáhni %URL do %PATH,
+      inputs:
+        [
+          { name: URL, type: text, default: 'https://example.com/file.zip' },
+          { name: PATH, type: text, default: 'C:\file.zip' },
+        ],
+    }
+  - {
+      op: 463,
+      id: json_parse,
+      cat: files,
+      shape: reporter,
+      en: JSON text %TEXT to object,
+      cs: JSON text %TEXT na objekt,
+      inputs: [{ name: TEXT, type: text, default: '{"a": 1}' }],
+    }
+  - {
+      op: 464,
+      id: json_stringify,
+      cat: files,
+      shape: reporter,
+      en: object %OBJ to JSON text,
+      cs: objekt %OBJ na JSON text,
+      inputs: [{ name: OBJ, type: any }],
+    }
+
+  # ───────────── Bubbles & UI ─────────────
+  - {
+      op: 510,
+      id: bub_glow,
+      cat: bubbles,
+      shape: stack,
+      en: light up bubble %TARGET,
+      cs: rozsviť bublinu %TARGET,
+      inputs: [{ name: TARGET, type: text, default: '' }],
+      keywords: { en: neuron glow flash this, cs: neuron záře tato },
+    }
+  - op: 511
+    id: bub_change
+    cat: bubbles
+    shape: stack
+    en: change %PROP of bubble %TARGET to %VALUE
+    cs: změň %PROP bubliny %TARGET na %VALUE
+    inputs:
+      - {
+          name: PROP,
+          type: menu,
+          options:
+            [
+              [color, color, barvu],
+              [skin, skin (same as bubble), skin (jako bublina)],
+              [size, size, velikost],
+            ],
+        }
+      - { name: TARGET, type: text, default: '' }
+      - { name: VALUE, type: any, default: '#FF0000' }
+  - op: 512
+    id: bub_visibility
+    cat: bubbles
+    shape: stack
+    en: '%ACTION bubble %TARGET'
+    cs: '%ACTION bublinu %TARGET'
+    inputs:
+      - { name: ACTION, type: menu, options: [[show, show, ukaž], [hide, hide, skryj]] }
+      - { name: TARGET, type: text, default: '' }
+  - {
+      op: 513,
+      id: bub_move,
+      cat: bubbles,
+      shape: stack,
+      en: move bubble %TARGET to x %X y %Y,
+      cs: přesuň bublinu %TARGET na x %X y %Y,
+      inputs:
+        [
+          { name: TARGET, type: text, default: '' },
+          { name: X, type: num, default: 0 },
+          { name: Y, type: num, default: 0 },
+        ],
+    }
+  - {
+      op: 514,
+      id: bub_say,
+      cat: bubbles,
+      shape: stack,
+      en: say %TEXT for %N s,
+      cs: bublina řekne %TEXT na %N s,
+      inputs: [{ name: TEXT, type: text, default: Hello! }, { name: N, type: num, default: 2 }],
+    }
+  - {
+      op: 515,
+      id: bub_activate,
+      cat: bubbles,
+      shape: stack,
+      en: activate bubble %TARGET,
+      cs: aktivuj bublinu %TARGET,
+      inputs: [{ name: TARGET, type: text, default: 'Apps | Editor' }],
+    }
+  - {
+      op: 516,
+      id: ui_notify,
+      cat: bubbles,
+      shape: stack,
+      en: Windows notification %TITLE %TEXT,
+      cs: notifikace Windows %TITLE %TEXT,
+      inputs:
+        [
+          { name: TITLE, type: text, default: BubbleVerse },
+          { name: TEXT, type: text, default: Done! },
+        ],
+    }
+  - {
+      op: 517,
+      id: ui_ask,
+      cat: bubbles,
+      shape: stack,
+      en: ask %QUESTION and wait,
+      cs: zeptej se %QUESTION a čekej,
+      inputs: [{ name: QUESTION, type: text, default: "What's your name?" }],
+    }
+  - {
+      op: 518,
+      id: ui_confirm,
+      cat: bubbles,
+      shape: boolean,
+      en: yes/no dialog %QUESTION,
+      cs: dialog Ano/Ne %QUESTION,
+      inputs: [{ name: QUESTION, type: text, default: Continue? }],
+    }
+  - op: 519
+    id: ui_pick
+    cat: bubbles
+    shape: reporter
+    en: choose a %KIND
+    cs: vyber %KIND
+    inputs: [{ name: KIND, type: menu, options: [[file, file, soubor], [folder, folder, složku]] }]
+  - {
+      op: 520,
+      id: ui_sound,
+      cat: bubbles,
+      shape: stack,
+      en: play sound %PATH,
+      cs: přehraj zvuk %PATH,
+      inputs: [{ name: PATH, type: text, default: 'C:\Windows\Media\chimes.wav' }],
+    }
+  - {
+      op: 521,
+      id: ui_speak,
+      cat: bubbles,
+      shape: stack,
+      en: speak %TEXT,
+      cs: přečti nahlas %TEXT,
+      inputs: [{ name: TEXT, type: text, default: Hello }],
+    }
+
+  # ───────────── Custom blocks & parameters ─────────────
+  - {
+      op: 560,
+      id: cb_define,
+      cat: custom,
+      shape: hat,
+      en: define %NAME,
+      cs: definuj blok %NAME,
+      inputs: [{ name: NAME, type: textf, default: my block }],
+    }
+  - {
+      op: 561,
+      id: cb_call,
+      cat: custom,
+      shape: stack,
+      variadic: true,
+      en: run block %ID,
+      cs: spusť blok %ID,
+      inputs: [{ name: ID, type: textf, default: '' }],
+    }
+  - {
+      op: 562,
+      id: cb_arg,
+      cat: custom,
+      shape: reporter,
+      en: argument %NAME,
+      cs: argument %NAME,
+      inputs: [{ name: NAME, type: textf, default: value }],
+    }
+  - {
+      op: 563,
+      id: cb_param,
+      cat: custom,
+      shape: reporter,
+      en: parameter %NAME,
+      cs: parametr %NAME,
+      inputs: [{ name: NAME, type: textf, default: path }],
+    }
