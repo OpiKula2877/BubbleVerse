@@ -110,7 +110,7 @@ const CODE_KEYS: Record<string, string> = {
 export function comboFromEvent(
   e: Pick<KeyboardEvent, 'key' | 'code' | 'ctrlKey' | 'altKey' | 'shiftKey' | 'metaKey'>,
 ): string | null {
-  let key: string | null = null;
+  let key: string | null;
   if (e.code.startsWith('Digit')) key = e.code.slice(5);
   else if (e.code.startsWith('Numpad') && /^Numpad[0-9]$/.test(e.code))
     key = `Num${e.code.slice(6)}`;
