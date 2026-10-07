@@ -1,0 +1,55 @@
+<script lang="ts">
+  import { Field, Segmented, Select, t, Toggle, type Settings } from '@bv/ui';
+  import { store } from '../lib/store.svelte';
+
+  const g = $derived(store.settings.general);
+
+  function set(patch: Partial<Settings['general']>) {
+    void store.saveSettings({ ...store.settings, general: { ...g, ...patch } });
+  }
+
+  const monitors = $derived(
+    (store.layout?.monitors ?? []).map((m, i) => ({
+      value: m.id,
+      label: t('settings.monitorLabel', { n: i + 1, w: m.rect.w, h: m.rect.h, scale: Math.round(m.scale * 100) }),
+    })),
+  );
+</script>
+
+<Toggle checked={g.autostart} label={t('settings.autostart')} onchange={(v) => set({ autostart: v })} />
+<Toggle checked={g.wallpaper} label={t('settings.wallpaper')} onchange={(v) => set({ wallpaper: v })} />
+<Toggle
+  checked={g.hideDesktopIcons}
+  label={t('settings.hideIcons')}
+  disabled={!g.wallpaper}
+  onchange={(v) => set({ hideDesktopIcons: v })}
+/>
+<Field label={t('settings.language')}>
+  <Segmented
+    value={g.language}
+    options={[
+      { value: 'en', label: 'English' },
+      { value: 'cs', label: 'Čeština' },
+    ]}
+    onchange={(v) => set({ language: v })}
+  />
+</Field>
+<Field label={t('settings.primaryMonitor')}>
+  <Select
+    value={g.primaryMonitor ?? ''}
+    options={[{ value: '', label: t('settings.monitorSystem') }, ...monitors]}
+    onchange={(v) => set({ primaryMonitor: v || null })}
+  />
+</Field>
+<Toggle checked={g.coverTaskbar} label={t('settings.coverTaskbar')} onchange={(v) => set({ coverTaskbar: v })} />
+<Field label={t('settings.closeBehavior')}>
+  <Segmented
+    value={g.closeBehavior}
+    options={[
+      { value: 'tray', label: t('settings.close.tray') },
+      { value: 'quit', label: t('settings.close.quit') },
+    ]}
+    onchange={(v) => set({ closeBehavior: v })}
+  />
+</Field>
+<Toggle checked={g.checkUpdates} label={t('settings.checkUpdates')} onchange={(v) => set({ checkUpdates: v })} />
