@@ -41,3 +41,20 @@
 - [ ] Historie: po otevření je šedě poslední příkaz, ↑/↓ listuje, TAB vypíše, Enter spustí.
 - [ ] `:` najde bublinu v jiné větvi, u stejných jmen je vidět červená cesta.
 - [ ] `Ctrl+Alt+B` otevře a skryje okno aplikace.
+
+## Fáze 3 – Tapeta: hotovo (ruční kontrola zbývá)
+
+**Hotovo a ověřené automaticky**
+- Okno tapety se vloží pod ikony. Na tomto PC (Windows 11 build 26300) je to vrstvené dítě `Progman` pod `SHELLDLL_DefView`, ověřeno výpisem oken. Starší Windows dostanou okno do `WorkerW`.
+- Tapeta ukazuje uloženou verzi z domovského pohledu přes celou virtuální plochu (1920×1080 ověřeno přes CDP), nereaguje na myš, má vlastní limit FPS a spí, když je otevřené okno aplikace.
+- `Ctrl+F` na ploše: hook pozná aktivní plochu, otevře lištu dole uprostřed a tapeta šedne a přibližuje podle hledání.
+- Auto-pauza (celá obrazovka, maximalizované okno, úspora baterie, zamčení) vypne kreslení úplně (0 FPS).
+- Záložní statická tapeta (snímek světa jako tapeta Windows) s upozorněním v nastavení, po vypnutí se vrátí původní tapeta. Volba skrytí ikon.
+- Nastavení Výkon. Po ukončení aplikace se plocha vrátí do původního stavu.
+- Testy: 107 TS, 52 Rust.
+
+**Ruční checklist**
+- [ ] Bubliny jsou vidět pod ikonami plochy na všech monitorech, klik na ikony funguje dál.
+- [ ] `Ctrl+F` na ploše otevře pole nad ikonami, tapeta zešedne a přiblíží, Esc vrátí domovský pohled.
+- [ ] Hra nebo video na celou obrazovku: ve Správci úloh má BubbleVerse ~0 % GPU.
+- [ ] Vypnutí tapety v nastavení vrátí původní tapetu Windows.
