@@ -247,3 +247,42 @@ async fn run_file_reports_missing_file() {
     let entries = host.logs.lock().unwrap().clone();
     assert!(entries[0].text.contains("file not found"), "{entries:?}");
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn file_blocks_work_in_a_temp_folder() {
+    let dir = tempfile::tempdir().unwrap();
+    let d = dir.path().display().to_string();
+    let f = format!("{d}/notes.txt");
+    let (rt, host) = setup(vec![inline(
+        json!([6, "go"]),
+        json!([
+            [451, "write", "Hello", f],
+            [451, "append", " world", f],
+            [60, [450, f]],
+            [452, "copy", f, format!("{d}/copy.txt")],
+            [453, format!("{d}/copy.txt"), "renamed.txt"],
+            [455, format!("{d}/sub")],
+            [60, [265, [456, d.clone(), "*.txt", false]]],
+            [458, format!("{d}/sub"), format!("{d}/a.zip")],
+            [60, [107, "file", format!("{d}/a.zip")]],
+            [60, [464, [463, "{\"a\": [1, 2]}"]]],
+            [303, "echo bubble", "hidden", "s:out"],
+            [60, [222, "s:out"]],
+            [60, [105, "bubbleverse-not-running.exe"]]
+        ]),
+    )]);
+    run_msg(&rt, "go").await;
+    let l = logs(&host);
+    assert_eq!(
+        l,
+        vec![
+            "Hello world",
+            "2",
+            "true",
+            "{\"a\":[1,2]}",
+            "bubble",
+            "false"
+        ],
+        "{l:?}"
+    );
+}

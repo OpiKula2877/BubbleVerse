@@ -67,6 +67,7 @@ pub fn run() {
             app::shortcuts::start(&handle);
             app::wallpaper::apply(&handle);
             app::autopause::start(handle.clone());
+            app::triggers::start(handle.clone(), autostarted);
             app::windows::watch_monitors(handle);
             Ok(())
         })

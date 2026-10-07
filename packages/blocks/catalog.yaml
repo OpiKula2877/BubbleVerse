@@ -1232,7 +1232,13 @@ blocks:
           { name: ZIP, type: text, default: 'C:\a.zip' },
         ],
     }
-  - { op: 459, id: clip_get, cat: files, shape: reporter, en: clipboard text, cs: text ze schránky }
+  - op: 459
+    id: clip_get
+    cat: files
+    shape: reporter
+    en: clipboard text
+    cs: text ze schránky
+    keywords: { en: clipboard paste, cs: schránka vložit }
   - {
       op: 460,
       id: clip_set,
@@ -1241,6 +1247,7 @@ blocks:
       en: set clipboard to %TEXT,
       cs: nastav schránku na %TEXT,
       inputs: [{ name: TEXT, type: text, default: Hello }],
+      keywords: { en: clipboard copy, cs: schránka kopírovat },
     }
   - op: 461
     id: http_request
