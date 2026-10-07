@@ -47,6 +47,8 @@ pub fn run() {
             app::commands::run_action,
             app::commands::get_globals,
             app::commands::set_global,
+            app::commands::hide_searchbar,
+            app::commands::pause_shortcuts,
         ])
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();
@@ -59,6 +61,8 @@ pub fn run() {
             }
             app::tray::create(&handle)?;
             app::windows::create_main(&handle)?;
+            app::search::create_searchbar(&handle)?;
+            app::shortcuts::start(&handle);
             app::windows::watch_monitors(handle);
             Ok(())
         })

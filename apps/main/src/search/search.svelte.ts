@@ -19,7 +19,13 @@ class SearchController {
       store.core.usageCounts().catch(() => ({}) as Record<string, number>),
     ]);
     this.session = new SearchSession(
-      world.bubbles.map((b) => ({ id: b.id, parentId: b.parentId, name: b.name, kind: b.kind, order: b.order })),
+      world.bubbles.map((b) => ({
+        id: b.id,
+        parentId: b.parentId,
+        name: b.name,
+        kind: b.kind,
+        order: b.order,
+      })),
       { history, usage, sortByUsage: store.settings.search.sortByUsage },
     );
     this.cameraBefore = store.renderer ? { ...store.renderer.camera } : null;
@@ -65,7 +71,12 @@ class SearchController {
         this.opened.add(id);
       }
     }
-    r.setSearch({ active: true, colored: v.colored, path: v.path, current: v.current?.item.id ?? null });
+    r.setSearch({
+      active: true,
+      colored: v.colored,
+      path: v.path,
+      current: v.current?.item.id ?? null,
+    });
   }
 
   /** Shows the confirmed bubble and its direct children with a margin (spec §6.5). */

@@ -286,5 +286,22 @@
   "search.label": "Hledat",
   "search.hint": "Piš jméno · TAB = další úroveň · : = vše",
   "search.suggestion": "→ {name}",
-  "search.none": "Nic nenalezeno"
+  "search.none": "Nic nenalezeno",
+  "shortcut.toggleApp": "Otevřít / skrýt BubbleVerse",
+  "shortcut.search": "Hledání v aplikaci a na ploše",
+  "shortcut.globalSearch": "Globální hledání",
+  "shortcut.editMode": "Edit mód",
+  "shortcut.save": "Uložit",
+  "shortcut.stopScripts": "Zastavit všechny scripty",
+  "shortcut.homeView": "Domovský pohled",
+  "shortcuts.scope.app": "V aplikaci",
+  "shortcuts.scope.global": "Globální",
+  "shortcuts.override": "Přebít Windows",
+  "shortcuts.press": "Stiskni klávesy…",
+  "shortcuts.collision": "Stejná jako: {other}",
+  "shortcuts.windows": "Tuto zkratku používají i Windows",
+  "shortcuts.reserved": "{combo} Windows nedovolí nikomu přebít",
+  "shortcuts.scripts": "Zkratky ze scriptů bublin",
+  "shortcuts.reset": "Obnovit výchozí",
+  "settings.sortByUsage": "Řadit výsledky hledání podle četnosti použití"
 }

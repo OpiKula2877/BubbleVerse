@@ -208,12 +208,7 @@ impl Runtime {
         }
     }
 
-    pub(crate) fn report_error(
-        &self,
-        bubble: &BubbleScripts,
-        slot: usize,
-        e: &ScriptError,
-    ) {
+    pub(crate) fn report_error(&self, bubble: &BubbleScripts, slot: usize, e: &ScriptError) {
         self.inner.host.fx(ScriptFx::Error {
             bubble: bubble.id.clone(),
         });

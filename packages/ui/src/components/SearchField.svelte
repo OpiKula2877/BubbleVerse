@@ -79,8 +79,9 @@
         <span class="overlay" aria-hidden="true">
           <span class="typed">{view.text}</span>{#if view.historyEntry}<span class="ghost"
               >{view.historyEntry}</span
-            >{:else if view.ghost}<span class="ghost">{view.ghost}</span>{:else if view.suggestion}<span
-              class="ghost">{t('search.suggestion', { name: view.suggestion })}</span
+            >{:else if view.ghost}<span class="ghost">{view.ghost}</span
+            >{:else if view.suggestion}<span class="ghost"
+              >{t('search.suggestion', { name: view.suggestion })}</span
             >{:else if empty && view.placeholder}<span class="ghost">{view.placeholder}</span
             >{:else if empty}<span class="ghost">{t('search.hint')}</span>{/if}
         </span>
@@ -91,7 +92,8 @@
         <span class="name">{view.next.item.name}</span>
         {#if view.showPaths}<span class="small-path">{view.next.path}</span>{/if}
       {/if}
-      <span class="count">{view.total ? `${view.position} / ${view.total}` : t('search.none')}</span>
+      <span class="count">{view.total ? `${view.position} / ${view.total}` : t('search.none')}</span
+      >
     </div>
   </div>
 </div>

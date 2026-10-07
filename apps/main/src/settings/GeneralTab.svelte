@@ -70,6 +70,11 @@
   />
 </Field>
 <Toggle
+  checked={store.settings.search.sortByUsage}
+  label={t('settings.sortByUsage')}
+  onchange={(v) => void store.saveSettings({ ...store.settings, search: { sortByUsage: v } })}
+/>
+<Toggle
   checked={g.checkUpdates}
   label={t('settings.checkUpdates')}
   onchange={(v) => set({ checkUpdates: v })}

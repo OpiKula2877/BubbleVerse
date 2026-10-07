@@ -8,4 +8,5 @@ pub mod search;
 pub mod shortcuts;
 pub mod state;
 pub mod tray;
+pub mod triggers;
 pub mod windows;

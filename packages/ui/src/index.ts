@@ -19,3 +19,4 @@ export { default as Modal } from './components/Modal.svelte';
 export { default as Menu } from './components/Menu.svelte';
 export type { MenuItem } from './components/menu';
 export { default as SearchField } from './components/SearchField.svelte';
+export * from './shortcuts';

@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { fuzzyScore, pushHistory, SearchSession, type SearchItem } from './engine';
 import { normalizeText } from './normalize';
 
-const item = (id: string, parentId: string | null, name: string, kind: SearchItem['kind'] = 'action'): SearchItem => ({
+const item = (
+  id: string,
+  parentId: string | null,
+  name: string,
+  kind: SearchItem['kind'] = 'action',
+): SearchItem => ({
   id,
   parentId,
   name,
@@ -102,7 +107,11 @@ describe('search engine', () => {
     s.input('d');
     s.key('tab');
     s.input('r');
-    expect(s.key('enter')).toEqual({ kind: 'activate', id: 'run', path: 'Games | Mine | Deep | Run me' });
+    expect(s.key('enter')).toEqual({
+      kind: 'activate',
+      id: 'run',
+      path: 'Games | Mine | Deep | Run me',
+    });
   });
 
   it('goes a level up with Backspace in an empty segment', () => {

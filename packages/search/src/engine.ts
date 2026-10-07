@@ -180,14 +180,20 @@ export class SearchSession {
       const d = (this.opts.usage?.[b.id] ?? 0) - (this.opts.usage?.[a.id] ?? 0);
       if (d !== 0) return d;
     }
-    return collator.compare(a.name, b.name) || collator.compare(this.pathOf(a.id), this.pathOf(b.id));
+    return (
+      collator.compare(a.name, b.name) || collator.compare(this.pathOf(a.id), this.pathOf(b.id))
+    );
   };
 
   /** Options of the current level filtered by the typed text (spec §6.3, §6.4). */
   options(): SearchOption[] {
     const all = this.candidates();
     const q = normalizeText(this.text);
-    const wrap = (item: SearchItem, fuzzy: boolean) => ({ item, path: this.pathOf(item.id), fuzzy });
+    const wrap = (item: SearchItem, fuzzy: boolean) => ({
+      item,
+      path: this.pathOf(item.id),
+      fuzzy,
+    });
     if (!q) return [...all].sort(this.compare).map((i) => wrap(i, false));
     const prefix = all.filter((i) => (this.norm.get(i.id) ?? '').startsWith(q));
     if (prefix.length) return prefix.sort(this.compare).map((i) => wrap(i, false));
@@ -213,18 +219,27 @@ export class SearchSession {
       else suggestion = name;
     }
     const names = new Map<string, number>();
-    for (const o of opts) names.set(this.norm.get(o.item.id) ?? '', (names.get(this.norm.get(o.item.id) ?? '') ?? 0) + 1);
+    for (const o of opts)
+      names.set(
+        this.norm.get(o.item.id) ?? '',
+        (names.get(this.norm.get(o.item.id) ?? '') ?? 0) + 1,
+      );
     const duplicate = current ? (names.get(this.norm.get(current.item.id) ?? '') ?? 0) > 1 : false;
-    const prefix = this.segments.map((id) => `${this.byId.get(id)?.name ?? ''}${SEPARATOR}`).join('');
+    const prefix = this.segments
+      .map((id) => `${this.byId.get(id)?.name ?? ''}${SEPARATOR}`)
+      .join('');
     const expanded = new Set<string>(this.segments);
-    if (this.global) for (const o of opts) for (const a of this.pathIds(o.item.id).slice(0, -1)) expanded.add(a);
-    const historyEntry = this.historyIndex !== null ? (this.opts.history?.[this.historyIndex] ?? null) : null;
+    if (this.global)
+      for (const o of opts) for (const a of this.pathIds(o.item.id).slice(0, -1)) expanded.add(a);
+    const historyEntry =
+      this.historyIndex !== null ? (this.opts.history?.[this.historyIndex] ?? null) : null;
     return {
       prefix,
       text: this.text,
       ghost,
       suggestion,
-      placeholder: !this.text && !this.segments.length && !this.global ? (this.opts.history?.[0] ?? '') : '',
+      placeholder:
+        !this.text && !this.segments.length && !this.global ? (this.opts.history?.[0] ?? '') : '',
       prev: at(i - 1),
       current,
       next: at(i + 1),
@@ -307,13 +322,17 @@ export class SearchSession {
   /** TAB confirms a level; Enter runs an action or confirms a folder (spec §6.3). */
   private confirm(enter: boolean): SearchResult {
     const history = this.opts.history ?? [];
-    if (this.historyIndex !== null || (enter && !this.text && !this.segments.length && !this.global)) {
+    if (
+      this.historyIndex !== null ||
+      (enter && !this.text && !this.segments.length && !this.global)
+    ) {
       // TAB writes out the history command, Enter runs it.
       const entry = history[this.historyIndex ?? 0];
       this.historyIndex = null;
       const item = entry ? this.findPath(entry) : undefined;
       if (!item) return { kind: 'none' };
-      if (enter && item.kind === 'action') return { kind: 'activate', id: item.id, path: this.pathOf(item.id) };
+      if (enter && item.kind === 'action')
+        return { kind: 'activate', id: item.id, path: this.pathOf(item.id) };
       this.enterPathOf(item);
       return { kind: 'focus', id: item.kind === 'folder' ? item.id : (item.parentId ?? null) };
     }

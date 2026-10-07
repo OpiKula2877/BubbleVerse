@@ -56,12 +56,14 @@ pub fn discard_draft(state: State<'_, AppState>) -> AppResult<()> {
 
 /// Save: the draft becomes the published version, triggers re-register, a backup is made.
 #[tauri::command]
-pub fn publish(world: Value, state: State<'_, AppState>) -> AppResult<i64> {
+pub fn publish(world: Value, app: AppHandle, state: State<'_, AppState>) -> AppResult<i64> {
     let world = migrate::migrate_world(world)?;
     let bytes = world_store::publish(&mut state.db(), &world)?;
     let keep = state.settings().data.backups as usize;
     world_store::write_backup(&state.paths.backups(), &bytes, keep)?;
     state.install_published(world);
+    // Script triggers are registered again for the new version (spec §4.7).
+    super::shortcuts::refresh(&app);
     if let Err(e) = state.collect_garbage() {
         log::warn!("asset cleanup failed: {e}");
     }
@@ -103,6 +105,9 @@ pub fn apply_settings(app: &AppHandle, next: Settings) -> AppResult<Settings> {
             let focused = w.is_focused().unwrap_or(false);
             let _ = crate::os::window_span::set_topmost(&w, next.general.cover_taskbar && focused);
         }
+    }
+    if prev.shortcuts != next.shortcuts || prev.general.wallpaper != next.general.wallpaper {
+        super::shortcuts::refresh(app);
     }
     let _ = app.emit(events::SETTINGS, &next);
     Ok(next)
@@ -210,6 +215,17 @@ pub fn get_globals(state: State<'_, AppState>) -> std::collections::HashMap<Stri
 #[tauri::command]
 pub fn set_global(name: String, value: Value, state: State<'_, AppState>) {
     state.runtime.set_global(&name, value);
+}
+
+/// Pauses shortcuts while the user types a new combo in the settings.
+#[tauri::command]
+pub fn pause_shortcuts(paused: bool) {
+    crate::os::hook::set_paused(paused);
+}
+
+#[tauri::command]
+pub fn hide_searchbar(app: AppHandle) {
+    super::search::hide(&app);
 }
 
 #[tauri::command]

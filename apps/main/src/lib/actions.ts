@@ -1,4 +1,4 @@
-import { t } from '@bv/ui';
+import { eventMatches, t } from '@bv/ui';
 import { Editor } from './editor.svelte';
 import { search } from '../search/search.svelte';
 import { store } from './store.svelte';
@@ -96,25 +96,31 @@ function typing(e: KeyboardEvent): boolean {
 }
 
 /** In-app keyboard shortcuts. */
+/** The app action whose configured shortcut this key event is (spec §7.3). */
+function shortcutAction(e: KeyboardEvent): string | null {
+  for (const s of store.settings.shortcuts) {
+    // Shortcuts that the core hook catches never reach the window, except in the browser preview.
+    const viaHook = store.core.isTauri && (s.scope === 'global' || s.overrideWindows);
+    if (!viaHook && eventMatches(e, s.combo)) return s.action;
+  }
+  return null;
+}
+
+/** Shortcuts without modifiers (like Home) would break typing in text fields. */
+function plainKey(e: KeyboardEvent): boolean {
+  return !e.ctrlKey && !e.altKey && !e.metaKey;
+}
+
 export function handleKey(e: KeyboardEvent): void {
   if (store.dialog) return;
   const ctrl = e.ctrlKey || e.metaKey;
   const key = e.key.toLowerCase();
-  if (ctrl && key === 'f') {
+  const action = shortcutAction(e);
+  if (action && !(plainKey(e) && typing(e)) && !(search.open && action !== 'search')) {
     e.preventDefault();
-    return runAction('search');
+    return runAction(action);
   }
-  if (search.open) return;
-  if (ctrl && key === 'e') {
-    e.preventDefault();
-    return runAction('editMode');
-  }
-  if (ctrl && key === 's') {
-    e.preventDefault();
-    return runAction('save');
-  }
-  if (typing(e)) return;
-  if (e.key === 'Home') return runAction('homeView');
+  if (search.open || typing(e)) return;
   if (e.key === 'Escape') {
     if (store.settingsOpen) store.settingsOpen = false;
     else if (store.viewMenuOpen) store.viewMenuOpen = false;

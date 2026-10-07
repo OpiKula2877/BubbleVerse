@@ -286,5 +286,22 @@
   "search.label": "Search",
   "search.hint": "Type a name · TAB = next level · : = everything",
   "search.suggestion": "→ {name}",
-  "search.none": "No match"
+  "search.none": "No match",
+  "shortcut.toggleApp": "Open / hide BubbleVerse",
+  "shortcut.search": "Search in the app and on the desktop",
+  "shortcut.globalSearch": "Global search",
+  "shortcut.editMode": "Edit mode",
+  "shortcut.save": "Save",
+  "shortcut.stopScripts": "Stop all scripts",
+  "shortcut.homeView": "Home view",
+  "shortcuts.scope.app": "In the app",
+  "shortcuts.scope.global": "Global",
+  "shortcuts.override": "Override Windows",
+  "shortcuts.press": "Press keys…",
+  "shortcuts.collision": "Same as: {other}",
+  "shortcuts.windows": "Windows uses this shortcut too",
+  "shortcuts.reserved": "Windows does not let anyone take {combo}",
+  "shortcuts.scripts": "Shortcuts of bubble scripts",
+  "shortcuts.reset": "Reset to defaults",
+  "settings.sortByUsage": "Sort search results by how often they are used"
 }
