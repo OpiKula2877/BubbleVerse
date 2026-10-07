@@ -123,6 +123,8 @@ export class WorldRenderer {
   private staticPositions = new Map<BubbleId, Vec2>();
   private display: DisplayBubble[] = [];
   private displayById = new Map<BubbleId, DisplayBubble>();
+  /** Positions with motion but without the expand animation (where bubbles are heading). */
+  private targets: ReadonlyMap<BubbleId, Vec2> = new Map();
 
   private layout: ScreenLayout = {
     monitors: [],
@@ -414,6 +416,34 @@ export class WorldRenderer {
     return null;
   }
 
+  /**
+   * World box around the given bubbles at their final positions (ignores the expand
+   * animation), used to aim the camera in search (spec §6.5).
+   */
+  boxOf(ids: readonly BubbleId[]): PxRect | null {
+    const resolver = this.resolver;
+    if (!resolver) return null;
+    let box: PxRect | null = null;
+    for (const id of ids) {
+      const p = this.targets.get(id) ?? this.staticPositions.get(id);
+      if (!p) continue;
+      const r = resolver.skin(id).size / 2;
+      const x0 = p.x - r;
+      const y0 = p.y - r;
+      if (!box) {
+        box = { x: x0, y: y0, w: r * 2, h: r * 2 };
+      } else {
+        const x1 = Math.max(box.x + box.w, p.x + r);
+        const y1 = Math.max(box.y + box.h, p.y + r);
+        box.x = Math.min(box.x, x0);
+        box.y = Math.min(box.y, y0);
+        box.w = x1 - box.x;
+        box.h = y1 - box.y;
+      }
+    }
+    return box;
+  }
+
   displayed(): readonly DisplayBubble[] {
     return this.display;
   }
@@ -521,6 +551,7 @@ export class WorldRenderer {
     }
     if (anyMotion) busy = true;
     if (this.expand.step(dt)) busy = true;
+    this.targets = positions;
     const shown = this.expand.displayPositions(index, positions);
 
     const lod = this.camera.zoom < this.lodZoom;

@@ -1,5 +1,6 @@
 import { t } from '@bv/ui';
 import { Editor } from './editor.svelte';
+import { search } from '../search/search.svelte';
 import { store } from './store.svelte';
 
 /** Enters edit mode with the saved world (spec §2.6). */
@@ -71,6 +72,9 @@ export function runAction(action: string): void {
     case 'homeView':
       goHome();
       break;
+    case 'search':
+      void search.start();
+      break;
     case 'toggleApp':
       void store.core.hideMain();
       break;
@@ -96,6 +100,11 @@ export function handleKey(e: KeyboardEvent): void {
   if (store.dialog) return;
   const ctrl = e.ctrlKey || e.metaKey;
   const key = e.key.toLowerCase();
+  if (ctrl && key === 'f') {
+    e.preventDefault();
+    return runAction('search');
+  }
+  if (search.open) return;
   if (ctrl && key === 'e') {
     e.preventDefault();
     return runAction('editMode');

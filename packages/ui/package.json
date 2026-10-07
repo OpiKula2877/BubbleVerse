@@ -8,6 +8,7 @@
     "./src/base.css": "./src/base.css"
   },
   "dependencies": {
+    "@bv/search": "workspace:*",
     "@bv/world": "workspace:*",
     "@tauri-apps/api": "^2.12.1",
     "@tauri-apps/plugin-dialog": "^2.8.1",

@@ -12,6 +12,8 @@
   import Toast from './shell/Toast.svelte';
   import TopIcons from './shell/TopIcons.svelte';
   import WorldCanvas from './world/WorldCanvas.svelte';
+  import SearchOverlay from './search/SearchOverlay.svelte';
+  import { search } from './search/search.svelte';
 
   const offs: (() => void)[] = [];
   let booted: { draft: { world: World; updatedAt: number } | null } | null = null;
@@ -64,6 +66,7 @@
       }),
       core.on('open-settings', () => (store.settingsOpen = true)),
       core.on('shortcut', (action) => runAction(action)),
+      core.on('search', () => void search.start()),
     );
   });
 
@@ -151,6 +154,7 @@
     {#if store.editor}<EditMode editor={store.editor} />{/if}
     <TopIcons />
     {#if store.settings.performance.showFps}<FpsMeter />{/if}
+    <SearchOverlay />
     {#if store.settingsOpen}<Settings />{/if}
     {#if store.dialog}<DialogHost />{/if}
     {#if store.toast}<Toast />{/if}

@@ -282,5 +282,9 @@
   "action.pathPlaceholder": "C:Program Files…app.exe",
   "action.urlPlaceholder": "https://",
   "toolbar.saveTitle": "Save (Ctrl+S)",
-  "view.fpsLine": "FPS {fps} · {ms} ms · {count} bubbles"
+  "view.fpsLine": "FPS {fps} · {ms} ms · {count} bubbles",
+  "search.label": "Search",
+  "search.hint": "Type a name · TAB = next level · : = everything",
+  "search.suggestion": "→ {name}",
+  "search.none": "No match"
 }

@@ -328,6 +328,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@bv/search':
+        specifier: workspace:*
+        version: link:../search
       '@bv/world':
         specifier: workspace:*
         version: link:../world

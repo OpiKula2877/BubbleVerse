@@ -19,6 +19,7 @@
   import { onDestroy, onMount } from 'svelte';
   import { GRID_SIZE } from '../lib/editor.svelte';
   import { store } from '../lib/store.svelte';
+  import { search } from '../search/search.svelte';
 
   let { onready }: { onready: (r: WorldRenderer) => void } = $props();
 
@@ -75,6 +76,8 @@
 
   function pointerdown(e: PointerEvent) {
     if (!renderer) return;
+    // A click elsewhere closes the search (spec §2.2).
+    if (search.open) search.close();
     host.setPointerCapture(e.pointerId);
     const p = css(e);
     const wp = worldAt(p);

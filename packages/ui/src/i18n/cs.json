@@ -282,5 +282,9 @@
   "action.pathPlaceholder": "C:Program Files…aplikace.exe",
   "action.urlPlaceholder": "https://",
   "toolbar.saveTitle": "Uložit (Ctrl+S)",
-  "view.fpsLine": "FPS {fps} · {ms} ms · bublin: {count}"
+  "view.fpsLine": "FPS {fps} · {ms} ms · bublin: {count}",
+  "search.label": "Hledat",
+  "search.hint": "Piš jméno · TAB = další úroveň · : = vše",
+  "search.suggestion": "→ {name}",
+  "search.none": "Nic nenalezeno"
 }
