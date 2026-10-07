@@ -7,7 +7,9 @@
 
   let { editor, ids }: { editor: Editor; ids: BubbleId[] } = $props();
 
-  const actions = $derived(ids.map((id) => editor.index.get(id)).map((b) => (b ? readSimpleAction(b) : null)));
+  const actions = $derived(
+    ids.map((id) => editor.index.get(id)).map((b) => (b ? readSimpleAction(b) : null)),
+  );
   const custom = $derived(actions.some((a) => a === 'custom'));
   const first = $derived(actions.find((a): a is SimpleAction => !!a && a !== 'custom'));
   const kind = $derived(first?.kind ?? 'runFile');
@@ -56,7 +58,12 @@
         { value: 'runFile', label: t('action.runFile') },
         { value: 'openUrl', label: t('action.openUrl') },
       ]}
-      onchange={(v) => set(v === 'runFile' ? { kind: 'runFile', path: pathText, args: argsText } : { kind: 'openUrl', url: urlText })}
+      onchange={(v) =>
+        set(
+          v === 'runFile'
+            ? { kind: 'runFile', path: pathText, args: argsText }
+            : { kind: 'openUrl', url: urlText },
+        )}
     />
   </Field>
   {#if kind === 'runFile'}
@@ -78,7 +85,12 @@
     </Field>
   {:else}
     <Field label={t('action.url')} wide>
-      <TextField bind:value={urlText} mixed={url.mixed} placeholder="https://" oninput={(v) => set({ kind: 'openUrl', url: v }, 'url')} />
+      <TextField
+        bind:value={urlText}
+        mixed={url.mixed}
+        placeholder="https://"
+        oninput={(v) => set({ kind: 'openUrl', url: v }, 'url')}
+      />
     </Field>
   {/if}
 {/if}

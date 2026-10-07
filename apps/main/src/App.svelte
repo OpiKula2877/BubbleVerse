@@ -1,6 +1,6 @@
 <script lang="ts">
   import { t } from '@bv/ui';
-  import type { World, WorldRenderer } from '@bv/world';
+  import { generateScene, type World, type WorldRenderer } from '@bv/world';
   import { onDestroy, onMount } from 'svelte';
   import EditMode from './edit/EditMode.svelte';
   import { Editor } from './lib/editor.svelte';
@@ -21,6 +21,9 @@
     store.settings = b.settings;
     store.layout = b.layout;
     store.published = b.published;
+    // Developer test scene (AI prompt §5.3): ?scene=200 or ?scene=1000, not saved unless edited.
+    const scene = Number(new URLSearchParams(location.search).get('scene'));
+    if (scene > 0) store.published = generateScene(scene);
     store.paused = b.paused;
     store.version = b.version;
     store.applyLook();
@@ -98,7 +101,7 @@
     }
   }
 
-  export function syncMotion() {
+  function syncMotion() {
     const r = store.renderer;
     if (!r) return;
     const ed = store.editor;

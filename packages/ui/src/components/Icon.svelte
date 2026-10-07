@@ -36,12 +36,17 @@
     code: 'm8 6-6 6 6 6 M16 6l6 6-6 6',
     upload: 'M12 15V3 M7 8l5-5 5 5 M5 21h14',
     download: 'M12 3v12 M7 10l5 5 5-5 M5 21h14',
-    sparkles: 'M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9Z M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z',
+    sparkles:
+      'M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9Z M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z',
   };
 </script>
 
 <script lang="ts">
-  let { name, size = 18, stroke = 1.8 }: { name: string; size?: number; stroke?: number } = $props();
+  let {
+    name,
+    size = 18,
+    stroke = 1.8,
+  }: { name: string; size?: number; stroke?: number } = $props();
 </script>
 
 <svg

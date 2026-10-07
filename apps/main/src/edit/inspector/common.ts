@@ -1,4 +1,11 @@
-import { commonValue, mapBubbles, type Bubble, type BubbleId, type Skin, type World } from '@bv/world';
+import {
+  commonValue,
+  mapBubbles,
+  type Bubble,
+  type BubbleId,
+  type Skin,
+  type World,
+} from '@bv/world';
 import type { Editor } from '../../lib/editor.svelte';
 
 export interface Common<T> {
@@ -7,7 +14,11 @@ export interface Common<T> {
 }
 
 /** Common value of a bubble field across the selection ("—" when different, spec §4.1). */
-export function commonField<T>(world: World, ids: readonly BubbleId[], get: (b: Bubble) => T): Common<T> | null {
+export function commonField<T>(
+  world: World,
+  ids: readonly BubbleId[],
+  get: (b: Bubble) => T,
+): Common<T> | null {
   let first: { v: T; k: string } | null = null;
   let mixed = false;
   const set = new Set(ids);
@@ -21,7 +32,11 @@ export function commonField<T>(world: World, ids: readonly BubbleId[], get: (b: 
   return first ? { value: first.v, mixed } : null;
 }
 
-export function commonSkin<T>(world: World, ids: readonly BubbleId[], get: (s: Skin) => T): Common<T> | null {
+export function commonSkin<T>(
+  world: World,
+  ids: readonly BubbleId[],
+  get: (s: Skin) => T,
+): Common<T> | null {
   const r = commonValue(world, ids, get);
   return r ? { value: r.value, mixed: r.mixed } : null;
 }

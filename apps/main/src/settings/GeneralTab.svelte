@@ -11,13 +11,26 @@
   const monitors = $derived(
     (store.layout?.monitors ?? []).map((m, i) => ({
       value: m.id,
-      label: t('settings.monitorLabel', { n: i + 1, w: m.rect.w, h: m.rect.h, scale: Math.round(m.scale * 100) }),
+      label: t('settings.monitorLabel', {
+        n: i + 1,
+        w: m.rect.w,
+        h: m.rect.h,
+        scale: Math.round(m.scale * 100),
+      }),
     })),
   );
 </script>
 
-<Toggle checked={g.autostart} label={t('settings.autostart')} onchange={(v) => set({ autostart: v })} />
-<Toggle checked={g.wallpaper} label={t('settings.wallpaper')} onchange={(v) => set({ wallpaper: v })} />
+<Toggle
+  checked={g.autostart}
+  label={t('settings.autostart')}
+  onchange={(v) => set({ autostart: v })}
+/>
+<Toggle
+  checked={g.wallpaper}
+  label={t('settings.wallpaper')}
+  onchange={(v) => set({ wallpaper: v })}
+/>
 <Toggle
   checked={g.hideDesktopIcons}
   label={t('settings.hideIcons')}
@@ -41,7 +54,11 @@
     onchange={(v) => set({ primaryMonitor: v || null })}
   />
 </Field>
-<Toggle checked={g.coverTaskbar} label={t('settings.coverTaskbar')} onchange={(v) => set({ coverTaskbar: v })} />
+<Toggle
+  checked={g.coverTaskbar}
+  label={t('settings.coverTaskbar')}
+  onchange={(v) => set({ coverTaskbar: v })}
+/>
 <Field label={t('settings.closeBehavior')}>
   <Segmented
     value={g.closeBehavior}
@@ -52,4 +69,8 @@
     onchange={(v) => set({ closeBehavior: v })}
   />
 </Field>
-<Toggle checked={g.checkUpdates} label={t('settings.checkUpdates')} onchange={(v) => set({ checkUpdates: v })} />
+<Toggle
+  checked={g.checkUpdates}
+  label={t('settings.checkUpdates')}
+  onchange={(v) => set({ checkUpdates: v })}
+/>

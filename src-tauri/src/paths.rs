@@ -22,7 +22,13 @@ impl Paths {
             return Ok(PathBuf::from(dir));
         }
         let appdata = std::env::var("APPDATA").map_err(|_| AppError::msg("APPDATA is not set"))?;
-        Ok(Path::new(&appdata).join("BubbleVerse"))
+        // Development builds keep their data apart from an installed BubbleVerse.
+        let name = if cfg!(debug_assertions) {
+            "BubbleVerse-dev"
+        } else {
+            "BubbleVerse"
+        };
+        Ok(Path::new(&appdata).join(name))
     }
 
     pub fn db(&self) -> PathBuf {

@@ -28,7 +28,9 @@
   />
 </Field>
 <Field label={t('inspector.kind')}>
-  <span class="bv-muted">{kind ? (kind.mixed ? t('common.mixed') : kindLabel(kind.value)) : ''}</span>
+  <span class="bv-muted"
+    >{kind ? (kind.mixed ? t('common.mixed') : kindLabel(kind.value)) : ''}</span
+  >
 </Field>
 {#if folders.length && expanded}
   <Field label="">
@@ -37,7 +39,10 @@
       mixed={expanded.mixed}
       label={t('inspector.expanded')}
       onchange={(v) => {
-        editor.apply((x) => ({ ...x, bubbles: x.bubbles.map((b) => (folders.includes(b.id) ? { ...b, expanded: v } : b)) }));
+        editor.apply((x) => ({
+          ...x,
+          bubbles: x.bubbles.map((b) => (folders.includes(b.id) ? { ...b, expanded: v } : b)),
+        }));
         for (const id of folders) store.renderer?.expand.set(id, v);
       }}
     />

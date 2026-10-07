@@ -107,7 +107,13 @@
         mods,
       };
     } else if (wp) {
-      drag = { kind: 'rect', start: p, startWorld: wp, additive: e.ctrlKey || e.shiftKey, moved: false };
+      drag = {
+        kind: 'rect',
+        start: p,
+        startWorld: wp,
+        additive: e.ctrlKey || e.shiftKey,
+        moved: false,
+      };
     }
   }
 
@@ -117,7 +123,10 @@
     const target = { x: d.lead.x + raw.x, y: d.lead.y + raw.y };
     const k = renderer.viewports().find((v) => v.primary)?.k ?? 1;
     const snap = snapPoint(target, d.neighbors, GRID_SIZE, 8 / k);
-    return { delta: { x: snap.point.x - d.lead.x, y: snap.point.y - d.lead.y }, guides: snap.guides };
+    return {
+      delta: { x: snap.point.x - d.lead.x, y: snap.point.y - d.lead.y },
+      guides: snap.guides,
+    };
   }
 
   function pointermove(e: PointerEvent) {
@@ -141,7 +150,11 @@
       store.editor?.live(moveBubbles(drag.before, drag.ids, delta));
       renderer.setOverlay({ rect: null, guides, grid: gridOverlay() });
     } else if (drag.kind === 'rect' && wp) {
-      renderer.setOverlay({ rect: normalizeRect(drag.startWorld, wp), guides: [], grid: gridOverlay() });
+      renderer.setOverlay({
+        rect: normalizeRect(drag.startWorld, wp),
+        guides: [],
+        grid: gridOverlay(),
+      });
     }
   }
 
@@ -248,7 +261,8 @@
   function updateTooltip(hit: BubbleId | null, p: Vec2) {
     const index = new WorldIndex(store.world);
     const b = hit ? index.get(hit) : undefined;
-    tooltip = b && b.hover.tooltip ? { x: p.x + 14, y: p.y + 18, text: index.pathString(b.id) } : null;
+    tooltip =
+      b && b.hover.tooltip ? { x: p.x + 14, y: p.y + 18, text: index.pathString(b.id) } : null;
   }
 </script>
 

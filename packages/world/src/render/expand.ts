@@ -86,14 +86,23 @@ export class ExpandState {
    * Displayed position: while a parent is (un)folding, the child slides between the
    * parent's displayed position and its own.
    */
-  displayPositions(index: WorldIndex, positions: ReadonlyMap<BubbleId, Vec2>): Map<BubbleId, { pos: Vec2; vis: number }> {
+  displayPositions(
+    index: WorldIndex,
+    positions: ReadonlyMap<BubbleId, Vec2>,
+  ): Map<BubbleId, { pos: Vec2; vis: number }> {
     const out = new Map<BubbleId, { pos: Vec2; vis: number }>();
     const visit = (id: BubbleId, parentPos: Vec2 | null) => {
       const own = positions.get(id) ?? { x: 0, y: 0 };
       const parent = index.parentOf(id);
       const a = parent ? this.amount(parent.id) : 1;
       const parentVis = parent ? (out.get(parent.id)?.vis ?? 1) : 1;
-      const pos = parentPos && a < 1 ? { x: parentPos.x + (own.x - parentPos.x) * a, y: parentPos.y + (own.y - parentPos.y) * a } : own;
+      const pos =
+        parentPos && a < 1
+          ? {
+              x: parentPos.x + (own.x - parentPos.x) * a,
+              y: parentPos.y + (own.y - parentPos.y) * a,
+            }
+          : own;
       out.set(id, { pos, vis: parentVis * a });
       for (const c of index.children(id)) visit(c.id, pos);
     };

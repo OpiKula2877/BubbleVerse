@@ -69,7 +69,12 @@ class AppStore {
     if (!l || l.windowed) {
       const dpr = window.devicePixelRatio || 1;
       const rect = { x: 0, y: 0, w: this.viewport.w * dpr, h: this.viewport.h * dpr };
-      return { monitors: [{ id: 'window', rect, scale: dpr }], uiMonitor: 'window', origin: { x: 0, y: 0 }, cssScale: dpr };
+      return {
+        monitors: [{ id: 'window', rect, scale: dpr }],
+        uiMonitor: 'window',
+        origin: { x: 0, y: 0 },
+        cssScale: dpr,
+      };
     }
     return {
       monitors: l.monitors.map((m) => ({ id: m.id, rect: m.rect, scale: m.scale })),
@@ -85,7 +90,10 @@ class AppStore {
     const m = sl.monitors.find((x) => x.id === sl.uiMonitor) ?? sl.monitors[0];
     if (!m) return { x: 0, y: 0, w: this.viewport.w, h: this.viewport.h };
     const l = this.layout;
-    const work = l && !l.windowed && !this.settings.general.coverTaskbar ? l.monitors.find((x) => x.id === m.id)?.work : null;
+    const work =
+      l && !l.windowed && !this.settings.general.coverTaskbar
+        ? l.monitors.find((x) => x.id === m.id)?.work
+        : null;
     const r = work ?? m.rect;
     return {
       x: (r.x - sl.origin.x) / sl.cssScale,
@@ -107,7 +115,12 @@ class AppStore {
 
   applyLook(): void {
     const a = this.settings.appearance;
-    applyTheme(this.colors, { font: a.font, radius: a.radius, panelOpacity: a.panelOpacity, uiScale: a.uiScale });
+    applyTheme(this.colors, {
+      font: a.font,
+      radius: a.radius,
+      panelOpacity: a.panelOpacity,
+      uiScale: a.uiScale,
+    });
     setLang(this.settings.general.language);
     const c = this.colors;
     const rgb = (k: keyof ThemeColors) => hexToRgb(c[k]).color;
@@ -135,7 +148,7 @@ class AppStore {
     this.settings = next;
     this.applyLook();
     try {
-      this.settings = await this.core.setSettings($state.snapshot(next) as Settings);
+      this.settings = await this.core.setSettings(JSON.parse(JSON.stringify(next)) as Settings);
       this.applyLook();
     } catch (e) {
       this.error(e);

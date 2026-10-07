@@ -124,7 +124,12 @@ export class WorldRenderer {
   private display: DisplayBubble[] = [];
   private displayById = new Map<BubbleId, DisplayBubble>();
 
-  private layout: ScreenLayout = { monitors: [], uiMonitor: '', origin: { x: 0, y: 0 }, cssScale: 1 };
+  private layout: ScreenLayout = {
+    monitors: [],
+    uiMonitor: '',
+    origin: { x: 0, y: 0 },
+    cssScale: 1,
+  };
   camera: Camera = { x: 0, y: 0, zoom: 1 };
   private camAnim: { from: Camera; to: Camera; start: number; ms: number } | null = null;
   private vps: Viewport[] = [];
@@ -144,10 +149,20 @@ export class WorldRenderer {
   private selection: ReadonlySet<BubbleId> = new Set();
   private hover: BubbleId | null = null;
   private hoverAmount = new Map<BubbleId, number>();
-  private search: SearchVisual = { active: false, colored: new Set(), path: new Set(), current: null };
+  private search: SearchVisual = {
+    active: false,
+    colored: new Set(),
+    path: new Set(),
+    current: null,
+  };
   private overlay: Overlay = { rect: null, guides: [], grid: null };
   private mouseWorld: Vec2 | null = null;
-  private background: BackgroundLook = { kind: 'color', color: '#0E1220', color2: '#0E1220', angle: 0 };
+  private background: BackgroundLook = {
+    kind: 'color',
+    color: '#0E1220',
+    color2: '#0E1220',
+    angle: 0,
+  };
 
   // Script effects (runtime only, spec §5.4)
   private glows = new Map<BubbleId, { until: number; tint: number }>();
@@ -311,7 +326,15 @@ export class WorldRenderer {
     const id = fx.bubble;
     switch (fx.kind) {
       case 'activated': {
-        const chain = this.index ? [...this.index.ancestors(id).reverse().map((b) => b.id), id] : [id];
+        const chain = this.index
+          ? [
+              ...this.index
+                .ancestors(id)
+                .reverse()
+                .map((b) => b.id),
+              id,
+            ]
+          : [id];
         this.pulses.push({ chain, start: now });
         break;
       }
@@ -323,7 +346,18 @@ export class WorldRenderer {
         this.glows.set(id, { until: now + GLOW_SECONDS, tint: this.colors.error });
         break;
       case 'glow':
-        this.pulses.push({ chain: this.index ? [...this.index.ancestors(id).reverse().map((b) => b.id), id] : [id], start: now });
+        this.pulses.push({
+          chain: this.index
+            ? [
+                ...this.index
+                  .ancestors(id)
+                  .reverse()
+                  .map((b) => b.id),
+                id,
+              ]
+            : [id],
+          start: now,
+        });
         break;
       case 'say':
         this.says.set(id, { text: String(fx.text ?? ''), until: now + Number(fx.seconds ?? 2) });
@@ -332,7 +366,9 @@ export class WorldRenderer {
         if (fx.prop === 'color') this.colorOverride.set(id, String(fx.value));
         else if (fx.prop === 'size') this.sizeOverride.set(id, Number(fx.value));
         else if (fx.prop === 'skin') {
-          const src = this.index?.world.bubbles.find((b) => b.id === fx.value || this.index?.pathString(b.id) === fx.value);
+          const src = this.index?.world.bubbles.find(
+            (b) => b.id === fx.value || this.index?.pathString(b.id) === fx.value,
+          );
           if (src) this.skinOverride.set(id, src.id);
         }
         break;
@@ -455,7 +491,10 @@ export class WorldRenderer {
     const time = Date.now() / 1000;
     let positions: ReadonlyMap<BubbleId, Vec2> = this.staticPositions;
     if (this.motion || this.moved.size) {
-      positions = computePositions(index, { time: this.motion ? time : null, overrides: this.moved });
+      positions = computePositions(index, {
+        time: this.motion ? time : null,
+        overrides: this.moved,
+      });
     }
     let anyMotion = false;
     if (this.motion) {
@@ -606,7 +645,8 @@ export class WorldRenderer {
       if (len < p.r + d.r) continue;
       const ux = dx / len;
       const uy = dy / len;
-      const dimmed = this.search.active && !this.search.colored.has(d.id) && !this.search.path.has(d.id);
+      const dimmed =
+        this.search.active && !this.search.colored.has(d.id) && !this.search.path.has(d.id);
       g.moveTo(p.x + ux * p.r, p.y + uy * p.r)
         .lineTo(d.x - ux * d.r, d.y - uy * d.r)
         .stroke({
@@ -624,7 +664,9 @@ export class WorldRenderer {
     if (!this.pulses.length) return false;
     const alive: Pulse[] = [];
     for (const p of this.pulses) {
-      const pts = p.chain.map((id) => this.displayById.get(id)).filter((d): d is DisplayBubble => !!d);
+      const pts = p.chain
+        .map((id) => this.displayById.get(id))
+        .filter((d): d is DisplayBubble => !!d);
       const segs = Math.max(0, pts.length - 1);
       const total = segs > 0 ? PULSE_SECONDS : 0;
       const t = nowS - p.start;
@@ -649,7 +691,9 @@ export class WorldRenderer {
       for (let k = 0; k <= i; k++) {
         const s = pts[k]!;
         const e = k === i ? { x, y } : pts[k + 1]!;
-        g.moveTo(s.x, s.y).lineTo(e.x, e.y).stroke({ color: 0xffffff, width: Math.max(1.5, r * 0.5), alpha: 0.5 });
+        g.moveTo(s.x, s.y)
+          .lineTo(e.x, e.y)
+          .stroke({ color: 0xffffff, width: Math.max(1.5, r * 0.5), alpha: 0.5 });
       }
     }
     this.pulses = alive;
@@ -678,7 +722,13 @@ export class WorldRenderer {
         box.label = s.text;
         const text = new Text({
           text: s.text,
-          style: { fontFamily: 'Segoe UI', fontSize: 18, fill: 0x111111, wordWrap: true, wordWrapWidth: 260 },
+          style: {
+            fontFamily: 'Segoe UI',
+            fontSize: 18,
+            fill: 0x111111,
+            wordWrap: true,
+            wordWrapWidth: 260,
+          },
         });
         const pad = 10;
         const w = text.width + pad * 2;
@@ -744,7 +794,10 @@ export class WorldRenderer {
     this.clip.visible = multi;
     this.vps.forEach((vp, i) => {
       this.worldLayer.scale.set(vp.k);
-      this.worldLayer.position.set(vp.anchorCss.x - vp.anchorWorld.x * vp.k, vp.anchorCss.y - vp.anchorWorld.y * vp.k);
+      this.worldLayer.position.set(
+        vp.anchorCss.x - vp.anchorWorld.x * vp.k,
+        vp.anchorCss.y - vp.anchorWorld.y * vp.k,
+      );
       this.bgSprite.position.set(vp.css.x, vp.css.y);
       this.bgSprite.width = vp.css.w;
       this.bgSprite.height = vp.css.h;
@@ -762,7 +815,8 @@ export class WorldRenderer {
       const v = this.views.get(d.id);
       if (!v) continue;
       const m = d.r * 2.5 + 60;
-      v.root.renderable = d.x + m >= w.x && d.x - m <= w.x + w.w && d.y + m >= w.y && d.y - m <= w.y + w.h;
+      v.root.renderable =
+        d.x + m >= w.x && d.x - m <= w.x + w.w && d.y + m >= w.y && d.y - m <= w.y + w.h;
     }
   }
 

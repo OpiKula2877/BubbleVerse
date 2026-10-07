@@ -27,8 +27,18 @@
 
 <svelte:window onkeydown={key} />
 
-<div class="backdrop" role="presentation" onpointerdown={(e) => e.target === e.currentTarget && onclose?.()}>
-  <div class="modal bv-glass" style:width="{width}px" role="dialog" aria-modal="true" aria-label={title}>
+<div
+  class="backdrop"
+  role="presentation"
+  onpointerdown={(e) => e.target === e.currentTarget && onclose?.()}
+>
+  <div
+    class="modal bv-glass"
+    style:width="{width}px"
+    role="dialog"
+    aria-modal="true"
+    aria-label={title}
+  >
     <header>
       <h2>{title}</h2>
       {#if onclose}

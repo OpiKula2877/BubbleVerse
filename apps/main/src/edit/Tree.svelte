@@ -51,7 +51,8 @@
 
   function focus(b: Bubble) {
     const d = store.renderer?.displayedById(b.id);
-    if (d && store.renderer) store.renderer.setCamera({ ...store.renderer.camera, x: d.x, y: d.y }, 350);
+    if (d && store.renderer)
+      store.renderer.setCamera({ ...store.renderer.camera, x: d.x, y: d.y }, 350);
   }
 
   function dragOver(e: DragEvent, row: Row) {
@@ -60,7 +61,8 @@
     const el = e.currentTarget as HTMLElement;
     const r = el.getBoundingClientRect();
     const f = (e.clientY - r.top) / r.height;
-    const where = row.b.kind === 'folder' && f > 0.28 && f < 0.72 ? 'inside' : f < 0.5 ? 'before' : 'after';
+    const where =
+      row.b.kind === 'folder' && f > 0.28 && f < 0.72 ? 'inside' : f < 0.5 ? 'before' : 'after';
     dropHint = { id: row.b.id, where };
   }
 
@@ -99,9 +101,9 @@
   {#if editor.treeOpen}
     <div class="filter">
       <Icon name="search" size={14} />
-      <input placeholder={t('tree.filter')} bind:value={filter} onkeydown={(e) => e.stopPropagation()} />
+      <input placeholder={t('tree.filter')} bind:value={filter} />
     </div>
-    <div class="rows" role="tree" ondragover={(e) => e.preventDefault()} ondrop={drop}>
+    <div class="rows" role="tree" tabindex="0" ondragover={(e) => e.preventDefault()} ondrop={drop}>
       {#if rows.length === 0}
         <p class="empty">{t('tree.empty')}</p>
       {/if}
@@ -133,7 +135,11 @@
               onclick={(e) => {
                 e.stopPropagation();
                 collapsed[row.b.id] = !collapsed[row.b.id];
-              }}><Icon name={collapsed[row.b.id] ? 'chevronRight' : 'chevronDown'} size={12} /></button
+              }}
+              ><Icon
+                name={collapsed[row.b.id] ? 'chevronRight' : 'chevronDown'}
+                size={12}
+              /></button
             >
           {:else}
             <span class="twisty"></span>
@@ -141,7 +147,9 @@
           <Icon name={row.b.kind === 'folder' ? 'folder' : 'bolt'} size={14} />
           <span class="name">{row.b.name}</span>
           {#if editor.missing.has(row.b.id)}
-            <span class="warn" title={t('inspector.missingFile')}><Icon name="warning" size={13} /></span>
+            <span class="warn" title={t('inspector.missingFile')}
+              ><Icon name="warning" size={13} /></span
+            >
           {/if}
         </div>
       {/each}

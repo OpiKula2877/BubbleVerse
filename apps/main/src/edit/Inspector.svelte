@@ -13,17 +13,29 @@
   let { editor }: { editor: Editor } = $props();
 
   const ids = $derived(editor.selected);
-  const allActions = $derived(ids.length > 0 && ids.every((id) => editor.index.get(id)?.kind === 'action'));
+  const allActions = $derived(
+    ids.length > 0 && ids.every((id) => editor.index.get(id)?.kind === 'action'),
+  );
   const hasParent = $derived(ids.some((id) => editor.index.get(id)?.parentId));
   const missing = $derived(ids.some((id) => editor.missing.has(id)));
 
-  let open = $state({ basic: true, skin: true, attach: false, motion: false, physics: false, link: false, hover: false, actions: true });
+  let open = $state({
+    basic: true,
+    skin: true,
+    attach: false,
+    motion: false,
+    physics: false,
+    link: false,
+    hover: false,
+    actions: true,
+  });
 </script>
 
 <aside class="inspector bv-glass">
   <header>
     <h3>{t('inspector.title')}</h3>
-    {#if ids.length > 1}<span class="bv-muted">{t('inspector.count', { count: ids.length })}</span>{/if}
+    {#if ids.length > 1}<span class="bv-muted">{t('inspector.count', { count: ids.length })}</span
+      >{/if}
   </header>
   <div class="scroll">
     {#if ids.length === 0}
@@ -32,17 +44,33 @@
       {#if missing}
         <div class="warn"><Icon name="warning" size={15} />{t('inspector.missingFile')}</div>
       {/if}
-      <Section title={t('inspector.basic')} bind:open={open.basic}><BasicSection {editor} {ids} /></Section>
-      <Section title={t('inspector.skin')} bind:open={open.skin}><SkinSection {editor} {ids} /></Section>
-      <Section title={t('inspector.attach')} bind:open={open.attach}><AttachSection {editor} {ids} /></Section>
-      <Section title={t('inspector.motion')} bind:open={open.motion}><MotionSection {editor} {ids} /></Section>
-      <Section title={t('inspector.physics')} bind:open={open.physics}><PhysicsSection {editor} {ids} /></Section>
+      <Section title={t('inspector.basic')} bind:open={open.basic}
+        ><BasicSection {editor} {ids} /></Section
+      >
+      <Section title={t('inspector.skin')} bind:open={open.skin}
+        ><SkinSection {editor} {ids} /></Section
+      >
+      <Section title={t('inspector.attach')} bind:open={open.attach}
+        ><AttachSection {editor} {ids} /></Section
+      >
+      <Section title={t('inspector.motion')} bind:open={open.motion}
+        ><MotionSection {editor} {ids} /></Section
+      >
+      <Section title={t('inspector.physics')} bind:open={open.physics}
+        ><PhysicsSection {editor} {ids} /></Section
+      >
       {#if hasParent}
-        <Section title={t('inspector.link')} bind:open={open.link}><LinkSection {editor} {ids} /></Section>
+        <Section title={t('inspector.link')} bind:open={open.link}
+          ><LinkSection {editor} {ids} /></Section
+        >
       {/if}
-      <Section title={t('inspector.hover')} bind:open={open.hover}><HoverSection {editor} {ids} /></Section>
+      <Section title={t('inspector.hover')} bind:open={open.hover}
+        ><HoverSection {editor} {ids} /></Section
+      >
       {#if allActions}
-        <Section title={t('inspector.actions')} bind:open={open.actions}><ActionSection {editor} {ids} /></Section>
+        <Section title={t('inspector.actions')} bind:open={open.actions}
+          ><ActionSection {editor} {ids} /></Section
+        >
       {/if}
     {/if}
   </div>

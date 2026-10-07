@@ -44,11 +44,25 @@
     if (v === 'orbit') {
       const center = centers.find((c) => c.value !== id)?.value;
       if (!center) return;
-      const o: OrbitMotion = { type: 'orbit', center, rx: 220, ry: 160, tilt: 0, speed: 20, dir: 'cw', phase: 0 };
+      const o: OrbitMotion = {
+        type: 'orbit',
+        center,
+        rx: 220,
+        ry: 160,
+        tilt: 0,
+        speed: 20,
+        dir: 'cw',
+        phase: 0,
+      };
       return setMotion((m) => ({ ...m, track: o }));
     }
     if (v === 'wander') {
-      const wd: WanderMotion = { type: 'wander', area: { shape: 'circle', r: 60 }, speed: 25, smoothness: 0.6 };
+      const wd: WanderMotion = {
+        type: 'wander',
+        area: { shape: 'circle', r: 60 },
+        speed: 25,
+        smoothness: 0.6,
+      };
       return setMotion((m) => ({ ...m, track: wd }));
     }
     const p: PathMotion = {
@@ -82,7 +96,11 @@
 {#if tr && !track?.mixed}
   {#if tr.type === 'orbit'}
     <Field label={t('motion.center')} wide>
-      <Select value={tr.center} options={centers.filter((c) => !ids.includes(c.value))} onchange={(v) => setTrack({ center: v })} />
+      <Select
+        value={tr.center}
+        options={centers.filter((c) => !ids.includes(c.value))}
+        onchange={(v) => setTrack({ center: v })}
+      />
     </Field>
     <Field label={t('motion.rx')}>
       <NumberField value={tr.rx} min={0} onchange={(v) => setTrack({ rx: v }, 'rx')} />
@@ -91,10 +109,20 @@
       <NumberField value={tr.ry} min={0} onchange={(v) => setTrack({ ry: v }, 'ry')} />
     </Field>
     <Field label={t('motion.tilt')}>
-      <NumberField value={tr.tilt} step={5} suffix="°" onchange={(v) => setTrack({ tilt: v }, 'tilt')} />
+      <NumberField
+        value={tr.tilt}
+        step={5}
+        suffix="°"
+        onchange={(v) => setTrack({ tilt: v }, 'tilt')}
+      />
     </Field>
     <Field label={t('motion.speed')}>
-      <NumberField value={tr.speed} step={1} suffix="°/s" onchange={(v) => setTrack({ speed: v }, 'speed')} />
+      <NumberField
+        value={tr.speed}
+        step={1}
+        suffix="°/s"
+        onchange={(v) => setTrack({ speed: v }, 'speed')}
+      />
     </Field>
     <Field label={t('motion.dir')}>
       <Segmented
@@ -107,11 +135,18 @@
       />
     </Field>
     <Field label={t('motion.phase')}>
-      <NumberField value={tr.phase} step={15} suffix="°" onchange={(v) => setTrack({ phase: v }, 'phase')} />
+      <NumberField
+        value={tr.phase}
+        step={15}
+        suffix="°"
+        onchange={(v) => setTrack({ phase: v }, 'phase')}
+      />
     </Field>
   {:else if tr.type === 'path'}
     <Field label="">
-      <Button small icon="target" onclick={() => motionEditor.start('path', ids[0]!)}>{t('menu.setPath')}</Button>
+      <Button small icon="target" onclick={() => motionEditor.start('path', ids[0]!)}
+        >{t('menu.setPath')}</Button
+      >
       <span class="bv-muted">{t('motion.points', { count: tr.points.length })}</span>
     </Field>
     <Field label={t('motion.loop')}>
@@ -125,7 +160,12 @@
       />
     </Field>
     <Field label={t('motion.speed')}>
-      <NumberField value={tr.speed} min={1} suffix="/s" onchange={(v) => setTrack({ speed: v }, 'speed')} />
+      <NumberField
+        value={tr.speed}
+        min={1}
+        suffix="/s"
+        onchange={(v) => setTrack({ speed: v }, 'speed')}
+      />
     </Field>
     <Field label={t('motion.easing')}>
       <Select
@@ -141,7 +181,9 @@
     </Field>
   {:else if tr.type === 'wander'}
     <Field label="">
-      <Button small icon="target" onclick={() => motionEditor.start('wander', ids[0]!)}>{t('menu.setWander')}</Button>
+      <Button small icon="target" onclick={() => motionEditor.start('wander', ids[0]!)}
+        >{t('menu.setWander')}</Button
+      >
     </Field>
     <Field label={t('motion.area')}>
       <Segmented
@@ -150,23 +192,45 @@
           { value: 'circle', label: t('motion.area.circle') },
           { value: 'rect', label: t('motion.area.rect') },
         ]}
-        onchange={(v) => setTrack({ area: v === 'circle' ? { shape: 'circle', r: 60 } : { shape: 'rect', w: 160, h: 100 } })}
+        onchange={(v) =>
+          setTrack({
+            area: v === 'circle' ? { shape: 'circle', r: 60 } : { shape: 'rect', w: 160, h: 100 },
+          })}
       />
     </Field>
     {#if tr.area.shape === 'circle'}
       <Field label={t('motion.radius')}>
-        <NumberField value={tr.area.r} min={1} onchange={(v) => setTrack({ area: { shape: 'circle', r: v } }, 'area')} />
+        <NumberField
+          value={tr.area.r}
+          min={1}
+          onchange={(v) => setTrack({ area: { shape: 'circle', r: v } }, 'area')}
+        />
       </Field>
     {:else}
       <Field label={t('motion.width')}>
-        <NumberField value={tr.area.w} min={1} onchange={(v) => tr.area.shape === 'rect' && setTrack({ area: { ...tr.area, w: v } }, 'area')} />
+        <NumberField
+          value={tr.area.w}
+          min={1}
+          onchange={(v) =>
+            tr.area.shape === 'rect' && setTrack({ area: { ...tr.area, w: v } }, 'area')}
+        />
       </Field>
       <Field label={t('motion.height')}>
-        <NumberField value={tr.area.h} min={1} onchange={(v) => tr.area.shape === 'rect' && setTrack({ area: { ...tr.area, h: v } }, 'area')} />
+        <NumberField
+          value={tr.area.h}
+          min={1}
+          onchange={(v) =>
+            tr.area.shape === 'rect' && setTrack({ area: { ...tr.area, h: v } }, 'area')}
+        />
       </Field>
     {/if}
     <Field label={t('motion.speed')}>
-      <NumberField value={tr.speed} min={1} suffix="/s" onchange={(v) => setTrack({ speed: v }, 'speed')} />
+      <NumberField
+        value={tr.speed}
+        min={1}
+        suffix="/s"
+        onchange={(v) => setTrack({ speed: v }, 'speed')}
+      />
     </Field>
     <Field label={t('motion.smoothness')}>
       <NumberField
@@ -185,17 +249,41 @@
   <Toggle
     checked={!!pulse?.value}
     mixed={pulse?.mixed}
-    onchange={(v) => setMotion(({ pulse: _p, ...m }) => (v ? { ...m, pulse: { min: 0.9, max: 1.1, period: 2 } } : m))}
+    onchange={(v) =>
+      setMotion(({ pulse: _p, ...m }) =>
+        v ? { ...m, pulse: { min: 0.9, max: 1.1, period: 2 } } : m,
+      )}
   />
 </Field>
 {#if pulse?.value && !pulse.mixed}
   {@const p = pulse.value}
   <Field label={t('motion.pulse.range')}>
-    <NumberField value={Math.round(p.min * 100)} min={10} max={500} suffix="%" onchange={(v) => setMotion((m) => ({ ...m, pulse: { ...(m.pulse as Pulse), min: v / 100 } }), 'pmin')} />
-    <NumberField value={Math.round(p.max * 100)} min={10} max={500} suffix="%" onchange={(v) => setMotion((m) => ({ ...m, pulse: { ...(m.pulse as Pulse), max: v / 100 } }), 'pmax')} />
+    <NumberField
+      value={Math.round(p.min * 100)}
+      min={10}
+      max={500}
+      suffix="%"
+      onchange={(v) =>
+        setMotion((m) => ({ ...m, pulse: { ...(m.pulse as Pulse), min: v / 100 } }), 'pmin')}
+    />
+    <NumberField
+      value={Math.round(p.max * 100)}
+      min={10}
+      max={500}
+      suffix="%"
+      onchange={(v) =>
+        setMotion((m) => ({ ...m, pulse: { ...(m.pulse as Pulse), max: v / 100 } }), 'pmax')}
+    />
   </Field>
   <Field label={t('motion.period')}>
-    <NumberField value={p.period} min={0.1} step={0.1} suffix="s" onchange={(v) => setMotion((m) => ({ ...m, pulse: { ...(m.pulse as Pulse), period: v } }), 'pper')} />
+    <NumberField
+      value={p.period}
+      min={0.1}
+      step={0.1}
+      suffix="s"
+      onchange={(v) =>
+        setMotion((m) => ({ ...m, pulse: { ...(m.pulse as Pulse), period: v } }), 'pper')}
+    />
   </Field>
 {/if}
 
@@ -203,7 +291,10 @@
   <Toggle
     checked={!!spin?.value}
     mixed={spin?.mixed}
-    onchange={(v) => setMotion(({ spin: _s, ...m }) => (v ? { ...m, spin: { mode: 'constant', speed: 30, angle: 20 } } : m))}
+    onchange={(v) =>
+      setMotion(({ spin: _s, ...m }) =>
+        v ? { ...m, spin: { mode: 'constant', speed: 30, angle: 20 } } : m,
+      )}
   />
 </Field>
 {#if spin?.value && !spin.mixed}
@@ -215,15 +306,28 @@
         { value: 'constant', label: t('motion.spin.constant') },
         { value: 'pendulum', label: t('motion.spin.pendulum') },
       ]}
-      onchange={(v) => setMotion((m) => ({ ...m, spin: { ...(m.spin as Spin), mode: v as Spin['mode'] } }))}
+      onchange={(v) =>
+        setMotion((m) => ({ ...m, spin: { ...(m.spin as Spin), mode: v as Spin['mode'] } }))}
     />
   </Field>
   <Field label={t('motion.speed')}>
-    <NumberField value={s.speed} suffix="°/s" onchange={(v) => setMotion((m) => ({ ...m, spin: { ...(m.spin as Spin), speed: v } }), 'sspeed')} />
+    <NumberField
+      value={s.speed}
+      suffix="°/s"
+      onchange={(v) =>
+        setMotion((m) => ({ ...m, spin: { ...(m.spin as Spin), speed: v } }), 'sspeed')}
+    />
   </Field>
   {#if s.mode === 'pendulum'}
     <Field label={t('motion.angle')}>
-      <NumberField value={s.angle} min={0} max={180} suffix="°" onchange={(v) => setMotion((m) => ({ ...m, spin: { ...(m.spin as Spin), angle: v } }), 'sangle')} />
+      <NumberField
+        value={s.angle}
+        min={0}
+        max={180}
+        suffix="°"
+        onchange={(v) =>
+          setMotion((m) => ({ ...m, spin: { ...(m.spin as Spin), angle: v } }), 'sangle')}
+      />
     </Field>
   {/if}
 {/if}

@@ -51,7 +51,11 @@ textarea {
 }
 
 .bv-glass {
-  background: color-mix(in srgb, var(--bv-panel) calc(var(--bv-panel-alpha, 0.94) * 100%), transparent);
+  background: color-mix(
+    in srgb,
+    var(--bv-panel) calc(var(--bv-panel-alpha, 0.94) * 100%),
+    transparent
+  );
   backdrop-filter: blur(14px);
   border: 1px solid var(--bv-border);
   border-radius: var(--bv-radius);

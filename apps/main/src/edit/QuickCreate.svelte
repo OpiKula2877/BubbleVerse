@@ -7,22 +7,16 @@
 
   let { editor }: { editor: Editor } = $props();
 
-  const qc = $derived(editor.quickCreate!);
-  const bubble = $derived(editor.index.get(qc.id));
-  let name = $state('');
-  let color = $state('#4C97FF');
-  let initialized = '';
-
-  $effect(() => {
-    if (bubble && initialized !== bubble.id) {
-      initialized = bubble.id;
-      name = bubble.name;
-      color = fillColor(new SkinResolver(editor.index).skin(bubble.id));
-    }
-  });
+  // Created per bubble (keyed by id in EditMode), so initial values are read once.
+  const qc = editor.quickCreate!;
+  let name = $state(editor.index.get(qc.id)?.name ?? '');
+  let color = $state(fillColor(new SkinResolver(editor.index).skin(qc.id)));
 
   function rename(v: string) {
-    editor.apply((w) => ({ ...w, bubbles: w.bubbles.map((b) => (b.id === qc.id ? { ...b, name: v } : b)) }), `name:${qc.id}`);
+    editor.apply(
+      (w) => ({ ...w, bubbles: w.bubbles.map((b) => (b.id === qc.id ? { ...b, name: v } : b)) }),
+      `name:${qc.id}`,
+    );
   }
 
   function recolor(v: string) {
@@ -47,7 +41,13 @@
 <div class="quick bv-glass" style:left="{pos.x}px" style:top="{pos.y}px">
   <h3>{t('quick.title')}</h3>
   <Field label={t('quick.name')}>
-    <TextField bind:value={name} autofocus oninput={rename} onenter={done} onkeydown={(e) => e.key === 'Escape' && done()} />
+    <TextField
+      bind:value={name}
+      autofocus
+      oninput={rename}
+      onenter={done}
+      onkeydown={(e) => e.key === 'Escape' && done()}
+    />
   </Field>
   <Field label={t('quick.color')}>
     <ColorField bind:value={color} onchange={recolor} />

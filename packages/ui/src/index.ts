@@ -16,4 +16,5 @@ export { default as ColorField } from './components/ColorField.svelte';
 export { default as Section } from './components/Section.svelte';
 export { default as Field } from './components/Field.svelte';
 export { default as Modal } from './components/Modal.svelte';
-export { default as Menu, type MenuItem } from './components/Menu.svelte';
+export { default as Menu } from './components/Menu.svelte';
+export type { MenuItem } from './components/menu';

@@ -27,20 +27,37 @@
 </script>
 
 <Field label={t('physics.float')}>
-  <Toggle checked={!!float?.value} mixed={float?.mixed} onchange={(v) => set('float', v ? { amplitude: 8, speed: 0.4 } : undefined)} />
+  <Toggle
+    checked={!!float?.value}
+    mixed={float?.mixed}
+    onchange={(v) => set('float', v ? { amplitude: 8, speed: 0.4 } : undefined)}
+  />
 </Field>
 {#if float?.value && !float.mixed}
   {@const f = float.value}
   <Field label={t('physics.amplitude')}>
-    <NumberField value={f.amplitude} min={0} onchange={(v) => set('float', { ...f, amplitude: v } as Float, 'famp')} />
+    <NumberField
+      value={f.amplitude}
+      min={0}
+      onchange={(v) => set('float', { ...f, amplitude: v } as Float, 'famp')}
+    />
   </Field>
   <Field label={t('motion.speed')}>
-    <NumberField value={f.speed} min={0} step={0.05} onchange={(v) => set('float', { ...f, speed: v } as Float, 'fspeed')} />
+    <NumberField
+      value={f.speed}
+      min={0}
+      step={0.05}
+      onchange={(v) => set('float', { ...f, speed: v } as Float, 'fspeed')}
+    />
   </Field>
 {/if}
 
 <Field label={t('physics.collide')}>
-  <Toggle checked={!!collide?.value} mixed={collide?.mixed} onchange={(v) => set('collide', v ? { with: 'siblings' } : undefined)} />
+  <Toggle
+    checked={!!collide?.value}
+    mixed={collide?.mixed}
+    onchange={(v) => set('collide', v ? { with: 'siblings' } : undefined)}
+  />
 </Field>
 {#if collide?.value && !collide.mixed}
   <Field label="">
@@ -65,13 +82,28 @@
 {#if spring?.value && !spring.mixed}
   {@const s = spring.value}
   <Field label={t('physics.stiffness')}>
-    <NumberField value={s.stiffness} min={1} max={2000} onchange={(v) => set('spring', { ...s, stiffness: v } as Spring, 'sst')} />
+    <NumberField
+      value={s.stiffness}
+      min={1}
+      max={2000}
+      onchange={(v) => set('spring', { ...s, stiffness: v } as Spring, 'sst')}
+    />
   </Field>
   <Field label={t('physics.damping')}>
-    <NumberField value={s.damping} min={0} max={200} step={0.5} onchange={(v) => set('spring', { ...s, damping: v } as Spring, 'sda')} />
+    <NumberField
+      value={s.damping}
+      min={0}
+      max={200}
+      step={0.5}
+      onchange={(v) => set('spring', { ...s, damping: v } as Spring, 'sda')}
+    />
   </Field>
   <Field label={t('physics.length')}>
-    <NumberField value={s.length} min={0} onchange={(v) => set('spring', { ...s, length: v } as Spring, 'sle')} />
+    <NumberField
+      value={s.length}
+      min={0}
+      onchange={(v) => set('spring', { ...s, length: v } as Spring, 'sle')}
+    />
   </Field>
 {/if}
 
@@ -95,9 +127,18 @@
     />
   </Field>
   <Field label={t('physics.strength')}>
-    <NumberField value={m.strength} min={0} step={0.1} onchange={(v) => set('mouse', { ...m, strength: v } as MouseReact, 'mst')} />
+    <NumberField
+      value={m.strength}
+      min={0}
+      step={0.1}
+      onchange={(v) => set('mouse', { ...m, strength: v } as MouseReact, 'mst')}
+    />
   </Field>
   <Field label={t('physics.radius')}>
-    <NumberField value={m.radius} min={1} onchange={(v) => set('mouse', { ...m, radius: v } as MouseReact, 'mra')} />
+    <NumberField
+      value={m.radius}
+      min={1}
+      onchange={(v) => set('mouse', { ...m, radius: v } as MouseReact, 'mra')}
+    />
   </Field>
 {/if}

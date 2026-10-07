@@ -23,7 +23,10 @@
         { value: 'parent', label: t('attach.parent') },
         { value: 'world', label: t('attach.world') },
       ]}
-      onchange={(v) => editor.apply((x) => setAttach(x, ids, v as Attach, store.renderer?.basePositions() ?? new Map()))}
+      onchange={(v) =>
+        editor.apply((x) =>
+          setAttach(x, ids, v as Attach, store.renderer?.basePositions() ?? new Map()),
+        )}
     />
   </Field>
 {/if}

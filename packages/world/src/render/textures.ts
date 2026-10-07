@@ -53,7 +53,12 @@ export function tracePath(ctx: CanvasRenderingContext2D, shape: Shape, c: number
   }
 }
 
-function fillStyle(ctx: CanvasRenderingContext2D, fill: Fill, c: number, r: number): string | CanvasGradient {
+function fillStyle(
+  ctx: CanvasRenderingContext2D,
+  fill: Fill,
+  c: number,
+  r: number,
+): string | CanvasGradient {
   if (typeof fill === 'string') return fill;
   let g: CanvasGradient;
   if (fill.type === 'radial') {
@@ -190,7 +195,9 @@ export class SkinTextures {
   body(skin: Skin, showMedia: boolean): Texture {
     const media = showMedia ? skin.media : undefined;
     const staticHash =
-      media && (media.type === 'image' || media.type === 'icon' || media.type === 'auto') ? media.asset : undefined;
+      media && (media.type === 'image' || media.type === 'icon' || media.type === 'auto')
+        ? media.asset
+        : undefined;
     const maskHash = typeof skin.shape === 'object' ? skin.shape.mask : undefined;
     const edge = skin.edge;
     const key = [
@@ -210,7 +217,11 @@ export class SkinTextures {
       const loadingKey = `${key}|loading`;
       let tex = this.bodies.get(loadingKey);
       if (!tex) {
-        const plain = { ...skin, media: undefined, shape: maskHash && !mask ? ('circle' as const) : skin.shape };
+        const plain = {
+          ...skin,
+          media: undefined,
+          shape: maskHash && !mask ? ('circle' as const) : skin.shape,
+        };
         tex = this.draw(plain, null, null);
         this.bodies.set(loadingKey, tex);
       }
@@ -231,7 +242,12 @@ export class SkinTextures {
         outline: skin.edge?.outline,
         shadow: skin.edge?.shadow,
         media: img
-          ? { kind: skin.media?.type === 'image' ? 'image' : 'icon', img: img.img, w: img.w, h: img.h }
+          ? {
+              kind: skin.media?.type === 'image' ? 'image' : 'icon',
+              img: img.img,
+              w: img.w,
+              h: img.h,
+            }
           : undefined,
         mask: mask?.img,
         size: skin.size,

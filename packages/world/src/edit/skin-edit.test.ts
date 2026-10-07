@@ -3,7 +3,14 @@ import { sampleWorld } from '../model/fixtures';
 import { SkinResolver } from '../model/skin';
 import { WorldIndex } from '../model/tree';
 import type { World } from '../model/types';
-import { commonValue, isOverridden, resetOverride, setSkinMode, writeLabel, writeSkin } from './skin-edit';
+import {
+  commonValue,
+  isOverridden,
+  resetOverride,
+  setSkinMode,
+  writeLabel,
+  writeSkin,
+} from './skin-edit';
 
 const skinOf = (w: World, id: string) => new SkinResolver(new WorldIndex(w)).skin(id);
 
@@ -20,7 +27,10 @@ describe('skin editing', () => {
 
   it('reports common and mixed values', () => {
     let w = sampleWorld();
-    expect(commonValue(w, ['work', 'ed'], (s) => s.fill)).toEqual({ mixed: false, value: skinOf(w, 'work').fill });
+    expect(commonValue(w, ['work', 'ed'], (s) => s.fill)).toEqual({
+      mixed: false,
+      value: skinOf(w, 'work').fill,
+    });
     w = writeSkin(w, ['ed'], 'fill', '#000000');
     expect(commonValue(w, ['work', 'ed'], (s) => s.fill)?.mixed).toBe(true);
     expect(commonValue(w, [], (s) => s.fill)).toBeNull();
@@ -41,7 +51,10 @@ describe('skin editing', () => {
     expect(w.bubbles.find((b) => b.id === 'cc')!.skin.mode).toBe('own');
     expect(skinOf(w, 'cc')).toEqual(before);
     w = setSkinMode(w, ['cc'], 'inherit', 'root');
-    expect(w.bubbles.find((b) => b.id === 'cc')!.skin).toMatchObject({ mode: 'inherit', from: 'root' });
+    expect(w.bubbles.find((b) => b.id === 'cc')!.skin).toMatchObject({
+      mode: 'inherit',
+      from: 'root',
+    });
     expect(skinOf(w, 'cc').fill).toBe('#ABCDEF');
   });
 });

@@ -1,5 +1,15 @@
 <script lang="ts">
-  import { Button, ColorField, Field, NumberField, Segmented, Select, t, TextField, Toggle } from '@bv/ui';
+  import {
+    Button,
+    ColorField,
+    Field,
+    NumberField,
+    Segmented,
+    Select,
+    t,
+    TextField,
+    Toggle,
+  } from '@bv/ui';
   import {
     defaultLabel,
     isOverridden,
@@ -26,13 +36,25 @@
   const w = $derived(editor.world!);
   const mode = $derived(commonField(w, ids, (b) => b.skin.mode));
   const from = $derived(
-    commonField(w, ids, (b) => (b.skin.mode === 'inherit' ? (typeof b.skin.from === 'object' ? 'ancestor' : b.skin.from) : 'parent')),
+    commonField(w, ids, (b) =>
+      b.skin.mode === 'inherit'
+        ? typeof b.skin.from === 'object'
+          ? 'ancestor'
+          : b.skin.from
+        : 'parent',
+    ),
   );
   const single = $derived(ids.length === 1 ? editor.index.get(ids[0]!) : undefined);
   const ancestors = $derived(single ? editor.index.ancestors(single.id) : []);
-  const ancestorId = $derived(single?.skin.mode === 'inherit' && typeof single.skin.from === 'object' ? single.skin.from.ancestor : '');
+  const ancestorId = $derived(
+    single?.skin.mode === 'inherit' && typeof single.skin.from === 'object'
+      ? single.skin.from.ancestor
+      : '',
+  );
 
-  const shape = $derived(commonSkin(w, ids, (s) => (typeof s.shape === 'string' ? s.shape : 'mask')));
+  const shape = $derived(
+    commonSkin(w, ids, (s) => (typeof s.shape === 'string' ? s.shape : 'mask')),
+  );
   const size = $derived(commonSkin(w, ids, (s) => s.size));
   const fill = $derived(commonSkin(w, ids, (s) => s.fill));
   const fillKind = $derived(fill && typeof fill.value === 'object' ? 'gradient' : 'color');
@@ -40,13 +62,21 @@
   const edge = $derived(commonSkin(w, ids, (s) => s.edge ?? {}));
   const label = $derived(commonSkin(w, ids, (s) => s.label ?? defaultLabel()));
 
-  const overridden = (key: SkinKey) => ids.some((id) => {
-    const b = editor.index.get(id);
-    return b ? isOverridden(b, key) : false;
-  });
+  const overridden = (key: SkinKey) =>
+    ids.some((id) => {
+      const b = editor.index.get(id);
+      return b ? isOverridden(b, key) : false;
+    });
 
-  function set<K extends SkinKey>(key: K, value: Parameters<typeof writeSkin<K>>[3], coalesce?: string) {
-    editor.apply((x) => writeSkin(x, ids, key, value), coalesce ? `${coalesce}:${ids.join()}` : undefined);
+  function set<K extends SkinKey>(
+    key: K,
+    value: Parameters<typeof writeSkin<K>>[3],
+    coalesce?: string,
+  ) {
+    editor.apply(
+      (x) => writeSkin(x, ids, key, value),
+      coalesce ? `${coalesce}:${ids.join()}` : undefined,
+    );
   }
 
   function reset(key: SkinKey) {
@@ -54,14 +84,24 @@
   }
 
   function setFrom(v: string) {
-    const f: InheritFrom = v === 'ancestor' ? { ancestor: ancestors[ancestors.length - 1]?.id ?? '' } : (v as 'parent' | 'root');
+    const f: InheritFrom =
+      v === 'ancestor'
+        ? { ancestor: ancestors[ancestors.length - 1]?.id ?? '' }
+        : (v as 'parent' | 'root');
     editor.apply((x) => setSkinMode(x, ids, 'inherit', f));
   }
 
   function gradientOf(f: Fill | undefined): Gradient {
     if (f && typeof f === 'object') return f;
     const c = typeof f === 'string' ? f : '#4C97FF';
-    return { type: 'radial', angle: 90, stops: [{ at: 0, color: '#FFFFFF' }, { at: 1, color: c }] };
+    return {
+      type: 'radial',
+      angle: 90,
+      stops: [
+        { at: 0, color: '#FFFFFF' },
+        { at: 1, color: c },
+      ],
+    };
   }
 
   function setGradient(patch: Partial<Gradient>, stop?: { i: number; color: string }) {
@@ -92,7 +132,8 @@
 
   function setEdge(patch: Partial<Edge>) {
     const next: Edge = { ...(edge?.value ?? {}), ...patch };
-    for (const k of Object.keys(next) as (keyof Edge)[]) if (next[k] === undefined || next[k] === false) delete next[k];
+    for (const k of Object.keys(next) as (keyof Edge)[])
+      if (next[k] === undefined || next[k] === false) delete next[k];
     set('edge', next, 'edge');
   }
 </script>
@@ -134,7 +175,13 @@
 
 {#snippet resetBtn(key: SkinKey)}
   {#if overridden(key)}
-    <Button small variant="ghost" icon="undo" title={t('common.reset')} onclick={() => reset(key)} />
+    <Button
+      small
+      variant="ghost"
+      icon="undo"
+      title={t('common.reset')}
+      onclick={() => reset(key)}
+    />
   {/if}
 {/snippet}
 
@@ -154,7 +201,14 @@
   {@render resetBtn('shape')}
 </Field>
 <Field label={t('skin.size')}>
-  <NumberField value={size?.value ?? 0} mixed={size?.mixed} min={8} max={2000} step={2} onchange={(v) => set('size', v, 'size')} />
+  <NumberField
+    value={size?.value ?? 0}
+    mixed={size?.mixed}
+    min={8}
+    max={2000}
+    step={2}
+    onchange={(v) => set('size', v, 'size')}
+  />
   {@render resetBtn('size')}
 </Field>
 <Field label={t('skin.fill')}>
@@ -165,13 +219,20 @@
       { value: 'color', label: t('skin.fill.color') },
       { value: 'gradient', label: t('skin.fill.gradient') },
     ]}
-    onchange={(v) => (v === 'gradient' ? setGradient({}) : set('fill', gradientOf(fill?.value).stops[1]?.color ?? '#4C97FF'))}
+    onchange={(v) =>
+      v === 'gradient'
+        ? setGradient({})
+        : set('fill', gradientOf(fill?.value).stops[1]?.color ?? '#4C97FF')}
   />
   {@render resetBtn('fill')}
 </Field>
 {#if fillKind === 'color'}
   <Field label="">
-    <ColorField value={typeof fill?.value === 'string' ? fill.value : '#4C97FF'} mixed={fill?.mixed} onchange={(v) => set('fill', v, 'fill')} />
+    <ColorField
+      value={typeof fill?.value === 'string' ? fill.value : '#4C97FF'}
+      mixed={fill?.mixed}
+      onchange={(v) => set('fill', v, 'fill')}
+    />
   </Field>
 {:else if fill && typeof fill.value === 'object'}
   <Field label="">
@@ -185,14 +246,27 @@
     />
   </Field>
   <Field label={t('skin.gradient.from')}>
-    <ColorField value={fill.value.stops[0]?.color ?? '#FFFFFF'} onchange={(c) => setGradient({}, { i: 0, color: c })} />
+    <ColorField
+      value={fill.value.stops[0]?.color ?? '#FFFFFF'}
+      onchange={(c) => setGradient({}, { i: 0, color: c })}
+    />
   </Field>
   <Field label={t('skin.gradient.to')}>
-    <ColorField value={fill.value.stops[1]?.color ?? '#000000'} onchange={(c) => setGradient({}, { i: 1, color: c })} />
+    <ColorField
+      value={fill.value.stops[1]?.color ?? '#000000'}
+      onchange={(c) => setGradient({}, { i: 1, color: c })}
+    />
   </Field>
   {#if fill.value.type === 'linear'}
     <Field label={t('skin.gradient.angle')}>
-      <NumberField value={fill.value.angle} min={0} max={360} step={15} suffix="°" onchange={(v) => setGradient({ angle: v })} />
+      <NumberField
+        value={fill.value.angle}
+        min={0}
+        max={360}
+        step={15}
+        suffix="°"
+        onchange={(v) => setGradient({ angle: v })}
+      />
     </Field>
   {/if}
 {/if}
@@ -215,7 +289,11 @@
 </Field>
 {#if media?.value && !media.mixed && media.value.type !== 'auto'}
   <Field label="">
-    <Button small icon="image" onclick={() => media?.value && media.value.type !== 'auto' && void pickMedia(media.value.type)}
+    <Button
+      small
+      icon="image"
+      onclick={() =>
+        media?.value && media.value.type !== 'auto' && void pickMedia(media.value.type)}
       >{t('skin.media.pick')}</Button
     >
   </Field>
@@ -242,37 +320,66 @@
     onchange={(v) => setEdge({ outline: v ? { color: '#FFFFFF', width: 3 } : undefined })}
   />
   {#if edge?.value.outline}
-    <ColorField value={edge.value.outline.color} onchange={(c) => setEdge({ outline: { ...edge!.value.outline!, color: c } })} />
-    <NumberField value={edge.value.outline.width} min={1} max={40} onchange={(v) => setEdge({ outline: { ...edge!.value.outline!, width: v } })} />
+    <ColorField
+      value={edge.value.outline.color}
+      onchange={(c) => setEdge({ outline: { ...edge!.value.outline!, color: c } })}
+    />
+    <NumberField
+      value={edge.value.outline.width}
+      min={1}
+      max={40}
+      onchange={(v) => setEdge({ outline: { ...edge!.value.outline!, width: v } })}
+    />
   {/if}
 </Field>
 <Field label={t('skin.edge.glow')}>
-  <Toggle checked={!!edge?.value.glow} mixed={edge?.mixed} onchange={(v) => setEdge({ glow: v ? { color: '#FFFFFF', strength: 0.6 } : undefined })} />
+  <Toggle
+    checked={!!edge?.value.glow}
+    mixed={edge?.mixed}
+    onchange={(v) => setEdge({ glow: v ? { color: '#FFFFFF', strength: 0.6 } : undefined })}
+  />
   {#if edge?.value.glow}
-    <ColorField value={edge.value.glow.color} onchange={(c) => setEdge({ glow: { ...edge!.value.glow!, color: c } })} />
+    <ColorField
+      value={edge.value.glow.color}
+      onchange={(c) => setEdge({ glow: { ...edge!.value.glow!, color: c } })}
+    />
   {/if}
 </Field>
 <Field label={t('skin.edge.shadow')}>
   <Toggle
     checked={!!edge?.value.shadow}
     mixed={edge?.mixed}
-    onchange={(v) => setEdge({ shadow: v ? { color: '#00000099', blur: 12, offset: { x: 0, y: 4 } } : undefined })}
+    onchange={(v) =>
+      setEdge({ shadow: v ? { color: '#00000099', blur: 12, offset: { x: 0, y: 4 } } : undefined })}
   />
   {#if edge?.value.shadow}
-    <NumberField value={edge.value.shadow.blur} min={0} max={80} onchange={(v) => setEdge({ shadow: { ...edge!.value.shadow!, blur: v } })} />
+    <NumberField
+      value={edge.value.shadow.blur}
+      min={0}
+      max={80}
+      onchange={(v) => setEdge({ shadow: { ...edge!.value.shadow!, blur: v } })}
+    />
   {/if}
 </Field>
 <Field label={t('skin.edge.glass')}>
-  <Toggle checked={!!edge?.value.glass} mixed={edge?.mixed} onchange={(v) => setEdge({ glass: v || undefined })} />
+  <Toggle
+    checked={!!edge?.value.glass}
+    mixed={edge?.mixed}
+    onchange={(v) => setEdge({ glass: v || undefined })}
+  />
 </Field>
 <Field label={t('skin.edge.particles')}>
   <Toggle
     checked={!!edge?.value.particles}
     mixed={edge?.mixed}
-    onchange={(v) => setEdge({ particles: v ? { color: '#FFFFFF', count: 12, speed: 1 } : undefined })}
+    onchange={(v) =>
+      setEdge({ particles: v ? { color: '#FFFFFF', count: 12, speed: 1 } : undefined })}
   />
   {#if edge?.value.particles}
-    <ColorField value={edge.value.particles.color} onchange={(c) => setEdge({ particles: { ...edge!.value.particles!, color: c } })} />
+    <ColorField
+      value={edge.value.particles.color}
+      onchange={(c) => setEdge({ particles: { ...edge!.value.particles!, color: c } })}
+    />
   {/if}
 </Field>
 

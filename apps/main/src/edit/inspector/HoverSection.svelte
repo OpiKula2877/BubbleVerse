@@ -8,7 +8,9 @@
 
   const w = $derived(editor.world!);
   const keys = ['grow', 'shake', 'glow', 'tooltip'] as const;
-  const values = $derived(Object.fromEntries(keys.map((k) => [k, commonField(w, ids, (b) => b.hover[k])])));
+  const values = $derived(
+    Object.fromEntries(keys.map((k) => [k, commonField(w, ids, (b) => b.hover[k])])),
+  );
 </script>
 
 {#each keys as k (k)}

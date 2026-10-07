@@ -111,7 +111,9 @@ export function cssToWorld(vp: Viewport, c: Vec2): Vec2 {
 }
 
 export function viewportAt(vps: readonly Viewport[], c: Vec2): Viewport | undefined {
-  return vps.find((v) => c.x >= v.css.x && c.x < v.css.x + v.css.w && c.y >= v.css.y && c.y < v.css.y + v.css.h);
+  return vps.find(
+    (v) => c.x >= v.css.x && c.x < v.css.x + v.css.w && c.y >= v.css.y && c.y < v.css.y + v.css.h,
+  );
 }
 
 /** Visible world rectangle of a viewport. */
@@ -128,7 +130,10 @@ export function zoomAt(layout: ScreenLayout, cam: Camera, c: Vec2, factor: numbe
   if (!vp) return cam;
   const before = cssToWorld(vp, c);
   const next = { ...cam, zoom: clampZoom(cam.zoom * factor) };
-  const after = cssToWorld(computeViewports(layout, next).find((v) => v.id === vp.id)!, c);
+  const after = cssToWorld(
+    computeViewports(layout, next).find((v) => v.id === vp.id)!,
+    c,
+  );
   return { ...next, x: next.x + before.x - after.x, y: next.y + before.y - after.y };
 }
 

@@ -23,7 +23,8 @@ export class MockCore implements Core {
   constructor(private readonly prefix = 'bv.mock.') {
     try {
       const saved = localStorage.getItem(this.prefix + 'assets');
-      if (saved) for (const [k, v] of Object.entries(JSON.parse(saved))) this.assets.set(k, String(v));
+      if (saved)
+        for (const [k, v] of Object.entries(JSON.parse(saved))) this.assets.set(k, String(v));
     } catch {
       /* storage unavailable */
     }
@@ -53,7 +54,12 @@ export class MockCore implements Core {
 
   layoutNow(): Layout {
     const dpr = window.devicePixelRatio || 1;
-    const rect = { x: 0, y: 0, w: Math.round(window.innerWidth * dpr), h: Math.round(window.innerHeight * dpr) };
+    const rect = {
+      x: 0,
+      y: 0,
+      w: Math.round(window.innerWidth * dpr),
+      h: Math.round(window.innerHeight * dpr),
+    };
     return {
       monitors: [{ id: 'mock', rect, work: rect, scale: dpr, primary: true }],
       uiMonitor: 'mock',
@@ -101,7 +107,12 @@ export class MockCore implements Core {
   async getSettings(): Promise<Settings> {
     const d = defaultSettings();
     const s = this.load<Partial<Settings>>('settings', {});
-    return { ...d, ...s, general: { ...d.general, ...s.general }, appearance: { ...d.appearance, ...s.appearance } };
+    return {
+      ...d,
+      ...s,
+      general: { ...d.general, ...s.general },
+      appearance: { ...d.appearance, ...s.appearance },
+    };
   }
 
   async setSettings(settings: Settings) {
@@ -153,7 +164,15 @@ export class MockCore implements Core {
           const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
           this.pending.set(path, {
             url,
-            info: { hash, ext, width: 0, height: 0, animated: ext === 'gif', bytes: file.size, warning: null },
+            info: {
+              hash,
+              ext,
+              width: 0,
+              height: 0,
+              animated: ext === 'gif',
+              bytes: file.size,
+              warning: null,
+            },
           });
           out.push(path);
         }

@@ -26,7 +26,8 @@
     class="swatch"
     type="color"
     value={mixed ? '#808080' : value.slice(0, 7)}
-    oninput={(e) => set((e.currentTarget as HTMLInputElement).value + (value.length > 7 ? value.slice(7) : ''))}
+    oninput={(e) =>
+      set((e.currentTarget as HTMLInputElement).value + (value.length > 7 ? value.slice(7) : ''))}
   />
   <input
     class="hex"
@@ -34,7 +35,6 @@
     bind:value={text}
     placeholder={mixed ? t('common.mixed') : ''}
     onchange={() => set(text)}
-    onkeydown={(e) => e.stopPropagation()}
   />
 </div>
 

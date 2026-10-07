@@ -1,24 +1,9 @@
-<script lang="ts" module>
-  export interface MenuItem {
-    label?: string;
-    icon?: string;
-    action?: () => void;
-    disabled?: boolean;
-    danger?: boolean;
-    separator?: boolean;
-    shortcut?: string;
-  }
-</script>
-
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import type { MenuItem } from './menu';
 
-  let {
-    x,
-    y,
-    items,
-    onclose,
-  }: { x: number; y: number; items: MenuItem[]; onclose: () => void } = $props();
+  let { x, y, items, onclose }: { x: number; y: number; items: MenuItem[]; onclose: () => void } =
+    $props();
 
   let el: HTMLDivElement | undefined = $state();
   let pos = $state({ x: 0, y: 0 });
@@ -59,7 +44,9 @@
         disabled={item.disabled}
         onclick={() => pick(item)}
       >
-        <span class="ic">{#if item.icon}<Icon name={item.icon} size={15} />{/if}</span>
+        <span class="ic"
+          >{#if item.icon}<Icon name={item.icon} size={15} />{/if}</span
+        >
         <span class="label">{item.label}</span>
         {#if item.shortcut}<span class="sc">{item.shortcut}</span>{/if}
       </button>

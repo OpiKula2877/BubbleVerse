@@ -116,7 +116,10 @@ export class Editor {
     this.canRedo = this.history.canRedo;
     this.dirty = true;
     const idx = new WorldIndex(w);
-    this.selection = { ids: new Set([...this.selection.ids].filter((id) => idx.get(id))), anchor: this.selection.anchor };
+    this.selection = {
+      ids: new Set([...this.selection.ids].filter((id) => idx.get(id))),
+      anchor: this.selection.anchor,
+    };
     store.renderer?.setWorld(w);
     store.renderer?.setSelection(this.selection.ids);
     this.scheduleAutosave();
@@ -131,7 +134,7 @@ export class Editor {
     clearTimeout(this.autosaveTimer);
     if (!this.dirty) return;
     try {
-      this.draftSavedAt = await store.core.saveDraft($state.snapshot(this.world) as World);
+      this.draftSavedAt = await store.core.saveDraft(this.world!);
     } catch (e) {
       store.error(e);
     }
@@ -141,8 +144,7 @@ export class Editor {
   async save(): Promise<boolean> {
     clearTimeout(this.autosaveTimer);
     try {
-      const w = $state.snapshot(this.world) as World;
-      await store.core.publish(w);
+      await store.core.publish(this.world!);
       store.published = this.world!;
       this.dirty = false;
       this.draftSavedAt = null;
@@ -214,7 +216,8 @@ export class Editor {
       parentSize: parent ? resolver.skin(parent.id).size : undefined,
     });
     this.apply((x) => ({ ...x, bubbles: [...x.bubbles, b] }));
-    if (parent && !store.renderer?.expand.isExpanded(parent.id)) store.renderer?.expand.set(parent.id, true);
+    if (parent && !store.renderer?.expand.isExpanded(parent.id))
+      store.renderer?.expand.set(parent.id, true);
     this.select([b.id], b.id);
     this.quickCreate = { id: b.id, x: screen.x, y: screen.y };
   }
@@ -259,7 +262,11 @@ export class Editor {
   // ---------------------------------------------------------------- clipboard
 
   copy(): void {
-    const clip = copyBranches(this.world!, this.selected, store.renderer?.basePositions() ?? new Map());
+    const clip = copyBranches(
+      this.world!,
+      this.selected,
+      store.renderer?.basePositions() ?? new Map(),
+    );
     if (clip) this.clip = clip;
   }
 
@@ -271,13 +278,23 @@ export class Editor {
     if (!this.clip) return;
     const sel = this.selected;
     const target = parent !== undefined ? parent : sel.length === 1 ? sel[0]! : null;
-    const res = pasteBranches(this.world!, this.clip, target, store.renderer?.basePositions() ?? new Map(), at);
+    const res = pasteBranches(
+      this.world!,
+      this.clip,
+      target,
+      store.renderer?.basePositions() ?? new Map(),
+      at,
+    );
     this.apply(() => res.world);
     this.select(res.rootIds);
   }
 
   duplicate(): void {
-    const res = duplicateBranches(this.world!, this.selected, store.renderer?.basePositions() ?? new Map());
+    const res = duplicateBranches(
+      this.world!,
+      this.selected,
+      store.renderer?.basePositions() ?? new Map(),
+    );
     if (!res.rootIds.length) return;
     this.apply(() => res.world);
     this.select(res.rootIds);
@@ -293,7 +310,9 @@ export class Editor {
     if (!skin) return;
     this.apply((w) => ({
       ...w,
-      bubbles: w.bubbles.map((b) => (ids.includes(b.id) ? { ...b, skin: structuredClone(skin) } : b)),
+      bubbles: w.bubbles.map((b) =>
+        ids.includes(b.id) ? { ...b, skin: structuredClone(skin) } : b,
+      ),
     }));
   }
 
@@ -317,7 +336,10 @@ export class Editor {
     const w = this.world!;
     const files = w.bubbles
       .map((b) => ({ id: b.id, target: actionTarget(b) }))
-      .filter((x): x is { id: string; target: { kind: 'file'; value: string } } => x.target?.kind === 'file');
+      .filter(
+        (x): x is { id: string; target: { kind: 'file'; value: string } } =>
+          x.target?.kind === 'file',
+      );
     if (!files.length) {
       this.missing = new Set();
       return;

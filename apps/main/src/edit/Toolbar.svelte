@@ -18,11 +18,25 @@
 </script>
 
 <div class="toolbar bv-glass">
-  <Button variant="primary" icon="save" onclick={() => void editor.save()} title="Ctrl+S">{t('toolbar.save')}</Button>
+  <Button variant="primary" icon="save" onclick={() => void editor.save()} title="Ctrl+S"
+    >{t('toolbar.save')}</Button
+  >
   <Button icon="discard" disabled={!editor.dirty} onclick={discard}>{t('toolbar.discard')}</Button>
   <div class="sep"></div>
-  <Button variant="ghost" icon="undo" title={t('toolbar.undo')} disabled={!editor.canUndo} onclick={() => editor.undo()} />
-  <Button variant="ghost" icon="redo" title={t('toolbar.redo')} disabled={!editor.canRedo} onclick={() => editor.redo()} />
+  <Button
+    variant="ghost"
+    icon="undo"
+    title={t('toolbar.undo')}
+    disabled={!editor.canUndo}
+    onclick={() => editor.undo()}
+  />
+  <Button
+    variant="ghost"
+    icon="redo"
+    title={t('toolbar.redo')}
+    disabled={!editor.canRedo}
+    onclick={() => editor.redo()}
+  />
   <div class="sep"></div>
   <Button
     variant="ghost"
@@ -31,8 +45,11 @@
     onclick={() => (editor.preview = !editor.preview)}
     >{editor.preview ? t('toolbar.stopPreview') : t('toolbar.preview')}</Button
   >
-  <Button variant="ghost" icon="grid" active={editor.grid} onclick={() => (editor.grid = !editor.grid)}
-    >{t('toolbar.grid')}</Button
+  <Button
+    variant="ghost"
+    icon="grid"
+    active={editor.grid}
+    onclick={() => (editor.grid = !editor.grid)}>{t('toolbar.grid')}</Button
   >
   <span class="status" class:dirty={editor.dirty}>{editor.status}</span>
 </div>

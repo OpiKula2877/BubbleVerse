@@ -1,8 +1,11 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
 
-  let { label, children, wide = false }: { label: string; children: Snippet; wide?: boolean } =
-    $props();
+  let {
+    label,
+    children,
+    wide = false,
+  }: { label: string; children: Snippet; wide?: boolean } = $props();
 </script>
 
 <div class="field" class:wide>

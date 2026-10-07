@@ -1,7 +1,15 @@
 import { defaultLabel, defaultSkin } from '../model/defaults';
 import { SkinResolver, type SkinKey } from '../model/skin';
 import { WorldIndex } from '../model/tree';
-import type { Bubble, BubbleId, InheritFrom, LabelStyle, Skin, SkinRef, World } from '../model/types';
+import type {
+  Bubble,
+  BubbleId,
+  InheritFrom,
+  LabelStyle,
+  Skin,
+  SkinRef,
+  World,
+} from '../model/types';
 import { mapBubbles } from './ops';
 
 /**
@@ -12,7 +20,11 @@ import { mapBubbles } from './ops';
 export type Mixed<T> = { mixed: false; value: T } | { mixed: true; value: T };
 
 /** Common value of the selected bubbles' resolved skins ("—" when they differ). */
-export function commonValue<T>(world: World, ids: readonly BubbleId[], get: (s: Skin, b: Bubble) => T): Mixed<T> | null {
+export function commonValue<T>(
+  world: World,
+  ids: readonly BubbleId[],
+  get: (s: Skin, b: Bubble) => T,
+): Mixed<T> | null {
   const index = new WorldIndex(world);
   const resolver = new SkinResolver(index);
   let first: { v: T; key: string } | null = null;
@@ -36,15 +48,26 @@ function setKey(skin: Partial<Skin>, key: SkinKey, value: unknown): Partial<Skin
 }
 
 /** Sets one skin property on all bubbles. */
-export function writeSkin<K extends SkinKey>(world: World, ids: Iterable<BubbleId>, key: K, value: Skin[K]): World {
+export function writeSkin<K extends SkinKey>(
+  world: World,
+  ids: Iterable<BubbleId>,
+  key: K,
+  value: Skin[K],
+): World {
   return mapBubbles(world, ids, (b) => {
-    if (b.skin.mode === 'own') return { ...b, skin: { mode: 'own', skin: setKey(b.skin.skin, key, value) as Skin } };
+    if (b.skin.mode === 'own')
+      return { ...b, skin: { mode: 'own', skin: setKey(b.skin.skin, key, value) as Skin } };
     return { ...b, skin: { ...b.skin, overrides: setKey(b.skin.overrides ?? {}, key, value) } };
   });
 }
 
 /** Sets one field of the name style; inheriting bubbles override only that field. */
-export function writeLabel<K extends keyof LabelStyle>(world: World, ids: Iterable<BubbleId>, field: K, value: LabelStyle[K]): World {
+export function writeLabel<K extends keyof LabelStyle>(
+  world: World,
+  ids: Iterable<BubbleId>,
+  field: K,
+  value: LabelStyle[K],
+): World {
   return mapBubbles(world, ids, (b) => {
     if (b.skin.mode === 'own') {
       const label = { ...(b.skin.skin.label ?? defaultLabel()), [field]: value };
@@ -72,7 +95,12 @@ export function resetOverride(world: World, ids: Iterable<BubbleId>, key: SkinKe
  * Switches between an own skin and "same as". Switching to own freezes the currently resolved
  * look; switching to inherit keeps the current look's differences as overrides only for size.
  */
-export function setSkinMode(world: World, ids: Iterable<BubbleId>, mode: 'own' | 'inherit', from: InheritFrom = 'parent'): World {
+export function setSkinMode(
+  world: World,
+  ids: Iterable<BubbleId>,
+  mode: 'own' | 'inherit',
+  from: InheritFrom = 'parent',
+): World {
   const resolver = new SkinResolver(new WorldIndex(world));
   return mapBubbles(world, ids, (b) => {
     if (mode === 'own') {

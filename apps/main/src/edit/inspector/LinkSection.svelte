@@ -22,7 +22,12 @@
 </script>
 
 <Field label="">
-  <Toggle checked={inherit?.value} mixed={inherit?.mixed} label={t('link.inherit')} onchange={(v) => set({ inherit: v })} />
+  <Toggle
+    checked={inherit?.value}
+    mixed={inherit?.mixed}
+    label={t('link.inherit')}
+    onchange={(v) => set({ inherit: v })}
+  />
 </Field>
 {#if !(inherit && !inherit.mixed && inherit.value)}
   <Field label={t('link.type')}>
@@ -46,10 +51,21 @@
     </Field>
   {/if}
   <Field label={t('link.color')}>
-    <ColorField value={color?.value ?? '#FFFFFF'} mixed={color?.mixed} onchange={(c) => set({ color: c }, 'lcolor')} />
+    <ColorField
+      value={color?.value ?? '#FFFFFF'}
+      mixed={color?.mixed}
+      onchange={(c) => set({ color: c }, 'lcolor')}
+    />
   </Field>
   <Field label={t('link.width')}>
-    <NumberField value={width?.value ?? 2} mixed={width?.mixed} min={0.5} max={40} step={0.5} onchange={(v) => set({ width: v }, 'lwidth')} />
+    <NumberField
+      value={width?.value ?? 2}
+      mixed={width?.mixed}
+      min={0.5}
+      max={40}
+      step={0.5}
+      onchange={(v) => set({ width: v }, 'lwidth')}
+    />
   </Field>
   <Field label={t('link.opacity')}>
     <NumberField

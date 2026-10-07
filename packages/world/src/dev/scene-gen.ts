@@ -41,7 +41,10 @@ export function generateScene(count: number, seed = 1): World {
             { at: 1, color: BUBBLE_PALETTE[m % BUBBLE_PALETTE.length] ?? '#4C97FF' },
           ],
         },
-        edge: { outline: { color: '#FFFFFF', width: 3 }, shadow: { color: '#00000080', blur: 12, offset: { x: 0, y: 4 } } },
+        edge: {
+          outline: { color: '#FFFFFF', width: 3 },
+          shadow: { color: '#00000080', blur: 12, offset: { x: 0, y: 4 } },
+        },
       };
     }
     if (m % 3 === 1) main.physics = { float: { amplitude: 8, speed: 0.3 } };
@@ -77,9 +80,23 @@ export function generateScene(count: number, seed = 1): World {
       }
       const r = rnd();
       if (r < 0.15) {
-        b.motion.track = { type: 'orbit', center: parent.id, rx: dist, ry: dist * 0.7, tilt: rnd() * 90, speed: 10 + rnd() * 30, dir: rnd() < 0.5 ? 'cw' : 'ccw', phase: rnd() * 360 };
+        b.motion.track = {
+          type: 'orbit',
+          center: parent.id,
+          rx: dist,
+          ry: dist * 0.7,
+          tilt: rnd() * 90,
+          speed: 10 + rnd() * 30,
+          dir: rnd() < 0.5 ? 'cw' : 'ccw',
+          phase: rnd() * 360,
+        };
       } else if (r < 0.3) {
-        b.motion.track = { type: 'wander', area: { shape: 'circle', r: 40 }, speed: 20, smoothness: 0.6 };
+        b.motion.track = {
+          type: 'wander',
+          area: { shape: 'circle', r: 40 },
+          speed: 20,
+          smoothness: 0.6,
+        };
       }
       if (rnd() < 0.15) b.motion.pulse = { min: 0.9, max: 1.1, period: 2 + rnd() * 2 };
       if (rnd() < 0.1) b.motion.spin = { mode: 'pendulum', speed: 60, angle: 15 };

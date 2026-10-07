@@ -18,7 +18,13 @@
     active={store.viewMenuOpen}
     onclick={() => (store.viewMenuOpen = !store.viewMenuOpen)}
   />
-  <Button variant="ghost" icon="hammer" title={t('top.edit')} active={store.mode === 'edit'} onclick={toggleEdit} />
+  <Button
+    variant="ghost"
+    icon="hammer"
+    title={t('top.edit')}
+    active={store.mode === 'edit'}
+    onclick={toggleEdit}
+  />
   <Button
     variant="ghost"
     icon="gear"
@@ -27,7 +33,12 @@
     onclick={() => (store.settingsOpen = !store.settingsOpen)}
   />
   {#if store.core.isTauri && !store.layout?.windowed}
-    <Button variant="ghost" icon="minus" title={t('top.hide')} onclick={() => void store.core.hideMain()} />
+    <Button
+      variant="ghost"
+      icon="minus"
+      title={t('top.hide')}
+      onclick={() => void store.core.hideMain()}
+    />
   {/if}
 </div>
 

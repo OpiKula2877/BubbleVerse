@@ -94,8 +94,11 @@ export class BubbleView {
     const ls = st.size / LABEL_BASE;
     l.scale.set(ls);
     const half = s.size / 2;
-    const gap = 4 + (st.size * 0.6);
-    l.position.set(0, st.position === 'inside' ? 0 : st.position === 'above' ? -half - gap : half + gap);
+    const gap = 4 + st.size * 0.6;
+    l.position.set(
+      0,
+      st.position === 'inside' ? 0 : st.position === 'above' ? -half - gap : half + gap,
+    );
   }
 
   destroy(): void {

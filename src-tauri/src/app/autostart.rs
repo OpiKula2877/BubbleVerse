@@ -65,7 +65,11 @@ pub fn current() -> Option<String> {
 }
 
 /// Registers or removes the Run value so it matches the setting (and the current exe path).
+/// Development builds never touch the registry unless `BV_DEV_AUTOSTART=1`.
 pub fn sync(enabled: bool) -> AppResult<()> {
+    if cfg!(debug_assertions) && std::env::var("BV_DEV_AUTOSTART").as_deref() != Ok("1") {
+        return Ok(());
+    }
     let wanted = if enabled { Some(command()?) } else { None };
     if current() != wanted {
         set(enabled)?;

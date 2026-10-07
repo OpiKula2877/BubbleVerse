@@ -18,7 +18,9 @@
     border-radius: 6px;
     background: var(--bv-tooltip);
     color: var(--bv-tooltip-text);
-    font: 12px Consolas, monospace;
+    font:
+      12px Consolas,
+      monospace;
     pointer-events: none;
   }
 </style>

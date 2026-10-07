@@ -70,7 +70,11 @@ describe('viewports', () => {
   });
 
   it('fits a box with a 10 % margin like the spec example', () => {
-    const square: ScreenLayout = { ...layout, monitors: [{ id: 'A', rect: { x: 0, y: 0, w: 1200, h: 1200 }, scale: 1 }], cssScale: 1 };
+    const square: ScreenLayout = {
+      ...layout,
+      monitors: [{ id: 'A', rect: { x: 0, y: 0, w: 1200, h: 1200 }, scale: 1 }],
+      cssScale: 1,
+    };
     const cam = fitCamera(square, { x: -500, y: -500, w: 1000, h: 1000 }, 0.1, 4);
     expect(cam.x).toBe(0);
     expect(cam.y).toBe(0);

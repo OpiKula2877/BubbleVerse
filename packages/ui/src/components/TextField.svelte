@@ -36,7 +36,6 @@
       e.preventDefault();
       onenter();
     }
-    e.stopPropagation();
   }
 </script>
 
@@ -47,8 +46,7 @@
     bind:value
     placeholder={mixed ? t('common.mixed') : placeholder}
     oninput={() => oninput?.(value)}
-    onkeydown={keydown}
-  ></textarea>
+    onkeydown={keydown}></textarea>
 {:else}
   <input
     class="field"
