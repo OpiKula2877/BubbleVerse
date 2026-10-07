@@ -321,5 +321,11 @@
   "perf.pause.fullscreen": "When a game or app runs full screen",
   "perf.pause.maximized": "When a maximized window covers the desktop",
   "perf.pause.battery": "In battery saver mode",
-  "perf.pause.locked": "When the screen is locked"
+  "perf.pause.locked": "When the screen is locked",
+  "prompt.askHint": "Enter = answer · Esc = cancel",
+  "prompt.countdown": "{action} in {n} s",
+  "prompt.action.sleep": "Sleep",
+  "prompt.action.restart": "Restart",
+  "prompt.action.shutdown": "Shut down",
+  "prompt.now": "Now"
 }

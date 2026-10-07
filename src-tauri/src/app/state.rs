@@ -9,7 +9,7 @@ use tauri::{AppHandle, Emitter, Manager};
 use crate::error::AppResult;
 use crate::os::monitors::{list_monitors, ui_monitor, virtual_desktop, MonitorInfo, Rect};
 use crate::paths::Paths;
-use crate::script::host::{Host, LogEntry, ScriptFx};
+use crate::script::host::{BoxFut, Host, LogEntry, ScriptFx};
 use crate::script::runtime::Runtime;
 use crate::storage::assets::{referenced_assets, AssetStore};
 use crate::storage::db::Db;
@@ -230,6 +230,45 @@ impl Host for AppHost {
         if let Some(s) = self.state() {
             let _ = kv::set_bubble_var(&s.db(), bubble, name, value);
         }
+    }
+
+    fn ask(&self, question: String) -> BoxFut<Option<String>> {
+        let app = self.app.clone();
+        Box::pin(async move { super::prompts::ask(&app, "ask", question, None, 0.0).await })
+    }
+
+    fn confirm(&self, question: String) -> BoxFut<bool> {
+        let app = self.app.clone();
+        Box::pin(async move {
+            tauri::async_runtime::spawn_blocking(move || {
+                super::prompts::confirm_blocking(&app, &question)
+            })
+            .await
+            .unwrap_or(false)
+        })
+    }
+
+    fn pick(&self, kind: String) -> BoxFut<Option<String>> {
+        let app = self.app.clone();
+        Box::pin(async move {
+            tauri::async_runtime::spawn_blocking(move || super::prompts::pick_blocking(&app, &kind))
+                .await
+                .ok()
+                .flatten()
+        })
+    }
+
+    fn countdown(&self, action: String, seconds: f64) -> BoxFut<bool> {
+        let app = self.app.clone();
+        Box::pin(async move {
+            super::prompts::ask(&app, "countdown", String::new(), Some(action), seconds)
+                .await
+                .is_some()
+        })
+    }
+
+    fn notify(&self, title: &str, text: &str) {
+        super::prompts::notify(&self.app, title, text);
     }
 
     fn app_focused(&self) -> bool {

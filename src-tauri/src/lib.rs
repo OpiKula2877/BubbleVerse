@@ -51,6 +51,7 @@ pub fn run() {
             app::commands::pause_shortcuts,
             app::wallpaper::wallpaper_snapshot,
             app::wallpaper::wallpaper_status,
+            app::prompts::prompt_answer,
         ])
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();

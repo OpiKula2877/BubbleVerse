@@ -321,5 +321,11 @@
   "perf.pause.fullscreen": "Při hře nebo aplikaci na celou obrazovku",
   "perf.pause.maximized": "Při maximalizovaném okně přes plochu",
   "perf.pause.battery": "V úsporném režimu baterie",
-  "perf.pause.locked": "Při zamčené obrazovce"
+  "perf.pause.locked": "Při zamčené obrazovce",
+  "prompt.askHint": "Enter = odpovědět · Esc = zrušit",
+  "prompt.countdown": "{action} za {n} s",
+  "prompt.action.sleep": "Uspání",
+  "prompt.action.restart": "Restart",
+  "prompt.action.shutdown": "Vypnutí",
+  "prompt.now": "Hned"
 }

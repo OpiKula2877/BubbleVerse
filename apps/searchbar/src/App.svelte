@@ -2,7 +2,9 @@
   import { SearchSession, type SearchKey, type SearchResult, type SearchView } from '@bv/search';
   import { applyTheme, getCore, SearchField, setLang, themeColors, type Settings } from '@bv/ui';
   import type { World } from '@bv/world';
-  import { emitTo } from '@tauri-apps/api/event';
+  import { emitTo, listen } from '@tauri-apps/api/event';
+  import PromptBox from './PromptBox.svelte';
+  import type { Prompt } from './prompt';
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { onDestroy, onMount } from 'svelte';
 
@@ -16,6 +18,7 @@
   let session: SearchSession | null = null;
   let view = $state.raw<SearchView | null>(null);
   let shownAt = 0;
+  let prompt = $state<Prompt | null>(null);
   /** `desktop` = opened by Ctrl+F on the desktop: the wallpaper follows the search (spec §2.2). */
   let mode: string = 'global';
   const offs: (() => void)[] = [];
@@ -103,9 +106,15 @@
     if (core.isTauri) {
       // Clicking anywhere else closes the bar.
       const un = await getCurrentWindow().onFocusChanged(({ payload: focused }) => {
-        if (!focused && view && Date.now() - shownAt > 300) hide();
+        if (!focused && view && !prompt && Date.now() - shownAt > 300) hide();
       });
-      offs.push(un);
+      offs.push(
+        un,
+        await listen<Prompt>('bv://prompt', (e) => {
+          view = null;
+          prompt = e.payload;
+        }),
+      );
     } else {
       void open();
     }
@@ -115,7 +124,19 @@
 </script>
 
 <main>
-  {#if view}
+  {#if prompt}
+    {#key prompt.id}
+      <PromptBox
+        {prompt}
+        onanswer={(value) => {
+          const id = prompt!.id;
+          prompt = null;
+          void core.call('prompt_answer', { id, value });
+          void core.call('hide_searchbar');
+        }}
+      />
+    {/key}
+  {:else if view}
     <SearchField
       {view}
       compact
