@@ -2,6 +2,7 @@
   import { SearchSession, type SearchKey, type SearchResult, type SearchView } from '@bv/search';
   import { applyTheme, getCore, SearchField, setLang, themeColors, type Settings } from '@bv/ui';
   import type { World } from '@bv/world';
+  import { emitTo } from '@tauri-apps/api/event';
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { onDestroy, onMount } from 'svelte';
 
@@ -15,6 +16,8 @@
   let session: SearchSession | null = null;
   let view = $state.raw<SearchView | null>(null);
   let shownAt = 0;
+  /** `desktop` = opened by Ctrl+F on the desktop: the wallpaper follows the search (spec §2.2). */
+  let mode: string = 'global';
   const offs: (() => void)[] = [];
 
   function look(s: Settings) {
@@ -29,7 +32,21 @@
     setLang(s.general.language);
   }
 
-  async function open() {
+  /** Tells the wallpaper what to grey out and where to aim the camera. */
+  function toWallpaper(focus?: string | null) {
+    if (mode !== 'desktop' || !core.isTauri) return;
+    const v = view;
+    void emitTo('wallpaper', 'bv://desktop-search', {
+      active: !!v,
+      colored: v ? [...v.colored] : [],
+      path: v ? [...v.path] : [],
+      current: v?.current?.item.id ?? null,
+      ...(focus !== undefined ? { focus } : {}),
+    });
+  }
+
+  async function open(m: string = 'global') {
+    mode = m;
     if (!world) return;
     const [history, usage] = await Promise.all([
       core.searchHistory().catch(() => [] as string[]),
@@ -47,11 +64,13 @@
     );
     view = session.view();
     shownAt = Date.now();
+    toWallpaper();
   }
 
   function hide() {
     session = null;
     view = null;
+    toWallpaper();
     void core.call('hide_searchbar');
   }
 
@@ -69,6 +88,7 @@
       return;
     }
     view = session.view();
+    toWallpaper(r.kind === 'focus' ? r.id : undefined);
   }
 
   onMount(async () => {
@@ -76,7 +96,7 @@
     world = b.published;
     look(b.settings);
     offs.push(
-      core.on('search', () => void open()),
+      core.on('search', (m) => void open(m)),
       core.on('world-published', (w) => (world = w)),
       core.on('settings', (s) => look(s)),
     );

@@ -72,12 +72,14 @@ pub fn show_main(app: &AppHandle) {
         let _ = w.unminimize();
         let _ = w.set_focus();
     }
+    super::wallpaper::sync_sleep(app);
 }
 
 pub fn hide_main(app: &AppHandle) {
     if let Some(w) = app.get_webview_window(MAIN) {
         let _ = w.hide();
     }
+    super::wallpaper::sync_sleep(app);
 }
 
 /// Open/hide shortcut and tray click (spec §2.1).
@@ -104,6 +106,7 @@ pub fn refresh_layout(app: &AppHandle) {
             }
         }
         let _ = app.emit(events::LAYOUT, state.layout());
+        super::wallpaper::refresh(app);
     }
 }
 

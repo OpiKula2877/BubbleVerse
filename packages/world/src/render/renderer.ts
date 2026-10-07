@@ -188,6 +188,8 @@ export class WorldRenderer {
   private statWindow = 0;
   private frameTime = 0;
   private destroyed = false;
+  /** Asleep: nothing is drawn (hidden wallpaper, auto-pause). */
+  private suspended = false;
 
   private constructor(private readonly opts: RendererOptions) {
     this.app = new Application();
@@ -461,7 +463,27 @@ export class WorldRenderer {
 
   requestRender(): void {
     this.dirty = true;
-    if (!this.raf && !this.destroyed) this.raf = requestAnimationFrame(this.loop);
+    if (!this.raf && !this.destroyed && !this.suspended)
+      this.raf = requestAnimationFrame(this.loop);
+  }
+
+  /** Stops drawing completely (0 % GPU) until resumed. */
+  setSuspended(on: boolean): void {
+    if (this.suspended === on) return;
+    this.suspended = on;
+    if (on && this.raf) {
+      cancelAnimationFrame(this.raf);
+      this.raf = 0;
+    }
+    this.lastFrame = 0;
+    if (!on) this.requestRender();
+  }
+
+  /** Draws one frame right now and returns it as a PNG data URL (static wallpaper fallback). */
+  snapshot(): string {
+    this.update(1 / 60, performance.now());
+    this.renderPasses();
+    return this.app.canvas.toDataURL('image/png');
   }
 
   private loop = (now: number): void => {

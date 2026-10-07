@@ -97,6 +97,11 @@ pub fn apply_settings(app: &AppHandle, next: Settings) -> AppResult<Settings> {
     {
         tray::refresh(app);
     }
+    if prev.general.wallpaper != next.general.wallpaper
+        || prev.general.hide_desktop_icons != next.general.hide_desktop_icons
+    {
+        super::wallpaper::apply(app);
+    }
     if prev.general.primary_monitor != next.general.primary_monitor {
         windows::refresh_layout(app);
     }

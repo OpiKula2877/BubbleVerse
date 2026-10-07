@@ -7,4 +7,6 @@ pub mod input;
 pub mod keys;
 pub mod launch;
 pub mod monitors;
+pub mod power;
+pub mod wallpaper;
 pub mod window_span;

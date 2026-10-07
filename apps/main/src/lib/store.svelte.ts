@@ -54,6 +54,7 @@ class AppStore {
   dialog = $state<DialogSpec | null>(null);
   editor = $state<Editor | null>(null);
   version = $state('');
+  wallpaperStatus = $state<'off' | 'live' | 'fallback'>('off');
   /** Window size, to rebuild the layout in windowed mode. */
   viewport = $state({ w: window.innerWidth, h: window.innerHeight });
   renderer: WorldRenderer | null = null;

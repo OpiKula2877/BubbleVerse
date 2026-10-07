@@ -29,6 +29,9 @@
     store.paused = b.paused;
     store.version = b.version;
     store.applyLook();
+    if (store.core.isTauri) {
+      store.wallpaperStatus = await store.core.call('wallpaper_status');
+    }
     store.ready = true;
     booted = { draft: b.draft };
     startIfReady();
@@ -67,6 +70,7 @@
       core.on('open-settings', () => (store.settingsOpen = true)),
       core.on('shortcut', (action) => runAction(action)),
       core.on('search', () => void search.start()),
+      core.on('wallpaper-status', (s) => (store.wallpaperStatus = s)),
     );
   });
 

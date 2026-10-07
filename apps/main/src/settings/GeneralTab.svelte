@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Field, Segmented, Select, t, Toggle, type Settings } from '@bv/ui';
+  import { Field, Icon, Segmented, Select, t, Toggle, type Settings } from '@bv/ui';
   import { store } from '../lib/store.svelte';
 
   const g = $derived(store.settings.general);
@@ -31,6 +31,9 @@
   label={t('settings.wallpaper')}
   onchange={(v) => set({ wallpaper: v })}
 />
+{#if g.wallpaper && store.wallpaperStatus === 'fallback'}
+  <div class="warn"><Icon name="warning" size={15} />{t('settings.wallpaperFallback')}</div>
+{/if}
 <Toggle
   checked={g.hideDesktopIcons}
   label={t('settings.hideIcons')}
@@ -79,3 +82,16 @@
   label={t('settings.checkUpdates')}
   onchange={(v) => set({ checkUpdates: v })}
 />
+
+<style>
+  .warn {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--bv-warning);
+    border-radius: calc(var(--bv-radius) * 0.75);
+    color: var(--bv-warning);
+    font-size: 12px;
+  }
+</style>

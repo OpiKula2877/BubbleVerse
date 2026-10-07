@@ -49,6 +49,8 @@ pub fn run() {
             app::commands::set_global,
             app::commands::hide_searchbar,
             app::commands::pause_shortcuts,
+            app::wallpaper::wallpaper_snapshot,
+            app::wallpaper::wallpaper_status,
         ])
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();
@@ -63,11 +65,19 @@ pub fn run() {
             app::windows::create_main(&handle)?;
             app::search::create_searchbar(&handle)?;
             app::shortcuts::start(&handle);
+            app::wallpaper::apply(&handle);
+            app::autopause::start(handle.clone());
             app::windows::watch_monitors(handle);
             Ok(())
         })
-        .run(tauri::generate_context!());
-    if let Err(e) = result {
-        eprintln!("BubbleVerse failed to start: {e}");
+        .build(tauri::generate_context!());
+    match result {
+        Ok(app) => app.run(|handle, event| {
+            if let tauri::RunEvent::Exit = event {
+                // Give the desktop back: no live wallpaper, icons visible, original wallpaper.
+                app::wallpaper::stop(handle);
+            }
+        }),
+        Err(e) => eprintln!("BubbleVerse failed to start: {e}"),
     }
 }

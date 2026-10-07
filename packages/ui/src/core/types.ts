@@ -115,6 +115,8 @@ export interface CoreEvents {
   'open-settings': null;
   shortcut: string;
   search: string;
+  'wallpaper-status': 'off' | 'live' | 'fallback';
+  autopause: { paused: boolean };
 }
 
 export type Unsubscribe = () => void;

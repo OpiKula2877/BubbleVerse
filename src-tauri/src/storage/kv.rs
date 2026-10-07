@@ -105,6 +105,36 @@ pub fn set_bubble_var(db: &Db, bubble_id: &str, name: &str, value: &Value) -> Ap
     Ok(())
 }
 
+// ---------- Small internal values (stored in the settings table under "meta:") ----------
+
+pub fn meta(db: &Db, name: &str) -> AppResult<Option<String>> {
+    Ok(db
+        .conn
+        .query_row(
+            "SELECT value FROM settings WHERE key = ?1",
+            params![format!("meta:{name}")],
+            |r| r.get(0),
+        )
+        .optional()?)
+}
+
+pub fn set_meta(db: &Db, name: &str, value: &str) -> AppResult<()> {
+    db.conn.execute(
+        "INSERT INTO settings (key, value) VALUES (?1, ?2)
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+        params![format!("meta:{name}"), value],
+    )?;
+    Ok(())
+}
+
+pub fn delete_meta(db: &Db, name: &str) -> AppResult<()> {
+    db.conn.execute(
+        "DELETE FROM settings WHERE key = ?1",
+        params![format!("meta:{name}")],
+    )?;
+    Ok(())
+}
+
 // ---------- Script layouts (block positions in the editor, spec §9.3) ----------
 
 pub fn layout(db: &Db, bubble_id: &str, slot: &str) -> AppResult<Option<String>> {
