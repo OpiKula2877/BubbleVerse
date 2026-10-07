@@ -1,0 +1,15 @@
+{
+  "name": "@bv/app-wallpaper",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "dependencies": {
+    "@bv/blocks": "workspace:*",
+    "@bv/search": "workspace:*",
+    "@bv/ui": "workspace:*",
+    "@bv/world": "workspace:*",
+    "@tauri-apps/api": "^2.12.1",
+    "pixi.js": "^8.22.0",
+    "svelte": "^5.57.1"
+  }
+}

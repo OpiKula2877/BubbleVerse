@@ -1,0 +1,12 @@
+{
+  "name": "@bv/blocks",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "blockly": "^13.3.0"
+  }
+}
