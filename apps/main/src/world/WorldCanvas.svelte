@@ -58,7 +58,9 @@
       host,
       assetUrl: (h) => store.core.assetUrl(h),
       graphicsApi: store.settings.performance.graphicsApi,
-      onStats: (s) => (store.stats = s),
+      onStats: (s) => {
+        store.stats = s;
+      },
     }).then((r) => {
       renderer = r;
       onready(r);

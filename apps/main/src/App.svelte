@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t } from '@bv/ui';
+  import { t, tk } from '@bv/ui';
   import { generateScene, type World, type WorldRenderer } from '@bv/world';
   import { onDestroy, onMount } from 'svelte';
   import EditMode from './edit/EditMode.svelte';
@@ -53,6 +53,15 @@
         syncMotion();
       }),
       core.on('fx', (fx) => store.renderer?.scriptFx(fx)),
+      // Script errors also show as a message so they are noticed outside the script editor.
+      core.on('log', (entry) => {
+        if (entry.level !== 'error') return;
+        const key = `error.${entry.code}`;
+        const msg = entry.code
+          ? tk(key, { path: entry.detail ?? '', message: entry.text })
+          : entry.text;
+        store.notify(`${entry.path}: ${msg === key ? entry.text : msg}`, true);
+      }),
       core.on('open-settings', () => (store.settingsOpen = true)),
       core.on('shortcut', (action) => runAction(action)),
     );

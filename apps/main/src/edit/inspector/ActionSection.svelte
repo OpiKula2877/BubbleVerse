@@ -71,7 +71,7 @@
       <TextField
         bind:value={pathText}
         mixed={path.mixed}
-        placeholder="C:\Program Files\…\app.exe"
+        placeholder={t('action.pathPlaceholder')}
         oninput={(v) => set({ kind: 'runFile', path: v, args: argsText }, 'path')}
       />
       <Button small onclick={browse}>{t('common.browse')}</Button>
@@ -88,7 +88,7 @@
       <TextField
         bind:value={urlText}
         mixed={url.mixed}
-        placeholder="https://"
+        placeholder={t('action.urlPlaceholder')}
         oninput={(v) => set({ kind: 'openUrl', url: v }, 'url')}
       />
     </Field>

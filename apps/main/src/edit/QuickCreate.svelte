@@ -3,14 +3,15 @@
   import { Button, ColorField, Field, t, TextField } from '@bv/ui';
   import type { Editor } from '../lib/editor.svelte';
   import { store } from '../lib/store.svelte';
+  import { untrack } from 'svelte';
   import { pickImageAsset } from './assets';
 
   let { editor }: { editor: Editor } = $props();
 
   // Created per bubble (keyed by id in EditMode), so initial values are read once.
-  const qc = editor.quickCreate!;
-  let name = $state(editor.index.get(qc.id)?.name ?? '');
-  let color = $state(fillColor(new SkinResolver(editor.index).skin(qc.id)));
+  const qc = untrack(() => editor.quickCreate!);
+  let name = $state(untrack(() => editor.index.get(qc.id)?.name ?? ''));
+  let color = $state(untrack(() => fillColor(new SkinResolver(editor.index).skin(qc.id))));
 
   function rename(v: string) {
     editor.apply(

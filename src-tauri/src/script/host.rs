@@ -59,6 +59,10 @@ pub struct LogEntry {
     /// Node number inside the script (for highlighting in the editor).
     pub node: Option<u32>,
     pub text: String,
+    /// Error code for a translated message (`error.<code>` in the UI dictionaries).
+    pub code: Option<String>,
+    /// Detail for the message, e.g. the missing path.
+    pub detail: Option<String>,
 }
 
 pub trait Host: Send + Sync + 'static {

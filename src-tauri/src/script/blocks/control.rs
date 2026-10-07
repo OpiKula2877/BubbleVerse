@@ -135,6 +135,8 @@ pub async fn exec(ctx: &mut Ctx, node: &Node) -> R<Flow> {
                 block: Some(node.op.id().to_string()),
                 node: Some(node.id),
                 text: value::text(&v),
+                code: None,
+                detail: None,
             });
             Ok(Flow::Next)
         }

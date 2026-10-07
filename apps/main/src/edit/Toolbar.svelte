@@ -18,8 +18,11 @@
 </script>
 
 <div class="toolbar bv-glass">
-  <Button variant="primary" icon="save" onclick={() => void editor.save()} title="Ctrl+S"
-    >{t('toolbar.save')}</Button
+  <Button
+    variant="primary"
+    icon="save"
+    onclick={() => void editor.save()}
+    title={t('toolbar.saveTitle')}>{t('toolbar.save')}</Button
   >
   <Button icon="discard" disabled={!editor.dirty} onclick={discard}>{t('toolbar.discard')}</Button>
   <div class="sep"></div>

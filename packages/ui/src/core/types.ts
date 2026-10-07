@@ -80,6 +80,9 @@ export interface LogEntry {
   block: string | null;
   node: number | null;
   text: string;
+  /** Error code for a translated message (`error.<code>`). */
+  code: string | null;
+  detail: string | null;
 }
 
 export interface RunningScript {

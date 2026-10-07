@@ -274,5 +274,13 @@
   "physics.repel": "Repel",
   "physics.attract": "Attract",
   "physics.strength": "Strength",
-  "physics.radius": "Range"
+  "physics.radius": "Range",
+  "error.io": "File error: {message}",
+  "error.windows": "Windows error: {message}",
+  "error.format": "Invalid data: {message}",
+  "error.window": "Window error: {message}",
+  "action.pathPlaceholder": "C:Program Files…app.exe",
+  "action.urlPlaceholder": "https://",
+  "toolbar.saveTitle": "Save (Ctrl+S)",
+  "view.fpsLine": "FPS {fps} · {ms} ms · {count} bubbles"
 }

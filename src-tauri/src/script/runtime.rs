@@ -10,7 +10,7 @@ use serde_json::Value;
 use tokio::sync::watch;
 use tokio_util::sync::CancellationToken;
 
-use super::exec::{Ctx, Exit};
+use super::exec::{Ctx, Exit, ScriptError};
 use super::format::RunMode;
 use super::generated::opcodes::Op;
 use super::host::{Host, LogEntry, ScriptFx};
@@ -190,7 +190,7 @@ impl Runtime {
             );
             let result = ctx.exec_stack(&slot.script.body).await;
             if let Err(Exit::Error(e)) = result {
-                rt.report_error(&bubble, slot_index, e.node, e.op, &e.message);
+                rt.report_error(&bubble, slot_index, &e);
             }
             rt.finish(id, &bubble.id);
             let _ = done_tx.send(true);
@@ -212,9 +212,7 @@ impl Runtime {
         &self,
         bubble: &BubbleScripts,
         slot: usize,
-        node: Option<u32>,
-        op: Option<Op>,
-        message: &str,
+        e: &ScriptError,
     ) {
         self.inner.host.fx(ScriptFx::Error {
             bubble: bubble.id.clone(),
@@ -225,9 +223,11 @@ impl Runtime {
             bubble: bubble.id.clone(),
             path: bubble.path.clone(),
             slot,
-            block: op.map(|o| o.id().to_string()),
-            node,
-            text: message.to_string(),
+            block: e.op.map(|o| o.id().to_string()),
+            node: e.node,
+            text: e.message.clone(),
+            code: e.code.map(str::to_string),
+            detail: e.detail.clone(),
         });
     }
 

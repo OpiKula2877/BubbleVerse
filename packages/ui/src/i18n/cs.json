@@ -274,5 +274,13 @@
   "physics.repel": "Odpuzovat",
   "physics.attract": "Přitahovat",
   "physics.strength": "Síla",
-  "physics.radius": "Dosah"
+  "physics.radius": "Dosah",
+  "error.io": "Chyba souboru: {message}",
+  "error.windows": "Chyba Windows: {message}",
+  "error.format": "Neplatná data: {message}",
+  "error.window": "Chyba okna: {message}",
+  "action.pathPlaceholder": "C:Program Files…aplikace.exe",
+  "action.urlPlaceholder": "https://",
+  "toolbar.saveTitle": "Uložit (Ctrl+S)",
+  "view.fpsLine": "FPS {fps} · {ms} ms · bublin: {count}"
 }

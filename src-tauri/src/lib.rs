@@ -45,6 +45,8 @@ pub fn run() {
             app::commands::list_backups,
             app::commands::restore_backup,
             app::commands::run_action,
+            app::commands::get_globals,
+            app::commands::set_global,
         ])
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();

@@ -7,10 +7,8 @@
     onchange,
   }: { value?: string; mixed?: boolean; onchange?: (v: string) => void } = $props();
 
-  let text = $state('');
-  $effect(() => {
-    text = mixed ? '' : value.toUpperCase();
-  });
+  // Follows the value; typing overrides it until the next change from outside.
+  let text = $derived(mixed ? '' : value.toUpperCase());
 
   function set(v: string) {
     const m = v.trim().match(/^#?([0-9a-fA-F]{6})([0-9a-fA-F]{2})?$/);

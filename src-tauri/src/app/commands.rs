@@ -201,6 +201,17 @@ pub fn restore_backup(file: String, state: State<'_, AppState>) -> AppResult<()>
     Ok(())
 }
 
+/// Current values of global variables (Variables window, spec §5.3).
+#[tauri::command]
+pub fn get_globals(state: State<'_, AppState>) -> std::collections::HashMap<String, Value> {
+    state.runtime.globals()
+}
+
+#[tauri::command]
+pub fn set_global(name: String, value: Value, state: State<'_, AppState>) {
+    state.runtime.set_global(&name, value);
+}
+
 #[tauri::command]
 pub fn run_action(action: String, app: AppHandle) {
     super::shortcuts::run_action(&app, &action);

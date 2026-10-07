@@ -14,10 +14,7 @@
   const expanded = $derived(commonField(w, folders, (b) => b.expanded !== false));
   const showName = $derived(commonField(w, ids, (b) => b.showName ?? 'inherit'));
 
-  let nameText = $state('');
-  $effect(() => {
-    nameText = name && !name.mixed ? name.value : '';
-  });
+  let nameText = $derived(name && !name.mixed ? name.value : '');
 </script>
 
 <Field label={t('inspector.name')}>

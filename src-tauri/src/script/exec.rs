@@ -34,6 +34,9 @@ pub struct ScriptError {
     pub message: String,
     pub node: Option<u32>,
     pub op: Option<Op>,
+    /// Error code for translated messages in the UI (`error.<code>`).
+    pub code: Option<&'static str>,
+    pub detail: Option<String>,
 }
 
 #[derive(Debug)]
@@ -169,12 +172,26 @@ impl Ctx {
             message: message.into(),
             node: Some(node.id),
             op: Some(node.op),
+            code: None,
+            detail: None,
         })
     }
 
     /// Turns a core error into a script error at `node`.
     pub fn check<T>(&self, node: &Node, r: Result<T, AppError>) -> R<T> {
-        r.map_err(|e| self.err(node, e.to_string()))
+        r.map_err(|e| {
+            let detail = match &e {
+                AppError::FileNotFound(p) => Some(p.clone()),
+                _ => None,
+            };
+            Exit::Error(ScriptError {
+                message: e.to_string(),
+                node: Some(node.id),
+                op: Some(node.op),
+                code: Some(e.code()),
+                detail,
+            })
+        })
     }
 
     // ---------- Variables: "s:name" (script), "b:name" (bubble), "g:name" (global) ----------

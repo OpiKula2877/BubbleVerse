@@ -4,8 +4,11 @@
 </script>
 
 <div class="fps">
-  {t('view.fps')}
-  {store.stats?.fps ?? 0} · {store.stats?.frameMs ?? 0} ms · {store.stats?.bubbles ?? 0}
+  {t('view.fpsLine', {
+    fps: store.stats?.fps ?? 0,
+    ms: store.stats?.frameMs ?? 0,
+    count: store.stats?.bubbles ?? 0,
+  })}
 </div>
 
 <style>
