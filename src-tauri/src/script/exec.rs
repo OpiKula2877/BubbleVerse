@@ -4,21 +4,26 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use serde_json::Value;
+use tokio::sync::Notify;
 use tokio_util::sync::CancellationToken;
 
 use super::blocks;
 use super::format::{Arg, Node};
 use super::generated::opcodes::Op;
+use super::host::TraceEvent;
 use super::runtime::{lock, Runtime};
 use super::value;
-use super::world::{BubbleScripts, Slot};
+use super::world::{BubbleScripts, CustomBlock, Slot};
 use crate::error::AppError;
 
 /// A loop without waiting yields every this many steps so the app never freezes (spec §5.4).
 pub const YIELD_EVERY: u64 = 10_000;
+
+/// The editor highlights the running block at most this often (a fast loop would flood it).
+const TRACE_EVERY: Duration = Duration::from_millis(25);
 
 pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 
@@ -61,8 +66,17 @@ pub struct Ctx {
     pub frames: Vec<HashMap<String, Value>>,
     /// Data of the event that started the script (message, process name…).
     pub event: Value,
+    /// Custom blocks from the editor that are not saved yet (test runs).
+    pub custom: Option<Arc<HashMap<String, Arc<CustomBlock>>>>,
+    /// Step mode: every block waits until the editor says "next step".
+    pub stepper: Option<Arc<Notify>>,
+    /// A test run from the editor (it has no slot of its own).
+    pub test: bool,
     steps: u64,
-    traced: bool,
+    pub(crate) traced: bool,
+    trace_at: Option<Instant>,
+    trace_pending: Option<u32>,
+    trace_sent: Option<u32>,
 }
 
 impl Ctx {
@@ -86,8 +100,76 @@ impl Ctx {
             params: script_slot.params.clone(),
             frames: Vec::new(),
             event,
+            custom: None,
+            stepper: None,
+            test: false,
             steps: 0,
             traced,
+            trace_at: None,
+            trace_pending: None,
+            trace_sent: None,
+        }
+    }
+
+    /// The slot shown in logs and traces; a test run has none.
+    pub fn log_slot(&self) -> Option<usize> {
+        (!self.test).then_some(self.slot)
+    }
+
+    /// A custom block by id: unsaved ones from the editor win over the saved ones.
+    pub fn custom_block(&self, id: &str) -> Option<Arc<CustomBlock>> {
+        self.custom
+            .as_ref()
+            .and_then(|m| m.get(id).cloned())
+            .or_else(|| self.rt.world().custom.get(id).cloned())
+    }
+
+    fn send_trace(&self, node: Option<u32>, paused: bool) {
+        self.rt.host().trace(TraceEvent {
+            bubble: self.bubble.id.clone(),
+            slot: self.log_slot(),
+            task: self.task,
+            node,
+            paused,
+        });
+    }
+
+    /// Tells the editor which stack block runs; in step mode waits for the next step.
+    async fn trace(&mut self, node: &Node) -> R<()> {
+        // Blocks inside a custom block belong to its definition, not to this script.
+        if !self.traced || !self.frames.is_empty() {
+            return Ok(());
+        }
+        if let Some(step) = self.stepper.clone() {
+            self.send_trace(Some(node.id), true);
+            self.trace_sent = Some(node.id);
+            return tokio::select! {
+                _ = step.notified() => Ok(()),
+                _ = self.cancel.cancelled() => Err(Exit::Cancelled),
+            };
+        }
+        self.trace_pending = Some(node.id);
+        if self.trace_at.is_none_or(|t| t.elapsed() >= TRACE_EVERY) {
+            self.flush_trace();
+        }
+        Ok(())
+    }
+
+    /// Sends the newest traced block if the editor has not seen it yet (before waiting).
+    pub fn flush_trace(&mut self) {
+        if let Some(node) = self.trace_pending.take() {
+            if self.trace_sent != Some(node) {
+                self.send_trace(Some(node), false);
+                self.trace_sent = Some(node);
+            }
+            self.trace_at = Some(Instant::now());
+        }
+    }
+
+    /// The script ended: the editor removes the highlight.
+    pub fn end_trace(&self) {
+        if self.traced {
+            self.send_trace(None, false);
         }
     }
 
@@ -104,7 +186,8 @@ impl Ctx {
 
     pub fn exec<'a>(&'a mut self, node: &'a Node) -> BoxFuture<'a, R<Flow>> {
         Box::pin(async move {
-            self.tick(node).await?;
+            self.loop_tick().await?;
+            self.trace(node).await?;
             blocks::exec(self, node).await
         })
     }
@@ -115,7 +198,7 @@ impl Ctx {
             match node.args.get(i) {
                 Some(Arg::Lit(v)) => Ok(v.clone()),
                 Some(Arg::Node(n)) => {
-                    self.tick(n).await?;
+                    self.loop_tick().await?;
                     blocks::eval(self, n).await
                 }
                 _ => Ok(Value::Null),
@@ -135,14 +218,6 @@ impl Ctx {
         Ok(value::truthy(&self.eval(node, i).await?))
     }
 
-    async fn tick(&mut self, node: &Node) -> R<()> {
-        self.loop_tick().await?;
-        if self.traced {
-            self.rt.host().trace(&self.bubble.id, self.slot, node.id);
-        }
-        Ok(())
-    }
-
     /// Called by every block and every loop iteration: cancellation check + periodic yield.
     pub async fn loop_tick(&mut self) -> R<()> {
         if self.cancel.is_cancelled() {
@@ -156,10 +231,11 @@ impl Ctx {
     }
 
     /// Waits without blocking anything; ends early when the script is stopped.
-    pub async fn sleep(&self, seconds: f64) -> R<()> {
+    pub async fn sleep(&mut self, seconds: f64) -> R<()> {
         if seconds.is_nan() || seconds <= 0.0 {
             return Ok(());
         }
+        self.flush_trace();
         let d = Duration::from_secs_f64(seconds.min(1e7));
         tokio::select! {
             _ = tokio::time::sleep(d) => Ok(()),

@@ -9,7 +9,7 @@ use tauri::{AppHandle, Emitter, Manager};
 use crate::error::AppResult;
 use crate::os::monitors::{list_monitors, ui_monitor, virtual_desktop, MonitorInfo, Rect};
 use crate::paths::Paths;
-use crate::script::host::{BoxFut, Host, LogEntry, ScriptFx};
+use crate::script::host::{BoxFut, Host, LogEntry, ScriptFx, TraceEvent};
 use crate::script::runtime::Runtime;
 use crate::storage::assets::{referenced_assets, AssetStore};
 use crate::storage::db::Db;
@@ -213,11 +213,10 @@ impl Host for AppHost {
         let _ = self.app.emit(events::LOG, entry);
     }
 
-    fn trace(&self, bubble: &str, slot: usize, node: u32) {
-        let _ = self.app.emit(
-            events::TRACE,
-            serde_json::json!({ "bubble": bubble, "slot": slot, "node": node }),
-        );
+    fn trace(&self, event: TraceEvent) {
+        let _ = self
+            .app
+            .emit_to(super::editor::EDITOR, events::TRACE, event);
     }
 
     fn save_global(&self, name: &str, value: &Value) {

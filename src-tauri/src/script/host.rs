@@ -43,6 +43,20 @@ pub enum ScriptFx {
     Move { bubble: String, x: f64, y: f64 },
 }
 
+/// The running block of a traced script for the editor (spec §5.5).
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct TraceEvent {
+    pub bubble: String,
+    /// Script slot of the bubble; `None` for a test run from the editor.
+    pub slot: Option<usize>,
+    pub task: u64,
+    /// Node about to run; `None` when the task has finished.
+    pub node: Option<u32>,
+    /// The task waits for the next step.
+    pub paused: bool,
+}
+
 #[derive(Clone, Debug, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LogEntry {
@@ -53,7 +67,9 @@ pub struct LogEntry {
     pub bubble: String,
     /// `Apps | Work | Claude Code`
     pub path: String,
-    pub slot: usize,
+    /// Script slot; `None` for a test run from the editor.
+    pub slot: Option<usize>,
+    pub task: Option<u64>,
     /// Block id from the catalog, e.g. `sys_run_file`.
     pub block: Option<String>,
     /// Node number inside the script (for highlighting in the editor).
@@ -68,8 +84,8 @@ pub struct LogEntry {
 pub trait Host: Send + Sync + 'static {
     fn fx(&self, fx: ScriptFx);
     fn log(&self, entry: LogEntry);
-    /// The block `node` of a traced script is about to run (editor highlighting, spec §5.5).
-    fn trace(&self, _bubble: &str, _slot: usize, _node: u32) {}
+    /// A block of a traced script is about to run, or the script ended (spec §5.5).
+    fn trace(&self, _event: TraceEvent) {}
     fn save_global(&self, name: &str, value: &Value);
     fn save_bubble_var(&self, bubble: &str, name: &str, value: &Value);
     /// Text answer; `None` when cancelled.
@@ -105,6 +121,7 @@ pub mod test_host {
         pub fx: Mutex<Vec<ScriptFx>>,
         pub logs: Mutex<Vec<LogEntry>>,
         pub saved: Mutex<Vec<(String, Value)>>,
+        pub traces: Mutex<Vec<TraceEvent>>,
     }
 
     impl Host for TestHost {
@@ -113,6 +130,9 @@ pub mod test_host {
         }
         fn log(&self, entry: LogEntry) {
             self.logs.lock().unwrap().push(entry);
+        }
+        fn trace(&self, event: TraceEvent) {
+            self.traces.lock().unwrap().push(event);
         }
         fn save_global(&self, name: &str, value: &Value) {
             self.saved

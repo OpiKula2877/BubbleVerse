@@ -12,6 +12,7 @@ pub mod media;
 pub mod monitors;
 pub mod power;
 pub mod process;
+pub mod recorder;
 pub mod sysinfo;
 pub mod wallpaper;
 pub mod winctl;

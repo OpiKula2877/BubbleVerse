@@ -176,7 +176,7 @@ async fn run_modes_and_stopping() {
     assert!(!rt.running().iter().any(|r| r.id == first[0]));
     rt.broadcast("parallel");
     rt.broadcast("parallel");
-    assert_eq!(rt.running().iter().filter(|r| r.slot == 2).count(), 2);
+    assert_eq!(rt.running().iter().filter(|r| r.slot == Some(2)).count(), 2);
     rt.stop_all();
     tokio::time::sleep(Duration::from_millis(200)).await;
     assert!(rt.running().is_empty());
@@ -285,4 +285,105 @@ async fn file_blocks_work_in_a_temp_folder() {
         ],
         "{l:?}"
     );
+}
+
+fn test_slot(script: Value) -> Arc<crate::script::world::Slot> {
+    Arc::new(crate::script::world::Slot {
+        script: Arc::new(crate::script::format::parse_script(&script).unwrap()),
+        params: Default::default(),
+        shared: None,
+    })
+}
+
+async fn wait_until(what: &str, f: impl Fn() -> bool) {
+    for _ in 0..200 {
+        if f() {
+            return;
+        }
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+    panic!("timed out waiting for {what}");
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn test_runs_ignore_the_trigger_and_use_unsaved_custom_blocks() {
+    let (rt, host) = setup(vec![]);
+    let bubble = rt.world().bubbles.get("b").cloned().unwrap();
+    let custom = crate::script::world::CompiledWorld::compile(&json!({
+        "customBlocks": [{ "id": "new", "name": "new", "params": [], "body": [[60, "from new block"]] }]
+    }))
+    .custom;
+    let id = rt.start_test(
+        bubble,
+        test_slot(
+            json!({ "v": 1, "trigger": [6, "never sent"], "body": [[561, "new"], [60, "done"]] }),
+        ),
+        crate::script::runtime::RunOpts {
+            custom: Some(Arc::new(custom)),
+            step: false,
+        },
+    );
+    tokio::time::timeout(Duration::from_secs(5), rt.wait_for(&[id]))
+        .await
+        .unwrap();
+    assert_eq!(logs(&host), vec!["from new block", "done"]);
+    let l = host.logs.lock().unwrap();
+    assert_eq!(l[0].slot, None, "test runs have no slot");
+    assert_eq!(l[0].task, Some(id));
+    // Test runs are traced even without an open editor; the end is reported too.
+    let traces = host.traces.lock().unwrap();
+    assert!(traces.iter().all(|t| t.task == id && t.slot.is_none()));
+    assert_eq!(traces.last().unwrap().node, None);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn step_mode_waits_for_each_block() {
+    let (rt, host) = setup(vec![]);
+    let bubble = rt.world().bubbles.get("b").cloned().unwrap();
+    let id = rt.start_test(
+        bubble,
+        test_slot(json!({ "v": 1, "trigger": [1], "body": [[60, "one"], [60, "two"]] })),
+        crate::script::runtime::RunOpts {
+            custom: None,
+            step: true,
+        },
+    );
+    let paused = |n: usize| {
+        let h = host.clone();
+        move || h.traces.lock().unwrap().iter().filter(|t| t.paused).count() == n
+    };
+    wait_until("first block", paused(1)).await;
+    assert!(logs(&host).is_empty(), "nothing runs before the first step");
+    rt.step(id);
+    wait_until("second block", paused(2)).await;
+    assert_eq!(logs(&host), vec!["one"]);
+    rt.step(id);
+    tokio::time::timeout(Duration::from_secs(5), rt.wait_for(&[id]))
+        .await
+        .unwrap();
+    assert_eq!(logs(&host), vec!["one", "two"]);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_new_test_run_stops_the_previous_one_and_stop_bubble_ends_it() {
+    let (rt, _host) = setup(vec![]);
+    let bubble = rt.world().bubbles.get("b").cloned().unwrap();
+    let forever = json!({ "v": 1, "trigger": [1], "body": [[52, [[50, 1]]]] });
+    let first = rt.start_test(
+        bubble.clone(),
+        test_slot(forever.clone()),
+        Default::default(),
+    );
+    let second = rt.start_test(bubble, test_slot(forever), Default::default());
+    tokio::time::timeout(Duration::from_secs(5), rt.wait_for(&[first]))
+        .await
+        .unwrap();
+    assert_eq!(rt.running().len(), 1);
+    assert_eq!(rt.running()[0].id, second);
+    assert_eq!(rt.running()[0].slot, None);
+    rt.stop_bubble("b", None);
+    tokio::time::timeout(Duration::from_secs(5), rt.wait_for(&[second]))
+        .await
+        .unwrap();
+    assert!(rt.running().is_empty());
 }

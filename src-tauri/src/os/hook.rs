@@ -15,8 +15,8 @@ use windows::Win32::UI::WindowsAndMessaging::{
     WH_KEYBOARD_LL, WM_KEYDOWN, WM_SYSKEYDOWN, WM_TIMER,
 };
 
-use super::input;
 use super::keys::{is_modifier, Combo};
+use super::{input, recorder};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Scope {
@@ -41,12 +41,6 @@ pub enum HookEvent {
     Shortcut(String),
     /// `Ctrl+F` while the desktop is active (spec §2.2).
     DesktopSearch,
-    /// Raw key while recording a macro (phase 4).
-    Key {
-        vk: u32,
-        down: bool,
-        time: u32,
-    },
 }
 
 struct Shared {
@@ -57,7 +51,6 @@ struct Shared {
     /// Keys that already fired and are still held (no repeats while held).
     held: Mutex<HashSet<u32>>,
     desktop_search: AtomicBool,
-    recording: AtomicBool,
     /// While a shortcut is being typed into the settings, nothing fires.
     paused: AtomicBool,
 }
@@ -71,7 +64,6 @@ fn shared() -> &'static Shared {
         swallowed: Mutex::new(HashSet::new()),
         held: Mutex::new(HashSet::new()),
         desktop_search: AtomicBool::new(false),
-        recording: AtomicBool::new(false),
         paused: AtomicBool::new(false),
     })
 }
@@ -93,10 +85,6 @@ pub fn set_desktop_search(on: bool) {
 
 pub fn set_paused(on: bool) {
     shared().paused.store(on, Ordering::Relaxed);
-}
-
-pub fn set_recording(on: bool) {
-    shared().recording.store(on, Ordering::Relaxed);
 }
 
 fn send(ev: HookEvent) {
@@ -142,8 +130,8 @@ unsafe extern "system" fn hook_proc(code: i32, wparam: WPARAM, lparam: LPARAM) -
 fn handle(msg: u32, vk: u32, time: u32) -> bool {
     let s = shared();
     let down = msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN;
-    if s.recording.load(Ordering::Relaxed) {
-        send(HookEvent::Key { vk, down, time });
+    if recorder::is_recording() {
+        recorder::key(vk, down, time);
     }
     if !down {
         lock(&s.held).remove(&vk);

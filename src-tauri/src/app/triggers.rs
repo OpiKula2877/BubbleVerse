@@ -7,11 +7,11 @@ use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 
 use chrono::{Datelike, Local, Timelike};
-use serde_json::{json, Value};
-use tauri::{AppHandle, Emitter, Manager};
+use serde_json::Value;
+use tauri::{AppHandle, Manager};
 
 use super::state::AppState;
-use crate::os::hook::{Binding, HookEvent, Scope};
+use crate::os::hook::{Binding, Scope};
 use crate::os::keys::parse_combo;
 use crate::os::{devices, power, process, sysinfo, winctl};
 use crate::script::generated::opcodes::{arg, Op};
@@ -56,16 +56,6 @@ pub fn fire_hotkey(app: &AppHandle, id: &str) {
         if let Some(Some(s)) = b.slots.get(slot).cloned() {
             state.runtime.start(b, slot, s, Value::Null);
         }
-    }
-}
-
-/// A key while recording a macro goes to the script editor (spec §5.1).
-pub fn recorded_key(app: &AppHandle, ev: HookEvent) {
-    if let HookEvent::Key { vk, down, time } = ev {
-        let _ = app.emit(
-            "bv://macro-key",
-            json!({ "vk": vk, "down": down, "time": time }),
-        );
     }
 }
 

@@ -87,3 +87,23 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-07 · Kompaktní lišta
 - **Rozhodnutí:** lišta se ukazuje dole uprostřed hlavního monitoru, stejně jako pole hledání v aplikaci a na ploše. Když je v popředí okno aplikace, globální zkratka otevře hledání přímo v něm.
 - **Důvod:** specifikace pozici lišty neurčuje. Hledání má být všude stejné (§6.1).
+
+### 2026-10-07 · Editor scriptů a koncept
+- **Rozhodnutí:** editor scriptů pracuje s kopií scriptů bubliny. **Uložit** v editoru je pošle hlavnímu oknu, to je zapíše do konceptu jako jeden krok undo a hned uloží celý koncept (stejně jako `Ctrl+S`). Když hlavní okno zrovna není v edit módu, zapíše je rovnou do uložené verze. Zavření editoru s neuloženými změnami nabídne Uložit / Zahodit / Zůstat.
+- **Důvod:** koncept drží okno aplikace (§8.4) a svět má jen jeden koncept. Uložit v editoru má být vidět hned (zkratky, časovače), bez druhého ukládání v hlavním okně.
+
+### 2026-10-07 · Test, krokování a zvýraznění v editoru
+- **Rozhodnutí:** **▶ Test** spustí script, ve kterém je vybraný blok (jinak první script), hned a bez ohledu na spouštěč. Běží obsah editoru, i neuložený. **⏭ Krok** spustí test po jednotlivých blocích, další stisk pustí další blok. **■ Stop** zastaví všechny scripty bubliny. Uložené scripty se zvýrazňují jen tehdy, když editor nemá neuložené změny, jinak by čísla bloků neseděla.
+- **Důvod:** §5.5 krokování a test popisuje jen tlačítky. Hat bloky jako zkratka nebo čas by se jinak otestovat nedaly.
+
+### 2026-10-07 · Sdílené scripty v editoru
+- **Rozhodnutí:** vlastní scripty bubliny jsou na jedné ploše (víc spouštěčů). Každý sdílený script bubliny má vlastní záložku. Úprava sdíleného scriptu mění knihovnu, a tím všechny bubliny. Parametry sdíleného scriptu jsou bloky `parametr`, jejich typ a výchozí hodnota se nastavují v panelu Parametry, hodnoty pro bublinu taky. **⇄** u vlastního scriptu z něj udělá sdílený (parametry = použité bloky `parametr`). U sdíleného ho vrátí jako vlastní kopii a bloky `parametr` nahradí hodnotami bubliny.
+- **Důvod:** sdílený script má podle §9.1 jeden spouštěč. Převod zpět nesmí ztratit hodnoty, které bublina měla.
+
+### 2026-10-07 · Nahrávání makra
+- **Rozhodnutí:** nahrávají se stisky kláves, kliky a kolečko myši. Klávesy a kliky do oken BubbleVerse se nenahrávají, takže jde nahrávání zastavit tlačítkem. Psaný text se slučuje do bloku `napiš`, ostatní klávesy jsou `stiskni`. Pauzy od 0,4 s jsou bloky `počkej` (na desetiny sekundy). Tažení myší se nahraje jako klik, protože blok pro držení tlačítka myši v katalogu není.
+- **Důvod:** §5.1 popisuje nahrávání jen jednou větou. Krátké pauzy mezi písmeny by jinak rozbily text na stovky bloků.
+
+### 2026-10-07 · Okno Proměnné
+- **Rozhodnutí:** globální proměnné a běžící scripty jsou v Nastavení na kartě **Scripty**. Proměnné jdou přidat, smazat a jejich aktuální hodnota změnit. Běžící scripty jsou i v tray v podmenu.
+- **Důvod:** §5.3 mluví o okně Proměnné, ale samostatné okno by bylo jen další okno se seznamem. Nastavení už jako okno funguje.

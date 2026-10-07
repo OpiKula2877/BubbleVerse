@@ -7,15 +7,18 @@ use std::time::Instant;
 
 use serde::Serialize;
 use serde_json::Value;
-use tokio::sync::watch;
+use tokio::sync::{watch, Notify};
 use tokio_util::sync::CancellationToken;
 
 use super::exec::{Ctx, Exit, ScriptError};
 use super::format::RunMode;
 use super::generated::opcodes::Op;
 use super::host::{Host, LogEntry, ScriptFx};
-use super::world::{BubbleScripts, CompiledWorld, Slot};
+use super::world::{BubbleScripts, CompiledWorld, CustomBlock, Slot};
 use crate::error::{AppError, AppResult};
+
+/// Slot index of test runs from the editor; real slots are small numbers.
+pub const TEST_SLOT: usize = usize::MAX;
 
 struct Task {
     id: u64,
@@ -24,6 +27,7 @@ struct Task {
     cancel: CancellationToken,
     started: i64,
     done: watch::Receiver<bool>,
+    step: Option<Arc<Notify>>,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq)]
@@ -32,8 +36,18 @@ pub struct RunningScript {
     pub id: u64,
     pub bubble: String,
     pub path: String,
-    pub slot: usize,
+    /// `None` for a test run from the editor.
+    pub slot: Option<usize>,
     pub started: i64,
+}
+
+/// Options of a run started from the script editor.
+#[derive(Clone, Default)]
+pub struct RunOpts {
+    /// Custom blocks that are not saved yet; they win over the saved ones.
+    pub custom: Option<Arc<HashMap<String, Arc<CustomBlock>>>>,
+    /// Every block waits for `Runtime::step` (spec §5.5).
+    pub step: bool,
 }
 
 pub(crate) struct Inner {
@@ -120,6 +134,26 @@ impl Runtime {
         lock(&self.inner.globals).insert(name.to_string(), value);
     }
 
+    /// Removes a global variable; the caller deletes it from storage.
+    pub fn remove_global(&self, name: &str) {
+        lock(&self.inner.globals).remove(name);
+    }
+
+    pub fn bubble_vars(&self, bubble: &str) -> HashMap<String, Value> {
+        lock(&self.inner.bubble_vars)
+            .get(bubble)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    pub fn set_bubble_var(&self, bubble: &str, name: &str, value: Value) {
+        self.inner.host.save_bubble_var(bubble, name, &value);
+        lock(&self.inner.bubble_vars)
+            .entry(bubble.to_string())
+            .or_default()
+            .insert(name.to_string(), value);
+    }
+
     /// Runs the "when activated" scripts of a bubble (click in the app or Enter in search).
     pub fn activate(&self, bubble: &str) -> AppResult<usize> {
         let world = self.world();
@@ -159,7 +193,37 @@ impl Runtime {
             RunMode::Restart => self.stop_slot(&bubble.id, slot_index),
             _ => {}
         }
+        Some(self.spawn(bubble, slot_index, slot, event, RunOpts::default()))
+    }
+
+    /// Test run from the editor (spec §5.5): runs the script now whatever its trigger is.
+    /// The previous test run of the bubble stops first.
+    pub fn start_test(&self, bubble: Arc<BubbleScripts>, slot: Arc<Slot>, opts: RunOpts) -> u64 {
+        self.stop_slot(&bubble.id, TEST_SLOT);
+        self.spawn(bubble, TEST_SLOT, slot, Value::Null, opts)
+    }
+
+    /// Lets a task in step mode run its next block.
+    pub fn step(&self, task: u64) {
+        let step = lock(&self.inner.tasks)
+            .iter()
+            .find(|t| t.id == task)
+            .and_then(|t| t.step.clone());
+        if let Some(s) = step {
+            s.notify_one();
+        }
+    }
+
+    fn spawn(
+        &self,
+        bubble: Arc<BubbleScripts>,
+        slot_index: usize,
+        slot: Arc<Slot>,
+        event: Value,
+        opts: RunOpts,
+    ) -> u64 {
         let id = self.inner.next_id.fetch_add(1, Ordering::Relaxed);
+        let stepper = opts.step.then(|| Arc::new(Notify::new()));
         let cancel = CancellationToken::new();
         let (done_tx, done_rx) = watch::channel(false);
         let first_of_bubble = !self.bubble_running(&bubble.id);
@@ -170,6 +234,7 @@ impl Runtime {
             cancel: cancel.clone(),
             started: chrono::Utc::now().timestamp_millis(),
             done: done_rx,
+            step: stepper.clone(),
         });
         if first_of_bubble {
             self.inner.host.fx(ScriptFx::Running {
@@ -188,14 +253,21 @@ impl Runtime {
                 &slot,
                 event,
             );
+            if slot_index == TEST_SLOT {
+                ctx.test = true;
+                ctx.traced = true;
+            }
+            ctx.custom = opts.custom;
+            ctx.stepper = stepper;
             let result = ctx.exec_stack(&slot.script.body).await;
             if let Err(Exit::Error(e)) = result {
-                rt.report_error(&bubble, slot_index, &e);
+                rt.report_error(&bubble, ctx.log_slot(), id, &e);
             }
+            ctx.end_trace();
             rt.finish(id, &bubble.id);
             let _ = done_tx.send(true);
         });
-        Some(id)
+        id
     }
 
     fn finish(&self, id: u64, bubble: &str) {
@@ -208,7 +280,13 @@ impl Runtime {
         }
     }
 
-    pub(crate) fn report_error(&self, bubble: &BubbleScripts, slot: usize, e: &ScriptError) {
+    pub(crate) fn report_error(
+        &self,
+        bubble: &BubbleScripts,
+        slot: Option<usize>,
+        task: u64,
+        e: &ScriptError,
+    ) {
         self.inner.host.fx(ScriptFx::Error {
             bubble: bubble.id.clone(),
         });
@@ -218,6 +296,7 @@ impl Runtime {
             bubble: bubble.id.clone(),
             path: bubble.path.clone(),
             slot,
+            task: Some(task),
             block: e.op.map(|o| o.id().to_string()),
             node: e.node,
             text: e.message.clone(),
@@ -272,7 +351,7 @@ impl Runtime {
                     .get(&t.bubble)
                     .map(|b| b.path.clone())
                     .unwrap_or_default(),
-                slot: t.slot,
+                slot: (t.slot != TEST_SLOT).then_some(t.slot),
                 started: t.started,
             })
             .collect()
@@ -301,12 +380,12 @@ impl Runtime {
             .collect()
     }
 
-    pub fn set_traced(&self, bubble: &str, on: bool) {
+    /// Scripts of this bubble report their running block to the editor (`None` = no bubble).
+    pub fn trace_only(&self, bubble: Option<&str>) {
         let mut t = lock(&self.inner.traced);
-        if on {
-            t.insert(bubble.to_string());
-        } else {
-            t.remove(bubble);
+        t.clear();
+        if let Some(b) = bubble {
+            t.insert(b.to_string());
         }
     }
 

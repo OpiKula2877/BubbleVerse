@@ -52,6 +52,19 @@ pub fn run() {
             app::wallpaper::wallpaper_snapshot,
             app::wallpaper::wallpaper_status,
             app::prompts::prompt_answer,
+            app::editor::open_script_editor,
+            app::editor::editor_request,
+            app::editor::editor_trace,
+            app::editor::test_script,
+            app::editor::step_script,
+            app::editor::stop_bubble_scripts,
+            app::editor::get_script_layout,
+            app::editor::set_script_layout,
+            app::editor::bubble_variables,
+            app::editor::set_bubble_variable,
+            app::editor::delete_global,
+            app::editor::macro_start,
+            app::editor::macro_stop,
         ])
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();

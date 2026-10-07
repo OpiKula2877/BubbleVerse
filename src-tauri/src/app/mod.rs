@@ -3,6 +3,7 @@
 pub mod autopause;
 pub mod autostart;
 pub mod commands;
+pub mod editor;
 pub mod i18n;
 pub mod prompts;
 pub mod protocol;

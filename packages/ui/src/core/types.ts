@@ -76,7 +76,9 @@ export interface LogEntry {
   level: 'info' | 'error';
   bubble: string;
   path: string;
-  slot: number;
+  /** `null` for a test run from the editor. */
+  slot: number | null;
+  task: number | null;
   block: string | null;
   node: number | null;
   text: string;
@@ -85,11 +87,40 @@ export interface LogEntry {
   detail: string | null;
 }
 
+/** The running block of a traced script (spec §5.5); `node: null` = the task ended. */
+export interface TraceEvent {
+  bubble: string;
+  slot: number | null;
+  task: number;
+  node: number | null;
+  /** Waiting for the next step. */
+  paused: boolean;
+}
+
+/** A recorded key, click or wheel turn (spec §5.1 "Record macro"). */
+export type MacroEvent =
+  | {
+      kind: 'key';
+      t: number;
+      key: string;
+      down: boolean;
+      ctrl: boolean;
+      alt: boolean;
+      shift: boolean;
+      win: boolean;
+      modifier: boolean;
+      text: string | null;
+      dead: boolean;
+    }
+  | { kind: 'button'; t: number; button: 'left' | 'right' | 'middle'; down: boolean; x: number; y: number }
+  | { kind: 'wheel'; t: number; notches: number };
+
 export interface RunningScript {
   id: number;
   bubble: string;
   path: string;
-  slot: number;
+  /** `null` for a test run from the editor. */
+  slot: number | null;
   started: number;
 }
 
@@ -111,7 +142,7 @@ export interface CoreEvents {
   pause: boolean;
   fx: ScriptFx;
   log: LogEntry;
-  trace: { bubble: string; slot: number; node: number };
+  trace: TraceEvent;
   'open-settings': null;
   shortcut: string;
   search: string;

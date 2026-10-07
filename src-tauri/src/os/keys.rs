@@ -54,7 +54,95 @@ const NAMED: &[(&str, u32)] = &[
     ("mediaprev", 0xB1),
     ("mediastop", 0xB2),
     ("mediaplaypause", 0xB3),
+    ("nummultiply", 0x6A),
+    ("numadd", 0x6B),
+    ("numsubtract", 0x6D),
+    ("numdecimal", 0x6E),
+    ("numdivide", 0x6F),
+    ("oem1", 0xBA),
+    ("oem2", 0xBF),
+    ("oem3", 0xC0),
+    ("oem4", 0xDB),
+    ("oem5", 0xDC),
+    ("oem6", 0xDD),
+    ("oem7", 0xDE),
+    ("oem8", 0xDF),
+    ("oem102", 0xE2),
 ];
+
+/// Names for `key_name`, as people write them (the first spelling of each key in `NAMED`).
+const DISPLAY: &[(u32, &str)] = &[
+    (0x20, "Space"),
+    (0x0D, "Enter"),
+    (0x09, "Tab"),
+    (0x1B, "Esc"),
+    (0x08, "Backspace"),
+    (0x2E, "Delete"),
+    (0x2D, "Insert"),
+    (0x24, "Home"),
+    (0x23, "End"),
+    (0x21, "PageUp"),
+    (0x22, "PageDown"),
+    (0x25, "Left"),
+    (0x26, "Up"),
+    (0x27, "Right"),
+    (0x28, "Down"),
+    (0x2C, "PrintScreen"),
+    (0x13, "Pause"),
+    (0xBC, "Comma"),
+    (0xBE, "Period"),
+    (0xBD, "Minus"),
+    (0xBB, "Plus"),
+    (0x14, "CapsLock"),
+    (0x90, "NumLock"),
+    (0x91, "ScrollLock"),
+    (0x5D, "Apps"),
+    (0x10, "Shift"),
+    (0xA0, "Shift"),
+    (0xA1, "Shift"),
+    (0x11, "Ctrl"),
+    (0xA2, "Ctrl"),
+    (0xA3, "Ctrl"),
+    (0x12, "Alt"),
+    (0xA4, "Alt"),
+    (0xA5, "Alt"),
+    (0x5B, "Win"),
+    (0x5C, "Win"),
+    (0xAD, "VolumeMute"),
+    (0xAE, "VolumeDown"),
+    (0xAF, "VolumeUp"),
+    (0xB0, "MediaNext"),
+    (0xB1, "MediaPrev"),
+    (0xB2, "MediaStop"),
+    (0xB3, "MediaPlayPause"),
+    (0x6A, "NumMultiply"),
+    (0x6B, "NumAdd"),
+    (0x6D, "NumSubtract"),
+    (0x6E, "NumDecimal"),
+    (0x6F, "NumDivide"),
+    (0xBA, "Oem1"),
+    (0xBF, "Oem2"),
+    (0xC0, "Oem3"),
+    (0xDB, "Oem4"),
+    (0xDC, "Oem5"),
+    (0xDD, "Oem6"),
+    (0xDE, "Oem7"),
+    (0xDF, "Oem8"),
+    (0xE2, "Oem102"),
+];
+
+/// Name of a virtual-key code that `vk_of` reads back (`None` for keys without a name).
+pub fn key_name(vk: u32) -> Option<String> {
+    match vk {
+        0x30..=0x39 | 0x41..=0x5A => char::from_u32(vk).map(String::from),
+        0x60..=0x69 => Some(format!("Num{}", vk - 0x60)),
+        0x70..=0x87 => Some(format!("F{}", vk - 0x70 + 1)),
+        _ => DISPLAY
+            .iter()
+            .find(|(v, _)| *v == vk)
+            .map(|(_, n)| n.to_string()),
+    }
+}
 
 /// Virtual-key code of a key name (`A`, `7`, `F5`, `Num3`, `Space`, `PageUp`…).
 pub fn vk_of(name: &str) -> Option<u32> {
@@ -123,6 +211,18 @@ pub fn parse_combo(text: &str) -> Option<Combo> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn key_names_read_back() {
+        for vk in (0x08..=0xFE).filter(|v| !is_modifier(*v)) {
+            if let Some(name) = key_name(vk) {
+                assert_eq!(vk_of(&name), Some(vk), "{name}");
+            }
+        }
+        assert_eq!(key_name(0x41).as_deref(), Some("A"));
+        assert_eq!(key_name(0x74).as_deref(), Some("F5"));
+        assert_eq!(key_name(0xBF).as_deref(), Some("Oem2"));
+    }
 
     #[test]
     fn parses_combos() {

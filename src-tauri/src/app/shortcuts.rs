@@ -74,7 +74,6 @@ pub fn start(app: &AppHandle) {
                         }
                     }
                     HookEvent::DesktopSearch => super::search::open_desktop(&app),
-                    HookEvent::Key { .. } => crate::app::triggers::recorded_key(&app, ev),
                 }
             }
         })

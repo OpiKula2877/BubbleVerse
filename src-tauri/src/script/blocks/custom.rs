@@ -17,11 +17,7 @@ pub async fn exec(ctx: &mut Ctx, node: &Node) -> R<Flow> {
         Op::CbCall => {
             let id = node.lit_str(arg::cb_call::ID);
             let block = ctx
-                .rt
-                .world()
-                .custom
-                .get(&id)
-                .cloned()
+                .custom_block(&id)
                 .ok_or_else(|| ctx.err(node, format!("custom block {id} not found")))?;
             if ctx.frames.len() >= MAX_DEPTH {
                 return Err(ctx.err(node, "custom blocks call each other too deeply"));
