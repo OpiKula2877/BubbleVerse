@@ -19,8 +19,8 @@ pub fn create_main(app: &AppHandle) -> AppResult<WebviewWindow> {
         .focused(true)
         .shadow(false)
         .resizable(windowed)
-        .decorations(windowed)
-        .disable_drag_drop_handler();
+        // Files dropped from Explorer open the bulk generator (spec §4.6).
+        .decorations(windowed);
     if windowed {
         b = b.inner_size(1280.0, 800.0).center();
     }
@@ -30,7 +30,6 @@ pub fn create_main(app: &AppHandle) -> AppResult<WebviewWindow> {
     }
     let app2 = app.clone();
     window.on_window_event(move |event| on_main_event(&app2, event));
-    super::file_drop::install(&window);
     if !state.autostarted {
         show_main(app);
     }

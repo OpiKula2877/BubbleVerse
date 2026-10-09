@@ -4,7 +4,6 @@ pub mod autopause;
 pub mod autostart;
 pub mod commands;
 pub mod editor;
-pub mod file_drop;
 pub mod generator;
 pub mod i18n;
 pub mod prompts;

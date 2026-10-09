@@ -9,7 +9,14 @@
 
   let filter = $state('');
   let collapsed = $state<Record<string, boolean>>({});
-  let dragId: BubbleId | null = null;
+  /**
+   * Rows are dragged with the pointer, not HTML5 drag and drop: the app window takes files
+   * from Explorer through Tauri, which turns HTML5 drag and drop off on Windows.
+   */
+  let press: { id: BubbleId; x: number; y: number } | null = null;
+  let dragId = $state<BubbleId | null>(null);
+  /** A finished drag also ends in a click; that click must not change the selection. */
+  let dragged = false;
   let dropHint = $state<{ id: BubbleId; where: 'before' | 'after' | 'inside' } | null>(null);
 
   interface Row {
@@ -55,19 +62,38 @@
       store.renderer.setCamera({ ...store.renderer.camera, x: d.x, y: d.y }, 350);
   }
 
-  function dragOver(e: DragEvent, row: Row) {
-    if (!dragId) return;
-    e.preventDefault();
-    const el = e.currentTarget as HTMLElement;
+  function pointerDown(e: PointerEvent, row: Row) {
+    if (e.button !== 0) return;
+    press = { id: row.b.id, x: e.clientX, y: e.clientY };
+    dragged = false;
+  }
+
+  function pointerMove(e: PointerEvent) {
+    if (!press) return;
+    if (!dragId && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 5) return;
+    dragId = press.id;
+    const el = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-row]');
+    const id = el?.dataset.row;
+    const b = id ? editor.index.get(id) : undefined;
+    if (!el || !b) {
+      dropHint = null;
+      return;
+    }
     const r = el.getBoundingClientRect();
     const f = (e.clientY - r.top) / r.height;
     const where =
-      row.b.kind === 'folder' && f > 0.28 && f < 0.72 ? 'inside' : f < 0.5 ? 'before' : 'after';
-    dropHint = { id: row.b.id, where };
+      b.kind === 'folder' && f > 0.28 && f < 0.72 ? 'inside' : f < 0.5 ? 'before' : 'after';
+    dropHint = { id: b.id, where };
   }
 
-  function drop(e: DragEvent) {
-    e.preventDefault();
+  function pointerUp() {
+    press = null;
+    if (!dragId) return;
+    dragged = true;
+    drop();
+  }
+
+  function drop() {
     const hint = dropHint;
     const id = dragId;
     dropHint = null;
@@ -87,6 +113,8 @@
   }
 </script>
 
+<svelte:window onpointermove={pointerMove} onpointerup={pointerUp} />
+
 <aside class="tree bv-glass" class:closed={!editor.treeOpen}>
   <header>
     {#if editor.treeOpen}<h3>{t('tree.title')}</h3>{/if}
@@ -103,7 +131,7 @@
       <Icon name="search" size={14} />
       <input placeholder={t('tree.filter')} bind:value={filter} />
     </div>
-    <div class="rows" role="tree" tabindex="0" ondragover={(e) => e.preventDefault()} ondrop={drop}>
+    <div class="rows" class:dragging={!!dragId} role="tree" tabindex="0">
       {#if rows.length === 0}
         <p class="empty">{t('tree.empty')}</p>
       {/if}
@@ -118,14 +146,12 @@
           role="treeitem"
           aria-selected={editor.selection.ids.has(row.b.id)}
           tabindex="-1"
-          draggable="true"
-          ondragstart={() => (dragId = row.b.id)}
-          ondragend={() => {
-            dragId = null;
-            dropHint = null;
+          data-row={row.b.id}
+          onpointerdown={(e) => pointerDown(e, row)}
+          onclick={(e) => {
+            if (dragged) dragged = false;
+            else rowClick(e, row.b);
           }}
-          ondragover={(e) => dragOver(e, row)}
-          onclick={(e) => rowClick(e, row.b)}
           ondblclick={() => focus(row.b)}
           onkeydown={() => {}}
         >
@@ -227,6 +253,10 @@
   }
   .row:hover {
     background: var(--bv-button-hover);
+  }
+  .rows.dragging {
+    cursor: grabbing;
+    user-select: none;
   }
   .row.sel {
     background: color-mix(in srgb, var(--bv-selection) 28%, transparent);

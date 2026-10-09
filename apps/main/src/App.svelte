@@ -6,7 +6,7 @@
   import { Editor } from './lib/editor.svelte';
   import { handleKey, runAction } from './lib/actions';
   import { sendWorldToEditor, startScriptEditorBridge } from './lib/script-editor';
-  import { onDragOver, onDrop, startFileDrop } from './generator/drop';
+  import { startFileDrop } from './generator/drop';
   import { store } from './lib/store.svelte';
   import Settings from './settings/Settings.svelte';
   import DialogHost from './shell/DialogHost.svelte';
@@ -153,7 +153,7 @@
   const scale = $derived(store.settings.appearance.uiScale / 100);
 </script>
 
-<svelte:window onkeydown={handleKey} onresize={resize} ondragover={onDragOver} ondrop={onDrop} />
+<svelte:window onkeydown={handleKey} onresize={resize} />
 
 <WorldCanvas onready={onRenderer} />
 
