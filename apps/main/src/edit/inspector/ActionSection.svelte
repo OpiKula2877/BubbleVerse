@@ -3,6 +3,7 @@
   import { Button, Field, Segmented, t, TextField } from '@bv/ui';
   import type { BubbleId } from '@bv/world';
   import type { Editor } from '../../lib/editor.svelte';
+  import { openScriptEditor } from '../../lib/script-editor';
   import { store } from '../../lib/store.svelte';
 
   let { editor, ids }: { editor: Editor; ids: BubbleId[] } = $props();
@@ -44,7 +45,7 @@
   }
 
   function openEditor() {
-    void store.core.call('open_script_editor', { bubble: ids[0] });
+    if (ids[0]) void openScriptEditor(ids[0]);
   }
 </script>
 

@@ -97,24 +97,6 @@ export interface TraceEvent {
   paused: boolean;
 }
 
-/** A recorded key, click or wheel turn (spec §5.1 "Record macro"). */
-export type MacroEvent =
-  | {
-      kind: 'key';
-      t: number;
-      key: string;
-      down: boolean;
-      ctrl: boolean;
-      alt: boolean;
-      shift: boolean;
-      win: boolean;
-      modifier: boolean;
-      text: string | null;
-      dead: boolean;
-    }
-  | { kind: 'button'; t: number; button: 'left' | 'right' | 'middle'; down: boolean; x: number; y: number }
-  | { kind: 'wheel'; t: number; notches: number };
-
 export interface RunningScript {
   id: number;
   bubble: string;
@@ -143,7 +125,8 @@ export interface CoreEvents {
   fx: ScriptFx;
   log: LogEntry;
   trace: TraceEvent;
-  'open-settings': null;
+  /** The settings tab to show, if any. */
+  'open-settings': string | null;
   shortcut: string;
   search: string;
   'wallpaper-status': 'off' | 'live' | 'fallback';

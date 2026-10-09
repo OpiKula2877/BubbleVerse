@@ -190,6 +190,13 @@ pub fn delete_global(name: String, state: State<'_, AppState>) -> AppResult<()> 
     kv::delete_global(&state.db(), &name)
 }
 
+/// Opens the settings of the app window on a tab ("All global variables…" in the editor).
+#[tauri::command]
+pub fn open_settings(tab: String, app: AppHandle) {
+    super::windows::show_main(&app);
+    let _ = app.emit_to(MAIN, super::state::events::OPEN_SETTINGS, tab);
+}
+
 /// ⏺ in the editor: records keys and mouse clicks until `macro_stop`.
 #[tauri::command]
 pub fn macro_start() {

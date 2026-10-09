@@ -5,6 +5,7 @@
   import EditMode from './edit/EditMode.svelte';
   import { Editor } from './lib/editor.svelte';
   import { handleKey, runAction } from './lib/actions';
+  import { sendWorldToEditor, startScriptEditorBridge } from './lib/script-editor';
   import { store } from './lib/store.svelte';
   import Settings from './settings/Settings.svelte';
   import DialogHost from './shell/DialogHost.svelte';
@@ -35,6 +36,7 @@
     store.ready = true;
     booted = { draft: b.draft };
     startIfReady();
+    offs.push(await startScriptEditorBridge());
     const core = store.core;
     offs.push(
       core.on('world-published', (w) => {
@@ -67,7 +69,10 @@
           : entry.text;
         store.notify(`${entry.path}: ${msg === key ? entry.text : msg}`, true);
       }),
-      core.on('open-settings', () => (store.settingsOpen = true)),
+      core.on('open-settings', (tab) => {
+        if (tab) store.settingsTab = tab;
+        store.settingsOpen = true;
+      }),
       core.on('shortcut', (action) => runAction(action)),
       core.on('search', () => void search.start()),
       core.on('wallpaper-status', (s) => (store.wallpaperStatus = s)),
@@ -75,6 +80,9 @@
   });
 
   onDestroy(() => offs.forEach((o) => o()));
+
+  // The open script editor follows the draft (renames, undo).
+  $effect(() => sendWorldToEditor(store.world));
 
   let renderer: WorldRenderer | null = null;
 

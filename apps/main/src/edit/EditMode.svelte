@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Menu, t, type MenuItem } from '@bv/ui';
   import type { Editor } from '../lib/editor.svelte';
+  import { openScriptEditor } from '../lib/script-editor';
   import { store } from '../lib/store.svelte';
   import Inspector from './Inspector.svelte';
   import QuickCreate from './QuickCreate.svelte';
@@ -68,7 +69,7 @@
             {
               label: t('menu.actions'),
               icon: 'code',
-              action: () => void store.core.call('open_script_editor', { bubble: target.id }),
+              action: () => void openScriptEditor(target.id),
             },
           ]),
       { separator: true },
