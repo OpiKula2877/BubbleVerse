@@ -63,7 +63,7 @@
         <TextField
           value={p.name}
           placeholder={t('editor.inputName')}
-          oninput={(v) => (params[i] = { ...p, name: v })}
+          oninput={(v) => (params[i] = { ...params[i]!, name: v })}
         />
         <Select
           options={types}

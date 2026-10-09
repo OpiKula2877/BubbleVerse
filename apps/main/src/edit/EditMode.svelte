@@ -6,6 +6,8 @@
   import { store } from '../lib/store.svelte';
   import Generator from '../generator/Generator.svelte';
   import { GeneratorState } from '../generator/gen-state.svelte';
+  import { exportBranch, pickPackage } from '../lib/packages';
+  import ImportDialog from './ImportDialog.svelte';
   import Inspector from './Inspector.svelte';
   import TemplateDialogs from './TemplateDialogs.svelte';
   import QuickCreate from './QuickCreate.svelte';
@@ -23,6 +25,11 @@
     void editor.world;
     void resolveAutoIcons(editor);
   });
+
+  async function startImport(parentId: string | null) {
+    const pkg = await pickPackage();
+    if (pkg) editor.modal = { kind: 'import', pkg, parentId };
+  }
 
   function menuItems(): MenuItem[] {
     const m = editor.menu;
@@ -54,6 +61,7 @@
           icon: 'sparkles',
           action: () => (editor.modal = { kind: 'generator', parentId: null, files: [] }),
         },
+        { label: t('menu.import'), icon: 'upload', action: () => void startImport(null) },
         { separator: true },
         {
           label: t('menu.setHome'),
@@ -82,6 +90,11 @@
               label: t('menu.bulk'),
               icon: 'sparkles',
               action: () => (editor.modal = { kind: 'generator', parentId: target.id, files: [] }),
+            },
+            {
+              label: t('menu.import'),
+              icon: 'upload',
+              action: () => void startImport(target.id),
             },
           ]
         : [
@@ -128,7 +141,11 @@
         action: () => editor.duplicate(),
         shortcut: 'Ctrl+D',
       },
-      { label: t('menu.export'), icon: 'download', disabled: true },
+      {
+        label: t('menu.export'),
+        icon: 'download',
+        action: () => editor.world && void exportBranch(editor.world, target.id),
+      },
       { separator: true },
       {
         label: t('menu.delete'),
@@ -160,6 +177,16 @@
     <Generator
       {editor}
       gen={new GeneratorState(m.parentId, m.files)}
+      onclose={() => (editor.modal = null)}
+    />
+  {/key}
+{:else if editor.modal?.kind === 'import'}
+  {#key editor.modal}
+    {@const m = editor.modal}
+    <ImportDialog
+      {editor}
+      pkg={m.pkg}
+      parentId={m.parentId}
       onclose={() => (editor.modal = null)}
     />
   {/key}

@@ -65,6 +65,16 @@ export function dangerousBlocks(world: World, bubble: Bubble): string[] {
   return [...found].sort();
 }
 
+/** Short name of a catalog block: its text up to the first input (`run file`). */
+export function blockLabel(id: string | null, lang: 'en' | 'cs'): string {
+  if (!id) return '';
+  const b = BLOCKS.find((x) => x.id === id);
+  if (!b) return id;
+  const text = (lang === 'cs' ? b.cs : b.en).replace(/s+/g, ' ');
+  const head = text.split(/%[A-Z_0-9]+/)[0]!.trim();
+  return head || text.replace(/%[A-Z_0-9]+/g, '…').trim();
+}
+
 export function newScript(trigger: ScriptNode, body: ScriptNode[] = []): Script {
   return { v: 1, trigger, body, runMode: 'ignore' };
 }

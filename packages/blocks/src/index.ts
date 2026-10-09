@@ -4,6 +4,7 @@ export * from './script';
 export * from './simple-action';
 export * from './editing';
 export * from './macro';
+export * from './package';
 export * from './blockly/defs';
 export * from './blockly/convert';
 export * from './blockly/toolbox';

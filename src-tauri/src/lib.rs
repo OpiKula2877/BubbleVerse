@@ -69,6 +69,12 @@ pub fn run() {
             app::generator::list_apps,
             app::generator::scan_folder,
             app::generator::auto_icon,
+            app::packages::export_package,
+            app::packages::import_package,
+            app::data::data_info,
+            app::data::open_data_folder,
+            app::data::clean_assets,
+            app::data::move_data,
         ])
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();

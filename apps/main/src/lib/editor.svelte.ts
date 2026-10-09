@@ -24,12 +24,14 @@ import {
   type Vec2,
   type World,
 } from '@bv/world';
+import type { LoadedPackage } from './packages';
 import { store } from './store.svelte';
 
 export type EditModal =
   | { kind: 'generator'; parentId: BubbleId | null; files: string[] }
   | { kind: 'saveTemplate'; id: BubbleId }
-  | { kind: 'applyTemplate'; ids: BubbleId[] };
+  | { kind: 'applyTemplate'; ids: BubbleId[] }
+  | { kind: 'import'; pkg: LoadedPackage; parentId: BubbleId | null };
 
 /** Autosave of the draft 2 s after the last change (spec §4.7). */
 export const AUTOSAVE_MS = 2000;

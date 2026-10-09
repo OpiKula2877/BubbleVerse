@@ -3,9 +3,11 @@
 pub mod autopause;
 pub mod autostart;
 pub mod commands;
+pub mod data;
 pub mod editor;
 pub mod generator;
 pub mod i18n;
+pub mod packages;
 pub mod prompts;
 pub mod protocol;
 pub mod search;

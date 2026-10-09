@@ -1,6 +1,7 @@
 import {
   applyScriptEdit,
   BLOCKS,
+  blockLabel,
   blocklyToCustomBody,
   blocklyToScripts,
   customBlockUses,
@@ -158,17 +159,6 @@ export function parseValue(text: string): Value {
 export function formatValue(v: Value | undefined): string {
   if (v === undefined || v === null) return '';
   return typeof v === 'string' ? v : JSON.stringify(v);
-}
-
-/** Short name of a catalog block for the console (`run file` instead of `sys_run_file`). */
-export function blockLabel(id: string | null, lang: Lang): string {
-  if (!id) return '';
-  const b = BLOCKS.find((x) => x.id === id);
-  if (!b) return id;
-  return (lang === 'cs' ? b.cs : b.en)
-    .replace(/%[A-Z_0-9]+/g, '…')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 export class EditorSession {

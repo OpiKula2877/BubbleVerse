@@ -192,6 +192,9 @@ export class MockCore implements Core {
     return this.pickWithInput(accept, true);
   }
 
+  async saveFile(defaultName: string) {
+    return window.prompt('Save as', defaultName);
+  }
   async pickFolder() {
     return 'C:\\mock\\folder';
   }

@@ -16,7 +16,7 @@ use crate::storage::assets::AssetInfo;
 /// Biggest page or icon downloaded for a favicon.
 const MAX_DOWNLOAD: usize = 2 * 1024 * 1024;
 
-async fn blocking<T: Send + 'static>(
+pub(crate) async fn blocking<T: Send + 'static>(
     f: impl FnOnce() -> AppResult<T> + Send + 'static,
 ) -> AppResult<T> {
     tauri::async_runtime::spawn_blocking(f)

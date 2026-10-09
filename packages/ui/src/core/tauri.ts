@@ -1,6 +1,6 @@
 import { convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
-import { open } from '@tauri-apps/plugin-dialog';
+import { open, save } from '@tauri-apps/plugin-dialog';
 import type { World } from '@bv/world';
 import type { Settings } from '../settings';
 import type {
@@ -60,6 +60,9 @@ export class TauriCore implements Core {
   async pickFiles(filters?: FileFilter[]) {
     const r = await open({ multiple: true, directory: false, filters });
     return Array.isArray(r) ? r : r ? [r] : [];
+  }
+  async saveFile(defaultName: string, filters?: FileFilter[]) {
+    return (await save({ defaultPath: defaultName, filters })) ?? null;
   }
   async pickFolder() {
     const r = await open({ multiple: false, directory: true });

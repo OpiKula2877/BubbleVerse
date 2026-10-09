@@ -2,6 +2,9 @@ use std::path::{Path, PathBuf};
 
 use crate::error::{AppError, AppResult};
 
+/// Name of the file in the standard folder that points to a moved data folder (spec §7.5).
+pub const LOCATION_FILE: &str = "location.txt";
+
 /// Locations of BubbleVerse data (spec §9.2): `%APPDATA%\BubbleVerse\`.
 #[derive(Clone, Debug)]
 pub struct Paths {
@@ -16,11 +19,24 @@ impl Paths {
         Ok(p)
     }
 
-    /// Default data folder, or the one in `BUBBLEVERSE_DATA` (used by tests and portable setups).
+    /// The data folder: `BUBBLEVERSE_DATA` (tests, portable setups), else the folder the user
+    /// moved the data to (`location.txt` in the standard folder), else the standard folder.
     pub fn default_root() -> AppResult<PathBuf> {
         if let Ok(dir) = std::env::var("BUBBLEVERSE_DATA") {
             return Ok(PathBuf::from(dir));
         }
+        let standard = Self::standard_root()?;
+        if let Ok(text) = std::fs::read_to_string(standard.join(LOCATION_FILE)) {
+            let moved = PathBuf::from(text.trim());
+            if moved.join("data.db").is_file() {
+                return Ok(moved);
+            }
+        }
+        Ok(standard)
+    }
+
+    /// `%APPDATA%\BubbleVerse` (`BubbleVerse-dev` for development builds).
+    pub fn standard_root() -> AppResult<PathBuf> {
         let appdata = std::env::var("APPDATA").map_err(|_| AppError::msg("APPDATA is not set"))?;
         // Development builds keep their data apart from an installed BubbleVerse.
         let name = if cfg!(debug_assertions) {

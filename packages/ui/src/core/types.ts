@@ -151,6 +151,8 @@ export interface Core {
   pickFile(filters?: FileFilter[]): Promise<string | null>;
   pickFiles(filters?: FileFilter[]): Promise<string[]>;
   pickFolder(): Promise<string | null>;
+  /** Save dialog; `null` when cancelled. */
+  saveFile(defaultName: string, filters?: FileFilter[]): Promise<string | null>;
   assetUrl(hash: string): string;
   hideMain(): Promise<void>;
   quit(): Promise<void>;
