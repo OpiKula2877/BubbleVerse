@@ -11,6 +11,7 @@ import { BubbleView, type ViewState } from './bubble-view';
 import { ExpandState } from './expand';
 import { particleDots } from './effects';
 import { linkShape } from './links';
+import { SpritePool } from './sprite-pool';
 import { AnimatedMedia, animatedHash } from './media';
 import { SkinTextures } from './textures';
 import {
@@ -110,9 +111,9 @@ export class WorldRenderer {
   private passRoot = new Container();
   private clip = new Graphics();
   private worldLayer = new Container();
-  private linkG = new Graphics();
+  private links = new SpritePool();
   private bubbleLayer = new Container();
-  private particleG = new Graphics();
+  private particles = new SpritePool();
   private overlayG = new Graphics();
   private fxG = new Graphics();
   private textures: SkinTextures;
@@ -221,7 +222,14 @@ export class WorldRenderer {
     r.stage.addChild(r.bgLayer, r.passRoot, r.clip);
     r.bgLayer.addChild(r.bgSprite);
     r.passRoot.addChild(r.worldLayer);
-    r.worldLayer.addChild(r.linkG, r.bubbleLayer, r.particleG, r.fxG, r.sayLayer, r.overlayG);
+    r.worldLayer.addChild(
+      r.links.layer,
+      r.bubbleLayer,
+      r.particles.layer,
+      r.fxG,
+      r.sayLayer,
+      r.overlayG,
+    );
     r.app.renderer.on('resize', () => r.requestRender());
     return r;
   }
@@ -616,19 +624,25 @@ export class WorldRenderer {
         view.root.visible = false;
         continue;
       }
-      view.root.visible = true;
       const skinSrc = this.skinOverride.get(id);
       let skin: Skin = skinSrc ? resolver.skin(skinSrc) : resolver.skin(id);
       const color = this.colorOverride.get(id);
       if (color) skin = { ...skin, fill: color, media: undefined };
       const sizeOverride = this.sizeOverride.get(id);
       if (sizeOverride !== undefined) skin = { ...skin, size: sizeOverride };
+      const posNow = d?.pos ?? positions.get(id) ?? { x: 0, y: 0 };
+      // Bubbles off every screen are only placed for hit tests and links (spec §10.1).
+      if (!onScreen(posNow.x, posNow.y, skin.size * 1.25 + 60)) {
+        if (view.root.visible) view.root.visible = false;
+        this.hoverAmount.delete(id);
+        const disp = { id, x: posNow.x, y: posNow.y, r: (skin.size * vis) / 2, vis };
+        this.display.push(disp);
+        this.displayById.set(id, disp);
+        continue;
+      }
+      if (!view.root.visible) view.root.visible = true;
       const showMedia = this.prefs.skins && !lod;
-      const posNow = d?.pos ?? positions.get(id);
-      const animated =
-        showMedia && animatedHash(skin) && posNow && onScreen(posNow.x, posNow.y, skin.size)
-          ? this.media.texture(skin)
-          : null;
+      const animated = showMedia && animatedHash(skin) ? this.media.texture(skin) : null;
       view.setTexture(animated ?? this.textures.body(skin, showMedia));
 
       // Hover grow / shake / glow
@@ -722,22 +736,23 @@ export class WorldRenderer {
   private drawParticles(
     list: readonly { p: Particles; x: number; y: number; r: number; alpha: number; id: BubbleId }[],
   ): boolean {
-    const g = this.particleG;
-    g.clear();
+    const pool = this.particles;
+    pool.begin();
     const t = this.motion ? Date.now() / 1000 : null;
     for (const it of list) {
       const color = hex(it.p.color);
       for (const d of particleDots(it.p, it.x, it.y, it.r, t, hashSeed(it.id))) {
-        g.circle(d.x, d.y, d.r).fill({ color, alpha: d.alpha * it.alpha });
+        pool.dot(d.x, d.y, d.r, color, d.alpha * it.alpha);
       }
     }
+    pool.end();
     return t !== null && list.length > 0;
   }
 
   /** Links to the parents (spec §3.7); returns true when a link moves (next frame needed). */
   private drawLinks(index: WorldIndex, resolver: SkinResolver): boolean {
-    const g = this.linkG;
-    g.clear();
+    const pool = this.links;
+    pool.begin();
     const t = this.motion ? Date.now() / 1000 : null;
     let animated = false;
     for (const d of this.display) {
@@ -755,25 +770,12 @@ export class WorldRenderer {
       const color = hex(link.color);
       const alpha = link.opacity * Math.min(1, d.vis) * (dimmed ? 0.25 : 1);
       const width = Math.max(0.5, link.width);
-      for (const st of shape.strokes) {
-        const pts = st.pts;
-        g.moveTo(pts[0]!, pts[1]!);
-        for (let i = 2; i < pts.length; i += 2) g.lineTo(pts[i]!, pts[i + 1]!);
-        g.stroke({
-          color,
-          width: width * st.width,
-          alpha: alpha * st.alpha,
-          cap: 'round',
-          join: 'round',
-        });
-      }
-      for (const dot of shape.dots) {
-        g.circle(dot.x, dot.y, dot.r);
-        if (dot.ring)
-          g.stroke({ color, width: Math.max(0.6, width * 0.6), alpha: alpha * dot.alpha });
-        else g.fill({ color, alpha: alpha * dot.alpha });
-      }
+      for (const st of shape.strokes)
+        pool.polyline(st.pts, width * st.width, color, alpha * st.alpha);
+      for (const dot of shape.dots)
+        pool.dot(dot.x, dot.y, dot.r, color, alpha * dot.alpha, dot.ring);
     }
+    pool.end();
     return animated;
   }
 
@@ -908,6 +910,7 @@ export class WorldRenderer {
   }
 
   private renderPasses(): void {
+    this.textures.flush();
     const r = this.app.renderer;
     const multi = this.vps.length > 1;
     this.passRoot.mask = multi ? this.clip : null;

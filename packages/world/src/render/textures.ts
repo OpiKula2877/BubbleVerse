@@ -1,4 +1,4 @@
-import { Texture } from 'pixi.js';
+import { Rectangle, Texture } from 'pixi.js';
 import type { Fill, Shape, Skin } from '../model/types';
 
 /**
@@ -182,6 +182,70 @@ export function drawBody(ctx: CanvasRenderingContext2D, look: BodyLook): void {
   }
 }
 
+/** Side of an atlas page; it holds (PAGE / TEX)² skins. */
+const PAGE = 2048;
+const SLOTS = PAGE / TEX;
+
+interface AtlasPage {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D | null;
+  texture: Texture;
+  used: number;
+  dirty: boolean;
+}
+
+/**
+ * Skins drawn into a few big textures (spec §10.1 "a shared texture atlas"): bubbles with
+ * different skins can then still be drawn in one batch.
+ */
+class SkinAtlas {
+  private pages: AtlasPage[] = [];
+
+  add(paint: (ctx: CanvasRenderingContext2D) => void): Texture {
+    let page = this.pages[this.pages.length - 1];
+    if (!page || page.used >= SLOTS * SLOTS) {
+      const el = canvas(PAGE);
+      page = {
+        canvas: el,
+        ctx: el.getContext('2d'),
+        texture: Texture.from(el),
+        used: 0,
+        dirty: false,
+      };
+      this.pages.push(page);
+    }
+    const i = page.used++;
+    const x = (i % SLOTS) * TEX;
+    const y = Math.floor(i / SLOTS) * TEX;
+    const ctx = page.ctx;
+    if (ctx) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, TEX, TEX);
+      ctx.clip();
+      ctx.translate(x, y);
+      paint(ctx);
+      ctx.restore();
+    }
+    page.dirty = true;
+    return new Texture({ source: page.texture.source, frame: new Rectangle(x, y, TEX, TEX) });
+  }
+
+  /** Uploads pages that got new skins (once per frame, not once per skin). */
+  flush(): void {
+    for (const p of this.pages) {
+      if (!p.dirty) continue;
+      p.texture.source.update();
+      p.dirty = false;
+    }
+  }
+
+  destroy(): void {
+    for (const p of this.pages) p.texture.destroy(true);
+    this.pages = [];
+  }
+}
+
 interface LoadedImage {
   img: HTMLImageElement;
   w: number;
@@ -194,6 +258,10 @@ export class SkinTextures {
   private images = new Map<string, Promise<LoadedImage | null>>();
   private ready = new Map<string, LoadedImage | null>();
   private glowTex: Texture | null = null;
+  private atlas = new SkinAtlas();
+  /** Textures by skin object: resolved skins stay the same object between frames. */
+  private bySkin = new WeakMap<Skin, Texture>();
+  private bySkinPlain = new WeakMap<Skin, Texture>();
   private ringTex: Texture | null = null;
 
   constructor(
@@ -228,6 +296,9 @@ export class SkinTextures {
    * Animated media (GIF, video) is drawn live elsewhere; here it shows only the fill.
    */
   body(skin: Skin, showMedia: boolean): Texture {
+    const memo = showMedia ? this.bySkin : this.bySkinPlain;
+    const known = memo.get(skin);
+    if (known) return known;
     const media = showMedia ? skin.media : undefined;
     const staticHash =
       media && (media.type === 'image' || media.type === 'icon' || media.type === 'auto')
@@ -246,7 +317,10 @@ export class SkinTextures {
       edge?.outline || edge?.shadow || edge?.glow ? `z${Math.round(skin.size / 8)}` : '',
     ].join('|');
     const cached = this.bodies.get(key);
-    if (cached) return cached;
+    if (cached) {
+      memo.set(skin, cached);
+      return cached;
+    }
     const img = staticHash ? this.image(staticHash) : null;
     const mask = maskHash ? this.image(maskHash) : null;
     if ((staticHash && !img) || (maskHash && !mask)) {
@@ -266,13 +340,12 @@ export class SkinTextures {
     }
     const tex = this.draw(skin, img, mask);
     this.bodies.set(key, tex);
+    memo.set(skin, tex);
     return tex;
   }
 
   private draw(skin: Skin, img: LoadedImage | null, mask: LoadedImage | null): Texture {
-    const el = canvas();
-    const ctx = el.getContext('2d');
-    if (ctx) {
+    return this.atlas.add((ctx) =>
       drawBody(ctx, {
         shape: skin.shape,
         fill: skin.fill,
@@ -290,9 +363,13 @@ export class SkinTextures {
           : undefined,
         mask: mask?.img,
         size: skin.size,
-      });
-    }
-    return Texture.from(el);
+      }),
+    );
+  }
+
+  /** Uploads new skins; the renderer calls it before drawing. */
+  flush(): void {
+    this.atlas.flush();
   }
 
   /** Soft white radial glow, tinted per bubble. */
@@ -333,7 +410,11 @@ export class SkinTextures {
 
   /** Drops cached textures (theme or asset changes). */
   clear(): void {
-    for (const t of this.bodies.values()) t.destroy(true);
+    for (const t of this.bodies.values()) t.destroy(false);
     this.bodies.clear();
+    this.atlas.destroy();
+    this.atlas = new SkinAtlas();
+    this.bySkin = new WeakMap();
+    this.bySkinPlain = new WeakMap();
   }
 }

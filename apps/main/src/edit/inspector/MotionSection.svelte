@@ -95,6 +95,11 @@
 
 {#if tr && !track?.mixed}
   {#if tr.type === 'orbit'}
+    <Field label="">
+      <Button small icon="target" onclick={() => motionEditor.start('orbit', ids[0]!, editor)}
+        >{t('menu.setOrbit')}</Button
+      >
+    </Field>
     <Field label={t('motion.center')} wide>
       <Select
         value={tr.center}
@@ -144,7 +149,7 @@
     </Field>
   {:else if tr.type === 'path'}
     <Field label="">
-      <Button small icon="target" onclick={() => motionEditor.start('path', ids[0]!)}
+      <Button small icon="target" onclick={() => motionEditor.start('path', ids[0]!, editor)}
         >{t('menu.setPath')}</Button
       >
       <span class="bv-muted">{t('motion.points', { count: tr.points.length })}</span>
@@ -181,7 +186,7 @@
     </Field>
   {:else if tr.type === 'wander'}
     <Field label="">
-      <Button small icon="target" onclick={() => motionEditor.start('wander', ids[0]!)}
+      <Button small icon="target" onclick={() => motionEditor.start('wander', ids[0]!, editor)}
         >{t('menu.setWander')}</Button
       >
     </Field>

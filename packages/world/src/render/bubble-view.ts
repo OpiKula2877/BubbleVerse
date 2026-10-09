@@ -29,6 +29,7 @@ export class BubbleView {
   private readonly ring: Sprite;
   private label: BitmapText | null = null;
   private labelKey = '';
+  private labelLook = '';
   bodyTexture: Texture | null = null;
 
   constructor(glowTex: Texture, ringTex: Texture) {
@@ -46,21 +47,34 @@ export class BubbleView {
     this.body.texture = tex;
   }
 
+  /** What was set last; Pixi setters cost even when the value does not change. */
+  private last = { x: NaN, y: NaN, alpha: NaN, scale: NaN, rotation: NaN, tint: NaN };
+
   update(s: ViewState): void {
-    this.root.position.set(s.x, s.y);
-    this.root.alpha = s.alpha;
+    const l = this.last;
+    if (s.x !== l.x || s.y !== l.y) {
+      this.root.position.set(s.x, s.y);
+      l.x = s.x;
+      l.y = s.y;
+    }
+    if (s.alpha !== l.alpha) this.root.alpha = l.alpha = s.alpha;
     const scale = (s.size * PAD) / TEX;
-    this.body.scale.set(scale);
-    this.body.rotation = s.rotation;
-    this.body.tint = s.tint;
-    this.glow.visible = s.glow > 0.01;
-    if (this.glow.visible) {
+    if (scale !== l.scale) {
+      this.body.scale.set(scale);
+      l.scale = scale;
+    }
+    if (s.rotation !== l.rotation) this.body.rotation = l.rotation = s.rotation;
+    if (s.tint !== l.tint) this.body.tint = l.tint = s.tint;
+    const glowOn = s.glow > 0.01;
+    if (this.glow.visible !== glowOn) this.glow.visible = glowOn;
+    if (glowOn) {
       this.glow.scale.set(scale * (1.15 + 0.25 * s.glow));
       this.glow.alpha = Math.min(1, s.glow);
       this.glow.tint = s.glowTint;
     }
-    this.ring.visible = s.ring > 0.01;
-    if (this.ring.visible) {
+    const ringOn = s.ring > 0.01;
+    if (this.ring.visible !== ringOn) this.ring.visible = ringOn;
+    if (ringOn) {
       this.ring.scale.set(scale);
       this.ring.alpha = s.ring;
       this.ring.tint = s.ringTint;
@@ -70,7 +84,7 @@ export class BubbleView {
 
   private updateLabel(s: ViewState): void {
     if (!s.label || !s.labelStyle) {
-      if (this.label) this.label.visible = false;
+      if (this.label?.visible) this.label.visible = false;
       return;
     }
     const st = s.labelStyle;
@@ -86,19 +100,22 @@ export class BubbleView {
       });
       this.label.anchor.set(0.5);
       this.labelKey = key;
+      this.labelLook = '';
       this.root.addChild(this.label);
     }
     const l = this.label;
-    l.visible = true;
-    l.tint = parseInt(st.color.slice(1, 7), 16) || 0xffffff;
-    const ls = st.size / LABEL_BASE;
-    l.scale.set(ls);
+    if (!l.visible) l.visible = true;
     const half = s.size / 2;
     const gap = 4 + st.size * 0.6;
-    l.position.set(
-      0,
-      st.position === 'inside' ? 0 : st.position === 'above' ? -half - gap : half + gap,
-    );
+    const y = st.position === 'inside' ? 0 : st.position === 'above' ? -half - gap : half + gap;
+    const look = `${st.color}|${st.size}|${y}`;
+    // Setting these on a BitmapText makes it lay out again: only when something changed.
+    if (look !== this.labelLook) {
+      this.labelLook = look;
+      l.tint = parseInt(st.color.slice(1, 7), 16) || 0xffffff;
+      l.scale.set(st.size / LABEL_BASE);
+      l.position.set(0, y);
+    }
   }
 
   destroy(): void {

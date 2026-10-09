@@ -20,3 +20,4 @@ export * from './dev/scene-gen';
 export * from './dev/showcase';
 export * from './edit/skin-edit';
 export * from './edit/templates';
+export * from './edit/motion-edit';

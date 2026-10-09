@@ -9,6 +9,8 @@
   } from '@bv/world';
   import { onDestroy, onMount } from 'svelte';
   import EditMode from './edit/EditMode.svelte';
+  import { motionEditor } from './edit/motion-editor.svelte';
+  import MotionOverlay from './edit/MotionOverlay.svelte';
   import { Editor } from './lib/editor.svelte';
   import { handleKey, runAction } from './lib/actions';
   import { sendWorldToEditor, startScriptEditorBridge } from './lib/script-editor';
@@ -25,7 +27,7 @@
 
   const offs: (() => void)[] = [];
   // Development: the store is reachable from the dev tools (and CDP checks).
-  if (import.meta.env.DEV) Object.assign(window, { bvStore: store });
+  if (import.meta.env.DEV) Object.assign(window, { bvStore: store, bvMotion: motionEditor });
   let booted: { draft: { world: World; updatedAt: number } | null } | null = null;
 
   onMount(async () => {
@@ -165,6 +167,8 @@
 <svelte:window onkeydown={handleKey} onresize={resize} />
 
 <WorldCanvas onready={onRenderer} />
+
+{#if store.editor && motionEditor.active}<MotionOverlay editor={store.editor} />{/if}
 
 {#if store.ready}
   <div

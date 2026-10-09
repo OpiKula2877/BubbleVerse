@@ -10,11 +10,16 @@
   import ImportDialog from './ImportDialog.svelte';
   import Inspector from './Inspector.svelte';
   import TemplateDialogs from './TemplateDialogs.svelte';
+  import { motionEditor } from './motion-editor.svelte';
+  import MotionPanel from './MotionPanel.svelte';
+  import { onDestroy } from 'svelte';
   import QuickCreate from './QuickCreate.svelte';
   import Toolbar from './Toolbar.svelte';
   import Tree from './Tree.svelte';
 
   let { editor }: { editor: Editor } = $props();
+
+  onDestroy(() => motionEditor.stop());
 
   $effect(() => {
     store.renderer?.setOverlay({ rect: null, guides: [], grid: editor.grid ? 40 : null });
@@ -105,9 +110,21 @@
             },
           ]),
       { separator: true },
-      { label: t('menu.setPath'), icon: 'target', disabled: true },
-      { label: t('menu.setOrbit'), icon: 'target', disabled: true },
-      { label: t('menu.setWander'), icon: 'target', disabled: true },
+      {
+        label: t('menu.setPath'),
+        icon: 'target',
+        action: () => motionEditor.start('path', target.id, editor),
+      },
+      {
+        label: t('menu.setOrbit'),
+        icon: 'target',
+        action: () => motionEditor.start('orbit', target.id, editor),
+      },
+      {
+        label: t('menu.setWander'),
+        icon: 'target',
+        action: () => motionEditor.start('wander', target.id, editor),
+      },
       { separator: true },
       { label: t('menu.copySkin'), icon: 'copy', action: () => editor.copySkin(target.id) },
       {
@@ -193,6 +210,8 @@
 {:else if editor.modal}
   <TemplateDialogs {editor} />
 {/if}
+
+{#if motionEditor.active}<MotionPanel {editor} />{/if}
 
 {#if editor.quickCreate}
   {#key editor.quickCreate.id}
