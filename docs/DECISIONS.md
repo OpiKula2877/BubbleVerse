@@ -107,3 +107,19 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-07 · Okno Proměnné
 - **Rozhodnutí:** globální proměnné a běžící scripty jsou v Nastavení na kartě **Scripty**. Proměnné jdou přidat, smazat a jejich aktuální hodnota změnit. Běžící scripty jsou i v tray v podmenu.
 - **Důvod:** §5.3 mluví o okně Proměnné, ale samostatné okno by bylo jen další okno se seznamem. Nastavení už jako okno funguje.
+
+### 2026-10-09 · Hromadný generátor
+- **Rozhodnutí:** generátor je i v kontextovém menu složky (bubliny se vytvoří do ní), nejen na prázdném plátně. Aplikace z Microsoft Store se spouští přes `shell:AppsFolder\<AUMID>` sdíleným scriptem „Otevřít URL“, hry ze Steamu a Epicu přes jejich odkazy. Seznam aplikací a her je na začátku nezaškrtnutý (bývá dlouhý), soubory a weby zaškrtnuté. Ikony se načítají už v náhledu, takže nové bubliny je mají hned.
+- **Důvod:** §4.6 neříká, odkud se generátor otevírá ve složce, ani jak se spouští Store aplikace. Store aplikace nemají soubor, který by šel spustit.
+
+### 2026-10-09 · Přetažení souborů do okna a Strom
+- **Rozhodnutí:** soubory z Průzkumníku přijímá okno aplikace přes vlastní drag & drop Tauri (dává cesty i místo puštění). Strom proto přesouvá bubliny myší (pointer events), ne přes HTML5 drag & drop, které Tauri ve Windows vypne.
+- **Důvod:** stránka sama cesty k souborům nevidí. Předání souborů do WebView2 přes `postMessageWithAdditionalObjects` stránku zamrazilo.
+
+### 2026-10-09 · Import a export `.bubble`
+- **Rozhodnutí:** větev se při importu vloží jako main bublina u domovského pohledu, nebo jako podbublina vybrané složky. Balíček celého světa nabízí navíc „Nahradit celý svět“ (jde vrátit přes Undo). Najít a nahradit platí pro parametry sdílených scriptů i texty ve vlastních scriptech a nerozlišuje velikost písmen. Stejné sdílené scripty a vlastní bloky se nezdvojí. Jiný obsah pod stejným id dostane nové id (i bloky, které ho volají). Vestavěné scripty se vždy použijí ty z aplikace.
+- **Důvod:** §9.4 popisuje volby jen obecně. Cesty ve Windows velikost písmen nerozlišují.
+
+### 2026-10-09 · Přesun dat (Nastavení → Data)
+- **Rozhodnutí:** „Přesunout…“ data zkopíruje do vybrané prázdné složky (databáze přes `VACUUM INTO`, assety a zálohy), do standardní složky zapíše `location.txt` s novou cestou a aplikaci restartuje. Stará složka zůstane beze změny. Obnova zálohy jde jen mimo edit mód.
+- **Důvod:** aplikace nesmí mazat data uživatele. Bez restartu by běžící jádro pracovalo se starou databází.

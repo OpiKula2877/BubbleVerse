@@ -81,3 +81,20 @@
 - [ ] Editor: při běhu se zvýrazní aktuální blok, Krok jde po jednom bloku.
 - [ ] ⏺ Nahrát makro: psaní v Poznámkovém bloku a pár kliků vytvoří bloky, které to zopakují.
 - [ ] Zavření editoru s neuloženými změnami nabídne Uložit / Zahodit / Zůstat.
+
+## Fáze 5 – Hromadně a sdílení: hotovo (ruční kontrola zbývá)
+
+**Hotovo a ověřené automaticky**
+- Hromadný generátor se 4 zdroji: soubory (i přetažené z Průzkumníku na složku), složka s filtrem přípon a podsložkami, Start menu + Microsoft Store + Steam + Epic, seznam webů. Jméno ze šablony s předponou a příponou, vestavěný nebo jiný sdílený script, vzhled (auto-ikona, dědit, šablona), rozložení kruh / mřížka / spirála, náhled s ikonami, Vytvořit jako jeden krok Undo. Ověřeno v aplikaci (3 `.exe` → 3 bubliny s ikonami kolem složky; drop na složku otevře generátor pro ni).
+- Auto-ikony: ikona souboru, zástupce a Store aplikace (Shell, 256 px), Steam, Epic a favicon webu. Na tomto PC: 115 zástupců ve Start menu, 38 Store aplikací, Steam a Epic nejsou nainstalované.
+- Šablony: Uložit jako šablonu, Použít šablonu na vybrané bubliny, šablona v rychlém vytvoření a v generátoru.
+- Export větve (pravé tlačítko → Exportovat…) a celého světa do `.bubble`. Import s náhledem: strom, ⚠ nebezpečné bloky z obsahu scriptů, chybějící cesty s najít a nahradit, kam vložit. Ověřeno v aplikaci (export → import s nahrazením `C:\nope` → `C:\Windows`).
+- Nastavení → Data a zálohy: umístění dat (otevřít, přesunout), počet záloh a obnova, export a import světa, velikost dat a úklid nepoužitých assetů.
+- Testy: 150 TS, 73 Rust.
+
+**Ruční checklist**
+- [ ] Přetáhnout 30 `.exe` z Průzkumníku na složku-bublinu: Enter vytvoří 30 bublin s ikonami a jmény, Undo je vrátí najednou.
+- [ ] Generátor: zdroj Steam / Epic na PC s nainstalovanými hrami, hra se spustí kliknutím.
+- [ ] Web s faviconou: bublina má ikonu webu.
+- [ ] Exportovat větev, na jiném PC (nebo v jiném uživateli Windows) importovat: varování u nebezpečných bloků, oprava cest přes najít a nahradit.
+- [ ] Data → Přesunout… do prázdné složky: aplikace se restartuje a data jsou na novém místě.
