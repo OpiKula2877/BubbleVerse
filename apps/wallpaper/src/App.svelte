@@ -87,6 +87,7 @@
     r.setBackground({ kind: bg.kind, color: bg.color, color2: bg.color2, angle: bg.angle });
     r.setPrefs({ names: s.view.names, skins: s.view.skins });
     r.setLodZoom(s.performance.lodZoom);
+    r.setMaxVideos(s.performance.maxVideos);
     r.setFpsLimit(s.performance.wallpaperFps);
     const grid = hexToRgb(colors.grid);
     r.setColors({

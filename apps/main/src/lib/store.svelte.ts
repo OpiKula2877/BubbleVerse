@@ -141,6 +141,7 @@ class AppStore {
       r.setBackground({ kind: bg.kind, color: bg.color, color2: bg.color2, angle: bg.angle });
       r.setPrefs({ names: this.settings.view.names, skins: this.settings.view.skins });
       r.setLodZoom(this.settings.performance.lodZoom);
+      r.setMaxVideos(this.settings.performance.maxVideos);
       r.setFpsLimit(this.settings.performance.appFps);
     }
   }

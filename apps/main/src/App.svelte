@@ -1,6 +1,12 @@
 <script lang="ts">
   import { t, tk } from '@bv/ui';
-  import { generateScene, type World, type WorldRenderer } from '@bv/world';
+  import {
+    effectsShowcase,
+    generateScene,
+    solarSystem,
+    type World,
+    type WorldRenderer,
+  } from '@bv/world';
   import { onDestroy, onMount } from 'svelte';
   import EditMode from './edit/EditMode.svelte';
   import { Editor } from './lib/editor.svelte';
@@ -27,9 +33,12 @@
     store.settings = b.settings;
     store.layout = b.layout;
     store.published = b.published;
-    // Developer test scene (AI prompt §5.3): ?scene=200 or ?scene=1000, not saved unless edited.
-    const scene = Number(new URLSearchParams(location.search).get('scene'));
-    if (scene > 0) store.published = generateScene(scene);
+    // Developer test scenes (AI prompt §5.3): ?scene=200, ?scene=1000, ?scene=solar, ?scene=fx;
+    // not saved unless edited.
+    const scene = new URLSearchParams(location.search).get('scene');
+    if (scene === 'solar') store.published = solarSystem();
+    else if (scene === 'fx') store.published = effectsShowcase();
+    else if (Number(scene) > 0) store.published = generateScene(Number(scene));
     store.paused = b.paused;
     store.version = b.version;
     store.applyLook();

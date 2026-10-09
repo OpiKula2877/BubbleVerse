@@ -85,6 +85,10 @@ export interface BodyLook {
   fill: Fill;
   outline?: { color: string; width: number };
   shadow?: { color: string; blur: number; offset: { x: number; y: number } };
+  /** Soft colored light around the shape, pre-drawn (spec §10.1). */
+  glow?: { color: string; strength: number };
+  /** Glass: see-through fill with a light reflection. */
+  glass?: boolean;
   /** Image covering the shape, or an icon drawn smaller inside it. */
   media?: { kind: 'image' | 'icon'; img: CanvasImageSource; w: number; h: number };
   /** Custom shape mask image (alpha), for `{ mask }` shapes. */
@@ -99,7 +103,20 @@ export function drawBody(ctx: CanvasRenderingContext2D, look: BodyLook): void {
   const r = SHAPE_R;
   const unit = (SHAPE_R * 2) / Math.max(1, look.size);
   const shape = look.mask ? 'circle' : look.shape;
+  if (look.glow && look.glow.strength > 0 && !look.mask) {
+    // Glow pass: the shape again with a colored blur around it.
+    ctx.save();
+    ctx.shadowColor = look.glow.color;
+    ctx.shadowBlur = Math.min(TEX / 2 - SHAPE_R, look.glow.strength * unit * 2 + 6);
+    tracePath(ctx, shape, c, r);
+    ctx.fillStyle = look.glow.color;
+    ctx.fill();
+    ctx.shadowBlur *= 0.5;
+    ctx.fill();
+    ctx.restore();
+  }
   ctx.save();
+  if (look.glass) ctx.globalAlpha = 0.42;
   if (look.shadow) {
     ctx.shadowColor = look.shadow.color;
     ctx.shadowBlur = look.shadow.blur * unit;
@@ -135,6 +152,24 @@ export function drawBody(ctx: CanvasRenderingContext2D, look: BodyLook): void {
       const scale = Math.min(box / m.w, box / m.h);
       ctx.drawImage(m.img, c - (m.w * scale) / 2, c - (m.h * scale) / 2, m.w * scale, m.h * scale);
     }
+    ctx.restore();
+  }
+  if (look.glass && !look.mask) {
+    // Reflection on top and a light rim.
+    ctx.save();
+    tracePath(ctx, shape, c, r);
+    ctx.clip();
+    const hl = ctx.createLinearGradient(c, c - r, c, c + r * 0.2);
+    hl.addColorStop(0, 'rgba(255,255,255,0.55)');
+    hl.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = hl;
+    ctx.beginPath();
+    ctx.ellipse(c, c - r * 0.45, r * 0.78, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    tracePath(ctx, shape, c, r - 1.5);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+    ctx.stroke();
     ctx.restore();
   }
   if (look.outline && look.outline.width > 0 && !look.mask) {
@@ -206,7 +241,9 @@ export class SkinTextures {
       staticHash ? `${media?.type}:${staticHash}` : '',
       edge?.outline ? `o${edge.outline.color}${edge.outline.width}` : '',
       edge?.shadow ? `s${JSON.stringify(edge.shadow)}` : '',
-      edge?.outline || edge?.shadow ? `z${Math.round(skin.size / 8)}` : '',
+      edge?.glow ? `g${edge.glow.color}${edge.glow.strength}` : '',
+      edge?.glass ? 'glass' : '',
+      edge?.outline || edge?.shadow || edge?.glow ? `z${Math.round(skin.size / 8)}` : '',
     ].join('|');
     const cached = this.bodies.get(key);
     if (cached) return cached;
@@ -241,6 +278,8 @@ export class SkinTextures {
         fill: skin.fill,
         outline: skin.edge?.outline,
         shadow: skin.edge?.shadow,
+        glow: skin.edge?.glow,
+        glass: skin.edge?.glass,
         media: img
           ? {
               kind: skin.media?.type === 'image' ? 'image' : 'icon',
