@@ -13,7 +13,7 @@ import {
 function styled(): Bubble {
   return fixtureBubble('src', 'f', 'Source', 'action', 0, {
     skin: { mode: 'own', skin: { shape: 'star', size: 50, fill: '#FF0000' } },
-    motion: { spin: { speed: 30, dir: 'cw' } },
+    motion: { spin: { mode: 'constant', speed: 30, angle: 0 } },
     hover: { grow: false, shake: true, glow: false, tooltip: true },
     showName: 'hover',
     scripts: [{ kind: 'shared', ref: 'builtin.openUrl', params: { url: 'https://x.cz' } }],

@@ -1,9 +1,13 @@
 <script lang="ts">
   import { Menu, t, type MenuItem } from '@bv/ui';
   import type { Editor } from '../lib/editor.svelte';
+  import { resolveAutoIcons } from '../lib/auto-icons';
   import { openScriptEditor } from '../lib/script-editor';
   import { store } from '../lib/store.svelte';
+  import Generator from '../generator/Generator.svelte';
+  import { GeneratorState } from '../generator/gen-state.svelte';
   import Inspector from './Inspector.svelte';
+  import TemplateDialogs from './TemplateDialogs.svelte';
   import QuickCreate from './QuickCreate.svelte';
   import Toolbar from './Toolbar.svelte';
   import Tree from './Tree.svelte';
@@ -12,6 +16,12 @@
 
   $effect(() => {
     store.renderer?.setOverlay({ rect: null, guides: [], grid: editor.grid ? 40 : null });
+  });
+
+  // Bubbles switched to "auto icon" get their icon from the core.
+  $effect(() => {
+    void editor.world;
+    void resolveAutoIcons(editor);
   });
 
   function menuItems(): MenuItem[] {
@@ -39,7 +49,11 @@
           action: () => editor.paste(m.world, null),
           shortcut: 'Ctrl+V',
         },
-        { label: t('menu.bulk'), icon: 'sparkles', action: () => store.notify(t('menu.bulk')) },
+        {
+          label: t('menu.bulk'),
+          icon: 'sparkles',
+          action: () => (editor.modal = { kind: 'generator', parentId: null, files: [] }),
+        },
         { separator: true },
         {
           label: t('menu.setHome'),
@@ -64,6 +78,11 @@
               icon: 'bolt',
               action: () => editor.create('action', target.id, childAt(), screen),
             },
+            {
+              label: t('menu.bulk'),
+              icon: 'sparkles',
+              action: () => (editor.modal = { kind: 'generator', parentId: target.id, files: [] }),
+            },
           ]
         : [
             {
@@ -84,7 +103,16 @@
         disabled: !editor.skinClip,
         action: () => editor.pasteSkin(sel),
       },
-      { label: t('menu.saveTemplate'), icon: 'save', disabled: true },
+      {
+        label: t('menu.saveTemplate'),
+        icon: 'save',
+        action: () => (editor.modal = { kind: 'saveTemplate', id: target.id }),
+      },
+      {
+        label: t('menu.applyTemplate'),
+        icon: 'sparkles',
+        action: () => (editor.modal = { kind: 'applyTemplate', ids: sel }),
+      },
       { separator: true },
       { label: t('menu.copy'), icon: 'copy', action: () => editor.copy(), shortcut: 'Ctrl+C' },
       {
@@ -124,6 +152,19 @@
     items={menuItems()}
     onclose={() => (editor.menu = null)}
   />
+{/if}
+
+{#if editor.modal?.kind === 'generator'}
+  {#key editor.modal}
+    {@const m = editor.modal}
+    <Generator
+      {editor}
+      gen={new GeneratorState(m.parentId, m.files)}
+      onclose={() => (editor.modal = null)}
+    />
+  {/key}
+{:else if editor.modal}
+  <TemplateDialogs {editor} />
 {/if}
 
 {#if editor.quickCreate}

@@ -30,6 +30,7 @@ pub fn create_main(app: &AppHandle) -> AppResult<WebviewWindow> {
     }
     let app2 = app.clone();
     window.on_window_event(move |event| on_main_event(&app2, event));
+    super::file_drop::install(&window);
     if !state.autostarted {
         show_main(app);
     }

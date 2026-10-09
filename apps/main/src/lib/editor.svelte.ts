@@ -26,6 +26,11 @@ import {
 } from '@bv/world';
 import { store } from './store.svelte';
 
+export type EditModal =
+  | { kind: 'generator'; parentId: BubbleId | null; files: string[] }
+  | { kind: 'saveTemplate'; id: BubbleId }
+  | { kind: 'applyTemplate'; ids: BubbleId[] };
+
 /** Autosave of the draft 2 s after the last change (spec §4.7). */
 export const AUTOSAVE_MS = 2000;
 export const GRID_SIZE = 40;
@@ -46,6 +51,8 @@ export class Editor {
   quickCreate = $state<{ id: BubbleId; x: number; y: number } | null>(null);
   menu = $state<{ x: number; y: number; target: BubbleId | null; world: Vec2 } | null>(null);
   treeOpen = $state(true);
+  /** Edit-mode window: bulk generator, templates, import. */
+  modal = $state<EditModal | null>(null);
 
   private history = new History();
   private clip: BranchClip | null = null;

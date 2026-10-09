@@ -6,6 +6,7 @@
   import { Editor } from './lib/editor.svelte';
   import { handleKey, runAction } from './lib/actions';
   import { sendWorldToEditor, startScriptEditorBridge } from './lib/script-editor';
+  import { onDragOver, onDrop, startFileDrop } from './generator/drop';
   import { store } from './lib/store.svelte';
   import Settings from './settings/Settings.svelte';
   import DialogHost from './shell/DialogHost.svelte';
@@ -17,6 +18,8 @@
   import { search } from './search/search.svelte';
 
   const offs: (() => void)[] = [];
+  // Development: the store is reachable from the dev tools (and CDP checks).
+  if (import.meta.env.DEV) Object.assign(window, { bvStore: store });
   let booted: { draft: { world: World; updatedAt: number } | null } | null = null;
 
   onMount(async () => {
@@ -36,7 +39,7 @@
     store.ready = true;
     booted = { draft: b.draft };
     startIfReady();
-    offs.push(await startScriptEditorBridge());
+    offs.push(await startScriptEditorBridge(), await startFileDrop());
     const core = store.core;
     offs.push(
       core.on('world-published', (w) => {
@@ -150,7 +153,7 @@
   const scale = $derived(store.settings.appearance.uiScale / 100);
 </script>
 
-<svelte:window onkeydown={handleKey} onresize={resize} />
+<svelte:window onkeydown={handleKey} onresize={resize} ondragover={onDragOver} ondrop={onDrop} />
 
 <WorldCanvas onready={onRenderer} />
 

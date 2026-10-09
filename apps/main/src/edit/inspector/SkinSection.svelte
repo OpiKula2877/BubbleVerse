@@ -27,6 +27,8 @@
     type Shape,
     type SkinKey,
   } from '@bv/world';
+  import { actionTarget } from '@bv/blocks';
+  import { autoSourceFor } from '../../lib/auto-icons';
   import type { Editor } from '../../lib/editor.svelte';
   import { pickImageAsset } from '../assets';
   import { commonField, commonSkin } from './common';
@@ -126,8 +128,12 @@
 
   function setMediaType(v: string) {
     if (v === 'none') set('media', undefined);
-    else if (v === 'auto') set('media', { type: 'auto', source: 'exe' } as Media);
-    else void pickMedia(v as 'icon' | 'image' | 'gif' | 'video');
+    else if (v === 'auto') {
+      // Guess the source from the action (Steam game, Epic game, web site, file).
+      const first = ids.map((id) => editor.index.get(id)).find((b) => b && actionTarget(b));
+      const target = first ? actionTarget(first)?.value : undefined;
+      set('media', { type: 'auto', source: target ? autoSourceFor(target) : 'exe' } as Media);
+    } else void pickMedia(v as 'icon' | 'image' | 'gif' | 'video');
   }
 
   function setEdge(patch: Partial<Edge>) {

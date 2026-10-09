@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { fillColor, SkinResolver, writeSkin, type Media } from '@bv/world';
-  import { Button, ColorField, Field, t, TextField } from '@bv/ui';
+  import { applyTemplate, fillColor, SkinResolver, writeSkin, type Media } from '@bv/world';
+  import { Button, ColorField, Field, Select, t, TextField } from '@bv/ui';
   import type { Editor } from '../lib/editor.svelte';
   import { store } from '../lib/store.svelte';
   import { untrack } from 'svelte';
@@ -27,6 +27,14 @@
   async function icon() {
     const media = await pickImageAsset('icon');
     if (media) editor.apply((w) => writeSkin(w, [qc.id], 'media', media as Media));
+  }
+
+  /** A template replaces look, behaviour and scripts; the name stays (spec §4.2). */
+  function useTemplate(id: string) {
+    const tpl = editor.world?.templates.find((x) => x.id === id);
+    if (!tpl) return;
+    editor.apply((w) => applyTemplate(w, [qc.id], tpl, store.renderer?.basePositions()));
+    color = fillColor(new SkinResolver(editor.index).skin(qc.id));
   }
 
   function done() {
@@ -56,6 +64,18 @@
   <Field label={t('quick.icon')}>
     <Button small icon="image" onclick={icon}>{t('skin.media.pick')}</Button>
   </Field>
+  {#if editor.world?.templates.length}
+    <Field label={t('quick.template')}>
+      <Select
+        options={[
+          { value: '', label: t('common.none') },
+          ...editor.world.templates.map((x) => ({ value: x.id, label: x.name })),
+        ]}
+        value=""
+        onchange={(v) => v && useTemplate(v)}
+      />
+    </Field>
+  {/if}
   <div class="foot">
     <span class="bv-muted">{t('quick.hint')}</span>
     <Button small variant="primary" onclick={done}>{t('common.ok')}</Button>
