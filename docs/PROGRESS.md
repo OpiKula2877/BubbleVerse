@@ -58,3 +58,26 @@
 - [ ] `Ctrl+F` na ploše otevře pole nad ikonami, tapeta zešedne a přiblíží, Esc vrátí domovský pohled.
 - [ ] Hra nebo video na celou obrazovku: ve Správci úloh má BubbleVerse ~0 % GPU.
 - [ ] Vypnutí tapety v nastavení vrátí původní tapetu Windows.
+
+## Fáze 4 – Scripty: hotovo (ruční kontrola zbývá)
+
+**Hotovo a ověřené automaticky**
+- Katalog 145 bloků (`packages/blocks/catalog.yaml`) generuje TS i Rust. Interpret v jádru má všechny kategorie a spouštěče z §5.2, běžící scripty jsou asynchronní úlohy s pojistkami z §5.4.
+- Editor scriptů (Blockly) v samostatném okně nad oknem aplikace: paleta s hledáním česky i anglicky (`Ctrl+F`), víc spouštěčů na bublinu, záložka pro každý sdílený script a vlastní blok, panel Parametry / Opakované spuštění / Platnost zkratky / Proměnné, debug konzole, `Ctrl+C/V`, undo, zoom a koš. Ověřeno v aplikaci přes CDP.
+- **▶ Test** spustí neuložený script hned, **⏭ Krok** po blocích, **■ Stop** zastaví scripty bubliny. Běžící blok se zvýrazní u testu i u uložených scriptů (ověřeno aktivací bubliny).
+- **Uložit** v editoru jde přes okno aplikace do konceptu a uloží ho (ověřeno: změna režimu opakování se objeví v uložené verzi).
+- **⇄** převede vlastní script na sdílený a zpět (hodnoty parametrů se doplní). Vlastní bloky s vstupy, úprava a smazání nepoužitého bloku.
+- Nahrávání makra: hook kláves a myši, převod na bloky `napiš` / `stiskni` / `klikni` / `počkej` (testy převodu).
+- Dotazy scriptů (`zeptej se`, odpočet před vypnutím) v kompaktní liště, ano/ne a výběr souboru nativně.
+- Nastavení → Scripty: běžící scripty se Zastavit a globální proměnné s hodnotami. Běžící scripty v tray.
+- Testy: 132 TS, 65 Rust (mimo jiné jeden sdílený script ve 30 bublinách, test běh, krokování).
+
+**Ruční checklist**
+- [ ] Sdílený script „Spustit soubor“ ve 30 bublinách: změna scriptu se projeví ve všech.
+- [ ] Časovač (`každých 5 s`) běží i se zavřeným oknem aplikace.
+- [ ] Venkovní zkratka ze scriptu funguje v jiném programu, vnitřní jen v BubbleVerse.
+- [ ] `vyšli zprávu` spustí script s `když dostanu zprávu` v jiné bublině.
+- [ ] Blok CMD vypíše výstup do proměnné, okno konzole se neukáže.
+- [ ] Editor: při běhu se zvýrazní aktuální blok, Krok jde po jednom bloku.
+- [ ] ⏺ Nahrát makro: psaní v Poznámkovém bloku a pár kliků vytvoří bloky, které to zopakují.
+- [ ] Zavření editoru s neuloženými změnami nabídne Uložit / Zahodit / Zůstat.

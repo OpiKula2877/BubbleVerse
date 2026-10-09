@@ -65,6 +65,6 @@ packages/ui       i18n (en/cs), theme tokens, core client, shared Svelte compone
 apps/main         app window: user mode, edit mode, inspector, settings
 apps/searchbar    compact global search bar
 apps/wallpaper    desktop wallpaper
-apps/script-editor  block editor (Blockly)
+apps/script-editor  script editor window (Blockly): palette with search, test, step, macro recording
 scripts/          block code generator, hardcoded text/color check, DevTools helper
 ```
