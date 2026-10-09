@@ -1,6 +1,6 @@
 //! Tray icon and its menu (spec §2.4).
 
-use tauri::menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem};
+use tauri::menu::{CheckMenuItem, IsMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager, Wry};
 
@@ -10,12 +10,42 @@ use super::windows;
 use crate::error::AppResult;
 
 const TRAY_ID: &str = "bubbleverse";
+/// The tray lists at most this many running scripts.
+const MAX_LISTED: usize = 15;
 
 fn build_menu(app: &AppHandle) -> AppResult<Menu<Wry>> {
     let state = app.state::<AppState>();
     let s = state.settings();
     let lang = s.general.language.as_str();
     let item = |id: &str, key: &str| MenuItem::with_id(app, id, tr(lang, key), true, None::<&str>);
+    // Running scripts, each with Stop (spec §5.5).
+    let running = state.runtime.running();
+    let mut stops: Vec<MenuItem<Wry>> = Vec::new();
+    for r in running.iter().take(MAX_LISTED) {
+        let name = if r.path.is_empty() {
+            &r.bubble
+        } else {
+            &r.path
+        };
+        stops.push(MenuItem::with_id(
+            app,
+            format!("stop-task:{}", r.id),
+            format!("{} {name}", tr(lang, "tray.stopScript")),
+            true,
+            None::<&str>,
+        )?);
+    }
+    if stops.is_empty() {
+        stops.push(MenuItem::with_id(
+            app,
+            "none-running",
+            tr(lang, "scripts.noneRunning"),
+            false,
+            None::<&str>,
+        )?);
+    }
+    let refs: Vec<&dyn IsMenuItem<Wry>> = stops.iter().map(|m| m as &dyn IsMenuItem<Wry>).collect();
+    let running_menu = Submenu::with_items(app, tr(lang, "tray.running"), true, &refs)?;
     let menu = Menu::with_items(
         app,
         &[
@@ -37,6 +67,7 @@ fn build_menu(app: &AppHandle) -> AppResult<Menu<Wry>> {
                 state.paused(),
                 None::<&str>,
             )?,
+            &running_menu,
             &item("stop-scripts", "tray.stopScripts")?,
             &PredefinedMenuItem::separator(app)?,
             &item("settings", "tray.settings")?,
@@ -95,6 +126,13 @@ fn on_menu(app: &AppHandle, id: &str) {
             let _ = app.emit(events::OPEN_SETTINGS, ());
         }
         "quit" => app.exit(0),
-        _ => {}
+        other => {
+            if let Some(task) = other
+                .strip_prefix("stop-task:")
+                .and_then(|t| t.parse::<u64>().ok())
+            {
+                state.runtime.stop_task(task);
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@
   import AppearanceTab from './AppearanceTab.svelte';
   import GeneralTab from './GeneralTab.svelte';
   import PerformanceTab from './PerformanceTab.svelte';
+  import ScriptsTab from './ScriptsTab.svelte';
   import ShortcutsTab from './ShortcutsTab.svelte';
 
   const tabs = [
@@ -11,6 +12,7 @@
     { id: 'appearance', icon: 'image' },
     { id: 'shortcuts', icon: 'bolt' },
     { id: 'performance', icon: 'sparkles' },
+    { id: 'scripts', icon: 'code' },
   ];
 </script>
 
@@ -38,6 +40,7 @@
       {#if store.settingsTab === 'appearance'}<AppearanceTab />{/if}
       {#if store.settingsTab === 'shortcuts'}<ShortcutsTab />{/if}
       {#if store.settingsTab === 'performance'}<PerformanceTab />{/if}
+      {#if store.settingsTab === 'scripts'}<ScriptsTab />{/if}
     </div>
   </section>
 </div>

@@ -191,7 +191,7 @@
   "settings.data": "Data & backups",
   "settings.background": "World background",
   "settings.sounds": "Sounds",
-  "settings.scripts": "Running scripts",
+  "settings.scripts": "Scripts",
   "settings.variables": "Variables",
   "settings.autostart": "Start with Windows",
   "settings.wallpaper": "Desktop wallpaper",
@@ -406,5 +406,17 @@
   "editor.blockName": "Block name",
   "editor.blockInputs": "Inputs",
   "editor.addInput": "Add input",
-  "editor.inputName": "Input name"
+  "editor.inputName": "Input name",
+  "scripts.running": "Running scripts",
+  "scripts.noneRunning": "No script is running.",
+  "scripts.stop": "Stop",
+  "scripts.stopAll": "Stop all scripts",
+  "scripts.test": "test",
+  "scripts.openEditor": "Open in the script editor",
+  "scripts.globals": "Global variables",
+  "scripts.globalsHint": "Current values. Scripts read and change them as g:name.",
+  "scripts.noGlobals": "No global variables yet.",
+  "scripts.newGlobal": "New variable name",
+  "tray.running": "Running scripts",
+  "tray.stopScript": "Stop"
 }

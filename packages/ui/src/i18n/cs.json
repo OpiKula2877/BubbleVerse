@@ -191,7 +191,7 @@
   "settings.data": "Data a zálohy",
   "settings.background": "Pozadí světa",
   "settings.sounds": "Zvuky",
-  "settings.scripts": "Běžící scripty",
+  "settings.scripts": "Scripty",
   "settings.variables": "Proměnné",
   "settings.autostart": "Spouštět po startu Windows",
   "settings.wallpaper": "Tapeta na ploše",
@@ -406,5 +406,17 @@
   "editor.blockName": "Název bloku",
   "editor.blockInputs": "Vstupy",
   "editor.addInput": "Přidat vstup",
-  "editor.inputName": "Název vstupu"
+  "editor.inputName": "Název vstupu",
+  "scripts.running": "Běžící scripty",
+  "scripts.noneRunning": "Žádný script neběží.",
+  "scripts.stop": "Zastavit",
+  "scripts.stopAll": "Zastavit všechny scripty",
+  "scripts.test": "test",
+  "scripts.openEditor": "Otevřít v editoru scriptů",
+  "scripts.globals": "Globální proměnné",
+  "scripts.globalsHint": "Aktuální hodnoty. Scripty je čtou a mění jako g:jméno.",
+  "scripts.noGlobals": "Zatím žádné globální proměnné.",
+  "scripts.newGlobal": "Název nové proměnné",
+  "tray.running": "Běžící scripty",
+  "tray.stopScript": "Zastavit"
 }

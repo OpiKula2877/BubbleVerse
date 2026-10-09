@@ -203,7 +203,12 @@ impl AppHost {
 
 impl Host for AppHost {
     fn fx(&self, fx: ScriptFx) {
+        // The tray lists running scripts: rebuild it when a bubble starts or stops running.
+        let running_changed = matches!(fx, ScriptFx::Running { .. });
         let _ = self.app.emit(events::FX, fx);
+        if running_changed {
+            super::tray::refresh(&self.app);
+        }
     }
 
     fn log(&self, entry: LogEntry) {

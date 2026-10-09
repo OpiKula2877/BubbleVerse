@@ -36,9 +36,10 @@ fn request() -> std::sync::MutexGuard<'static, Option<EditorRequest>> {
     REQUEST.lock().unwrap_or_else(|e| e.into_inner())
 }
 
-/// Opens the editor for a bubble, or switches the open editor to it.
+/// Opens the editor for a bubble, or switches the open editor to it. Async: creating a window
+/// from a synchronous command deadlocks on Windows.
 #[tauri::command]
-pub fn open_script_editor(bubble: String, world: Value, app: AppHandle) -> AppResult<()> {
+pub async fn open_script_editor(bubble: String, world: Value, app: AppHandle) -> AppResult<()> {
     let req = EditorRequest { bubble, world };
     *request() = Some(req.clone());
     if let Some(w) = app.get_webview_window(EDITOR) {

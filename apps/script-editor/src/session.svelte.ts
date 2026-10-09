@@ -196,6 +196,8 @@ export class EditorSession {
   private lineId = 0;
   private lastTest: TestRun | null = null;
   private panelTimer = 0;
+  /** A test run can report its first block before `test_script` has returned its id. */
+  private earlyTrace: TraceEvent | null = null;
   /** Last selected block: Blockly drops its selection when a toolbar button takes the focus. */
   private selectedId: string | null = null;
 
@@ -804,6 +806,9 @@ export class EditorSession {
       });
       this.test = { task, doc: d.key, map, started: Date.now(), step, paused: false };
       this.lastTest = this.test;
+      const early = this.earlyTrace;
+      this.earlyTrace = null;
+      if (early?.task === task) this.onTrace(early);
       this.system(t(step ? 'editor.stepStarted' : 'editor.testStarted'));
     } catch (e) {
       this.system(tk('editor.testFailed', { message: errorText(e) }), 'error');
@@ -854,7 +859,11 @@ export class EditorSession {
       if (this.current === test.doc) this.highlight(test.map[ev.node] ?? null);
       return;
     }
-    if (ev.slot === null || this.dirty) return;
+    if (ev.slot === null) {
+      this.earlyTrace = ev;
+      return;
+    }
+    if (this.dirty) return;
     const target = this.slotTarget(ev.slot);
     if (!target || target.doc.key !== this.current || target.doc.changed) return;
     this.highlight(

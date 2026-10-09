@@ -387,3 +387,29 @@ async fn a_new_test_run_stops_the_previous_one_and_stop_bubble_ends_it() {
         .unwrap();
     assert!(rt.running().is_empty());
 }
+
+/// Phase 4 "done when": one shared script used by 30 bubbles, each with its own parameter.
+#[tokio::test(flavor = "multi_thread")]
+async fn one_shared_script_runs_for_thirty_bubbles_with_their_values() {
+    let mut world = world_with(vec![]);
+    let bubbles = world["bubbles"].as_array_mut().unwrap();
+    for i in 0..30 {
+        bubbles.push(json!({
+            "id": format!("s{i}"), "parentId": "main", "kind": "action", "name": format!("S{i}"),
+            "scripts": [{ "kind": "shared", "ref": "sh", "params": { "who": format!("#{i}") } }]
+        }));
+    }
+    let host = Arc::new(TestHost::default());
+    let rt = Runtime::new(host.clone());
+    rt.set_world(&world);
+    let ids = rt.broadcast("shared");
+    assert_eq!(ids.len(), 30);
+    tokio::time::timeout(Duration::from_secs(10), rt.wait_for(&ids))
+        .await
+        .unwrap();
+    let mut l = logs(&host);
+    l.sort();
+    let mut expected: Vec<String> = (0..30).map(|i| format!("hi #{i}")).collect();
+    expected.sort();
+    assert_eq!(l, expected);
+}
