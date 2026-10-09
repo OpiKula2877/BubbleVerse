@@ -123,3 +123,19 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-09 · Přesun dat (Nastavení → Data)
 - **Rozhodnutí:** „Přesunout…“ data zkopíruje do vybrané prázdné složky (databáze přes `VACUUM INTO`, assety a zálohy), do standardní složky zapíše `location.txt` s novou cestou a aplikaci restartuje. Stará složka zůstane beze změny. Obnova zálohy jde jen mimo edit mód.
 - **Důvod:** aplikace nesmí mazat data uživatele. Bez restartu by běžící jádro pracovalo se starou databází.
+
+### 2026-10-09 · Spojení a efekty v edit módu
+- **Rozhodnutí:** v edit módu (kde stojí pohyb) jsou blesk, lano, řetěz, tok částic i částice kolem bublin v klidu. Hýbou se v uživatelském módu, v náhledu a na tapetě. GIF a video hrají jen tam, kde běží pohyb. V edit módu ukazují aktuální snímek.
+- **Důvod:** edit mód má stát (§2.6), aby šlo bubliny přesně chytat, a „klid = 0 FPS“ (§10.1).
+
+### 2026-10-09 · Sklo
+- **Rozhodnutí:** efekt „sklo“ je průsvitná výplň s odleskem a světlým okrajem, předkreslená do textury skinu. Skutečné rozmazání pozadí za bublinou se nedělá.
+- **Důvod:** rozmazání pozadí by znamenalo filtr pro každou bublinu každý snímek, což jde proti §10.1 („žádné drahé filtry každý snímek“).
+
+### 2026-10-09 · GIF, video a atlas
+- **Rozhodnutí:** GIF (uložený jako animovaný WebP) se jednou dekóduje přes `ImageDecoder` (nejvýš 240 snímků, max 256 px). Video hraje v jednom skrytém prvku na asset. Každý vzhled (asset + tvar + výplň + okraj) má jednu sdílenou texturu, kreslí se jen u bublin na obrazovce. Statické skiny jsou v atlasu po 64 skinech (stránka 2048 px). Spojení a částice jsou znovu používané sprity z jedné malé textury.
+- **Důvod:** §10.1 (jedno přehrávání na GIF, nejvýš N videí, dávkové kreslení). Měřením se ukázalo, že přestavba grafiky spojení každý snímek a samostatné textury skinů brzdily nejvíc.
+
+### 2026-10-09 · Editory pohybu
+- **Rozhodnutí:** editory cesty, oběžné dráhy a bloudění pracují s kopií pohybu, Enter ji uloží jako jeden krok Undo, Esc ji zahodí. Klik přidá bod cesty na konec. Tažení z nového bodu udělá hladký bod s úchyty. Úchyt poloměru X oběžné dráhy nastavuje i natočení. Rychlost, směr a fáze oběžné dráhy zůstávají v inspektoru (§4.4). Oblast bloudění se kreslí od bubliny ven.
+- **Důvod:** §4.4 popisuje ovládání jen v hlavních rysech.

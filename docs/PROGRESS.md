@@ -98,3 +98,20 @@
 - [ ] Web s faviconou: bublina má ikonu webu.
 - [ ] Exportovat větev, na jiném PC (nebo v jiném uživateli Windows) importovat: varování u nebezpečných bloků, oprava cest přes najít a nahradit.
 - [ ] Data → Přesunout… do prázdné složky: aplikace se restartuje a data jsou na novém místě.
+
+## Fáze 6 – Pohyb a efekty: hotovo (ruční kontrola zbývá)
+
+**Hotovo a ověřené automaticky**
+- Všechna spojení z §3.7: přímka, blesk (~20× za sekundu nový tvar), lano a řetěz (prověšené, houpou se), tok částic (tečky / čárky), laser s glow. Efekty okraje: obrys, glow, stín, sklo, částice. Tvary: kruh, zaoblený čtverec, hexagon, hvězda, maska. Ověřeno scénou `?scene=fx`.
+- GIF a video ve skinech se sdíleným přehráváním, ořezem a limitem videí.
+- Editory na plátně: cesta (body, úchyty, ostrý/hladký, ▶, Enter/Esc), oběžná dráha (střed kliknutím, bez cyklů, úchyty poloměrů a natočení), bloudění (kruh, obdélník). Ověřeno přes CDP: tažení úchytu změní poloměr a natočení, Esc zruší, cesta se uloží Enterem jako krok Undo.
+- Sluneční soustava z §3.5 jako scéna `?scene=solar` (test: měsíce obíhají Games, Games obíhá Slunce).
+- Výkon na tomto PC (vývojový build, okno 1280×800 @125 %): 200 bublin 58–60 FPS (snímek 6–9 ms), 1000 bublin 40–58 FPS podle zoomu. Referenční notebook z §10.2 tu není k dispozici.
+- Testy: 165 TS, 73 Rust.
+
+**Ruční checklist**
+- [ ] `?scene=solar`: planety obíhají Slunce po elipsách, měsíce obíhají Games, aplikace i tapeta ukazují bubliny na stejném místě.
+- [ ] `?scene=200` s GIFy a videi na referenčním notebooku: ≥ 60 FPS (FPS měřič v nastavení Výkon).
+- [ ] `?scene=1000` na referenčním notebooku: ≥ 45 FPS bez záseků.
+- [ ] Editor cesty: body, křivky, dvojklik ostrý/hladký, ▶ přehraje, Enter uloží, Esc zruší.
+- [ ] Editor oběžné dráhy: kruhový střed nejde vybrat, když by vznikl cyklus.
