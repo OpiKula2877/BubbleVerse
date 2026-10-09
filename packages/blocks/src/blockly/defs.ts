@@ -48,11 +48,14 @@ export interface BlockJson {
   previousStatement?: null;
   nextStatement?: null;
   output?: string | null;
-  style?: string;
-  hat?: string;
+  /** Only the hat shape; colours come from `colour`. */
+  style?: { hat: string };
 }
 
-function argsFor(input: CatalogInput, lang: Lang): { text: string; args: Record<string, unknown>[] } {
+function argsFor(
+  input: CatalogInput,
+  lang: Lang,
+): { text: string; args: Record<string, unknown>[] } {
   switch (input.type) {
     case 'num':
     case 'text':
@@ -61,11 +64,17 @@ function argsFor(input: CatalogInput, lang: Lang): { text: string; args: Record<
     case 'bool':
       return { text: '%', args: [{ type: 'input_value', name: input.name, check: 'Boolean' }] };
     case 'numf':
-      return { text: '%', args: [{ type: 'field_number', name: input.name, value: Number(input.default ?? 0) }] };
+      return {
+        text: '%',
+        args: [{ type: 'field_number', name: input.name, value: Number(input.default ?? 0) }],
+      };
     case 'textf':
     case 'combo':
     case 'time':
-      return { text: '%', args: [{ type: 'field_input', name: input.name, text: String(input.default ?? '') }] };
+      return {
+        text: '%',
+        args: [{ type: 'field_input', name: input.name, text: String(input.default ?? '') }],
+      };
     case 'menu':
       return {
         text: '%',
@@ -73,18 +82,28 @@ function argsFor(input: CatalogInput, lang: Lang): { text: string; args: Record<
           {
             type: 'field_dropdown',
             name: input.name,
-            options: (input.options ?? []).map(([value, en, cs]) => [lang === 'cs' ? cs : en, value]),
+            options: (input.options ?? []).map(([value, en, cs]) => [
+              lang === 'cs' ? cs : en,
+              value,
+            ]),
           },
         ],
       };
     case 'check':
-      return { text: '%', args: [{ type: 'field_checkbox', name: input.name, checked: input.default === true }] };
+      return {
+        text: '%',
+        args: [{ type: 'field_checkbox', name: input.name, checked: input.default === true }],
+      };
     case 'days': {
       const mask = String(input.default ?? '1111111');
       const labels = DAY_LABELS[lang];
       return {
         text: labels.map((l) => `${l} %`).join(' '),
-        args: labels.map((_, i) => ({ type: 'field_checkbox', name: `${input.name}_${i}`, checked: mask[i] !== '0' })),
+        args: labels.map((_, i) => ({
+          type: 'field_checkbox',
+          name: `${input.name}_${i}`,
+          checked: mask[i] !== '0',
+        })),
       };
     }
     case 'var': {
@@ -132,7 +151,7 @@ export function blockJson(b: CatalogBlock, lang: Lang): BlockJson {
   else if (b.shape === 'boolean') def.output = 'Boolean';
   else if (b.shape === 'hat') {
     def.nextStatement = null;
-    def.hat = 'cap';
+    def.style = { hat: 'cap' };
   } else if (b.shape === 'cap' || b.cap) def.previousStatement = null;
   else {
     def.previousStatement = null;
@@ -154,7 +173,11 @@ export function customBlockJson(
   const args: Record<string, unknown>[] = [];
   c.params.forEach((p, i) => {
     message += ` ${p.name} %${i + 1}`;
-    args.push({ type: 'input_value', name: `ARG${i}`, ...(p.type === 'bool' ? { check: 'Boolean' } : {}) });
+    args.push({
+      type: 'input_value',
+      name: `ARG${i}`,
+      ...(p.type === 'bool' ? { check: 'Boolean' } : {}),
+    });
   });
   return {
     type: `${CUSTOM_PREFIX}${c.id}`,

@@ -1,7 +1,12 @@
 import type { Script } from '@bv/world';
 import { describe, expect, it } from 'vitest';
 import { BLOCKS, OP } from '../generated/catalog';
-import { blocklyToCustomBody, blocklyToScripts, customToBlockly, scriptsToBlockly } from './convert';
+import {
+  blocklyToCustomBody,
+  blocklyToScripts,
+  customToBlockly,
+  scriptsToBlockly,
+} from './convert';
 import { allBlockJson, blockJson } from './defs';
 
 const scripts: Script[] = [
@@ -10,13 +15,30 @@ const scripts: Script[] = [
     trigger: [OP.ev_activate],
     body: [
       [OP.var_set, 's:count', 0],
-      [OP.ctl_repeat, [OP.op_add, 2, [OP.var_get, 'g:times']], [[OP.var_change, 's:count', 1], [OP.ctl_log, 'tick']]],
-      [OP.ctl_if_else, [OP.op_gt, [OP.sen_battery], 20], [[OP.sys_run_file, 'C:\\a.exe', '-x', true, false, true]], []],
+      [
+        OP.ctl_repeat,
+        [OP.op_add, 2, [OP.var_get, 'g:times']],
+        [
+          [OP.var_change, 's:count', 1],
+          [OP.ctl_log, 'tick'],
+        ],
+      ],
+      [
+        OP.ctl_if_else,
+        [OP.op_gt, [OP.sen_battery], 20],
+        [[OP.sys_run_file, 'C:\\a.exe', '-x', true, false, true]],
+        [],
+      ],
       [OP.cb_call, 'cb1', 'hi', [OP.op_join, 'a', 'b'], 3],
     ],
     runMode: 'restart',
   },
-  { v: 1, trigger: [OP.ev_at_time, '07:30', '1111100'], body: [[OP.ctl_wait, 5, 'min']], runMode: 'ignore' },
+  {
+    v: 1,
+    trigger: [OP.ev_at_time, '07:30', '1111100'],
+    body: [[OP.ctl_wait, 5, 'min']],
+    runMode: 'ignore',
+  },
   { v: 1, trigger: [OP.ev_hotkey, 'Ctrl+Alt+K', 'app'], body: [], runMode: 'parallel' },
   { v: 1, trigger: [OP.ev_every, 10, 's'], body: [[OP.ctl_log, 42]], runMode: 'ignore' },
 ];
@@ -38,7 +60,10 @@ describe('Blockly ↔ compact format', () => {
   });
 
   it('keeps positions and loose blocks in the layout', () => {
-    const layout = { positions: [{ x: 5, y: 6 }], loose: [{ type: 'ctl_log', id: 'x', x: 1, y: 2 }] };
+    const layout = {
+      positions: [{ x: 5, y: 6 }],
+      loose: [{ type: 'ctl_log', id: 'x', x: 1, y: 2 }],
+    };
     const { state } = scriptsToBlockly(scripts.slice(0, 1), layout);
     const back = blocklyToScripts(state);
     expect(back.layout).toEqual(layout);
@@ -46,11 +71,15 @@ describe('Blockly ↔ compact format', () => {
   });
 
   it('reads a block edited in Blockly (number shadow replaced by a reporter)', () => {
-    const { state } = scriptsToBlockly([{ v: 1, trigger: [OP.ev_activate], body: [[OP.ctl_wait, 1, 's']], runMode: 'ignore' }]);
+    const { state } = scriptsToBlockly([
+      { v: 1, trigger: [OP.ev_activate], body: [[OP.ctl_wait, 1, 's']], runMode: 'ignore' },
+    ]);
     const wait = state.blocks.blocks[0]!.next!.block!;
     wait.inputs!.N = { ...wait.inputs!.N, block: { type: 'sen_battery', id: 'new' } };
     wait.fields = { UNIT: 'min' };
-    expect(blocklyToScripts(state).scripts[0]!.body).toEqual([[OP.ctl_wait, [OP.sen_battery], 'min']]);
+    expect(blocklyToScripts(state).scripts[0]!.body).toEqual([
+      [OP.ctl_wait, [OP.sen_battery], 'min'],
+    ]);
   });
 
   it('round-trips custom block bodies', () => {
@@ -70,11 +99,27 @@ describe('block definitions', () => {
   });
 
   it('marks dangerous blocks and shapes hats and reporters', () => {
-    const run = blockJson(BLOCKS.find((b) => b.id === 'sys_run_file')!, 'cs');
+    const run = blockJson(
+      BLOCKS.find((b) => b.id === 'sys_run_file')!,
+      'cs',
+    );
     expect(run.message0.startsWith('⚠ ')).toBe(true);
-    expect(blockJson(BLOCKS.find((b) => b.id === 'ev_activate')!, 'en').nextStatement).toBeNull();
-    expect(blockJson(BLOCKS.find((b) => b.id === 'op_add')!, 'en').output).toBeNull();
-    const forever = blockJson(BLOCKS.find((b) => b.id === 'ctl_forever')!, 'en');
+    expect(
+      blockJson(
+        BLOCKS.find((b) => b.id === 'ev_activate')!,
+        'en',
+      ).nextStatement,
+    ).toBeNull();
+    expect(
+      blockJson(
+        BLOCKS.find((b) => b.id === 'op_add')!,
+        'en',
+      ).output,
+    ).toBeNull();
+    const forever = blockJson(
+      BLOCKS.find((b) => b.id === 'ctl_forever')!,
+      'en',
+    );
     expect(forever.nextStatement).toBeUndefined();
   });
 });

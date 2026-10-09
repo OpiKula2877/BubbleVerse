@@ -44,13 +44,28 @@ function isNode(a: unknown): a is ScriptNode {
   return Array.isArray(a) && typeof a[0] === 'number';
 }
 
-function shadowFor(input: CatalogInput, literal: ScriptArg | undefined, id: string): BlockState | undefined {
+function shadowFor(
+  input: CatalogInput,
+  literal: ScriptArg | undefined,
+  id: string,
+): BlockState | undefined {
   if (input.type === 'bool') return undefined;
-  const value = literal !== undefined && literal !== null && !isNode(literal) && !Array.isArray(literal) ? literal : input.default;
+  const value =
+    literal !== undefined && literal !== null && !isNode(literal) && !Array.isArray(literal)
+      ? literal
+      : input.default;
   if (input.type === 'num' || (input.type === 'any' && typeof value === 'number')) {
-    return { type: 'math_number', id, fields: { NUM: typeof value === 'number' ? value : Number(value ?? 0) || 0 } };
+    return {
+      type: 'math_number',
+      id,
+      fields: { NUM: typeof value === 'number' ? value : Number(value ?? 0) || 0 },
+    };
   }
-  return { type: 'text', id, fields: { TEXT: value === undefined || value === null ? '' : String(value) } };
+  return {
+    type: 'text',
+    id,
+    fields: { TEXT: value === undefined || value === null ? '' : String(value) },
+  };
 }
 
 // ---------------------------------------------------------------- compact → Blockly
@@ -72,8 +87,20 @@ class ToBlockly {
       node.slice(2).forEach((arg, i) => {
         const name = `ARG${i}`;
         inputs[name] = isNode(arg)
-          ? { block: this.block(arg), shadow: { type: 'text', id: `${id}.s${i}`, fields: { TEXT: '' } } }
-          : { shadow: { type: typeof arg === 'number' ? 'math_number' : 'text', id: `${id}.s${i}`, fields: typeof arg === 'number' ? { NUM: arg } : { TEXT: arg === null || arg === undefined ? '' : String(arg) } } };
+          ? {
+              block: this.block(arg),
+              shadow: { type: 'text', id: `${id}.s${i}`, fields: { TEXT: '' } },
+            }
+          : {
+              shadow: {
+                type: typeof arg === 'number' ? 'math_number' : 'text',
+                id: `${id}.s${i}`,
+                fields:
+                  typeof arg === 'number'
+                    ? { NUM: arg }
+                    : { TEXT: arg === null || arg === undefined ? '' : String(arg) },
+              },
+            };
       });
       return { type: `${CUSTOM_PREFIX}${String(node[1] ?? '')}`, id, inputs };
     }
@@ -106,7 +133,8 @@ class ToBlockly {
       } else if (input.type === 'numf') {
         fields[input.name] = typeof arg === 'number' ? arg : Number(arg ?? input.default ?? 0);
       } else {
-        fields[input.name] = arg === null || arg === undefined ? String(input.default ?? '') : String(arg);
+        fields[input.name] =
+          arg === null || arg === undefined ? String(input.default ?? '') : String(arg);
       }
     });
     if (Object.keys(fields).length) state.fields = fields;
@@ -163,7 +191,8 @@ class FromBlockly {
     this.map[nodeId] = b.id ?? '';
     if (b.type.startsWith(CUSTOM_PREFIX)) {
       const args: ScriptArg[] = [];
-      for (let i = 0; b.inputs && `ARG${i}` in b.inputs; i++) args.push(this.value(b.inputs[`ARG${i}`]));
+      for (let i = 0; b.inputs && `ARG${i}` in b.inputs; i++)
+        args.push(this.value(b.inputs[`ARG${i}`]));
       return [OP.cb_call, b.type.slice(CUSTOM_PREFIX.length), ...args];
     }
     const def = byId.get(b.type);
@@ -172,8 +201,12 @@ class FromBlockly {
       const f = b.fields ?? {};
       if (VALUE.has(input.type)) return this.value(b.inputs?.[input.name]);
       if (input.type === 'stack') return this.chain(b.inputs?.[input.name]?.block);
-      if (input.type === 'days') return fieldNames(input).map((n) => (truthy(f[n]) ? '1' : '0')).join('');
-      if (input.type === 'var') return `${String(f[`${input.name}_SCOPE`] ?? 's')}:${String(f[input.name] ?? '')}`;
+      if (input.type === 'days')
+        return fieldNames(input)
+          .map((n) => (truthy(f[n]) ? '1' : '0'))
+          .join('');
+      if (input.type === 'var')
+        return `${String(f[`${input.name}_SCOPE`] ?? 's')}:${String(f[input.name] ?? '')}`;
       if (input.type === 'check') return truthy(f[input.name]);
       if (input.type === 'numf') return Number(f[input.name] ?? 0);
       return f[input.name] === undefined ? '' : String(f[input.name]);
@@ -183,7 +216,8 @@ class FromBlockly {
 
   value(entry: { block?: BlockState; shadow?: BlockState } | undefined): ScriptArg {
     if (!entry) return null;
-    if (entry.block && entry.block.type !== 'math_number' && entry.block.type !== 'text') return this.node(entry.block);
+    if (entry.block && entry.block.type !== 'math_number' && entry.block.type !== 'text')
+      return this.node(entry.block);
     const lit = entry.block ?? entry.shadow;
     if (!lit) return null;
     if (lit.type === 'math_number') return Number(lit.fields?.NUM ?? 0);
@@ -242,9 +276,18 @@ export function blocklyToScripts(state: WorkspaceState): FromBlocklyResult {
 // ---------------------------------------------------------------- custom block bodies
 
 /** A custom block's body as a workspace with its `define` hat. */
-export function customToBlockly(c: { id: string; name: string; body: ScriptNode[] }, pos = { x: 40, y: 40 }): WorkspaceState {
+export function customToBlockly(
+  c: { id: string; name: string; body: ScriptNode[] },
+  pos = { x: 40, y: 40 },
+): WorkspaceState {
   const conv = new ToBlockly(`c.`);
-  const hat: BlockState = { type: 'cb_define', id: 'c.define', x: pos.x, y: pos.y, fields: { NAME: c.name } };
+  const hat: BlockState = {
+    type: 'cb_define',
+    id: 'c.define',
+    x: pos.x,
+    y: pos.y,
+    fields: { NAME: c.name },
+  };
   const body = conv.chain(c.body);
   if (body) hat.next = { block: body };
   return { blocks: { languageVersion: 0, blocks: [hat] } };
@@ -254,4 +297,12 @@ export function blocklyToCustomBody(state: WorkspaceState): ScriptNode[] {
   const hat = state.blocks?.blocks?.find((b) => b.type === 'cb_define');
   if (!hat) return [];
   return new FromBlockly().chain(hat.next?.block);
+}
+
+/** Blocks of a stack (a recorded macro) to put into a workspace; block ids start with `prefix`. */
+export function stackToBlockly(
+  nodes: readonly ScriptNode[],
+  prefix: string,
+): BlockState | undefined {
+  return new ToBlockly(prefix).chain(nodes);
 }

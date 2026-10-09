@@ -4,3 +4,6 @@ src-tauri
 pnpm-lock.yaml
 *.md
 packages/blocks/src/generated
+
+# Project landing page (kept as written)
+/index.html
