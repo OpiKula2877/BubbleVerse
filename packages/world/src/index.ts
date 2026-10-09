@@ -18,3 +18,4 @@ export * from './render/textures';
 export * from './render/renderer';
 export * from './dev/scene-gen';
 export * from './edit/skin-edit';
+export * from './edit/templates';
