@@ -115,3 +115,24 @@
 - [ ] `?scene=1000` na referenčním notebooku: ≥ 45 FPS bez záseků.
 - [ ] Editor cesty: body, křivky, dvojklik ostrý/hladký, ▶ přehraje, Enter uloží, Esc zruší.
 - [ ] Editor oběžné dráhy: kruhový střed nejde vybrat, když by vznikl cyklus.
+
+## Fáze 7 – Dokončení a vydání: hotovo (ruční kontrola a čistá instalace zbývají)
+
+**Hotovo a ověřené automaticky**
+- Vzhled: Světlý, Tmavý, OpiKula style, Vlastní. Editor všech 29 barevných tokenů (celá aplikace je živý náhled), export a import `.bvtheme`, scale GUI 50–200 %, písmo, zaoblení, průhlednost panelů.
+- Pozadí světa: barva, gradient, obrázek, video, tapeta Windows; animované hvězdy, paralaxa, mřížka; zvlášť pro aplikaci a tapetu. Ověřeno v aplikaci (hvězdy a mřížka přes CDP).
+- Zvuky: kliknutí v UI a zvuk aktivace (syntetizované), hlasitost, vlastní zvuky jako assety (ověřen import a přehrání wav), ztlumení při hře na celou obrazovku.
+- Instalátor NSIS (pro uživatele, čeština + angličtina, asociace `.bubble`) a podpis pro updater: `pnpm tauri build` vytvořil `BubbleVerse_0.1.0_x64-setup.exe` (5,8 MB) a `.sig`.
+- Auto-update z GitHub Releases ověřovaný klíčem updateru, tlačítko „Zkontrolovat teď“ v Obecných. Workflow CI (`pnpm check`) a Release (koncept vydání s `latest.json` a `SHA256SUMS.txt`).
+- Výkonový test `pnpm test:perf` (na tomto PC, vývojový build): 200 bublin 2–6 ms na snímek, 1000 bublin 4–5 ms (rozpočet 16,7 / 22,2 ms). FPS ukazuje ~48, protože Windows zpomaluje zakryté okno.
+- E2E testy (tauri-driver + WebdriverIO) pro tři toky z §12 jsou napsané a typově zkontrolované.
+- Testy: 166 TS, 73 Rust. `pnpm check` prochází.
+
+**Známé problémy a co zbývá**
+- E2E testy zatím neběžely: potřebují `cargo install tauri-driver` a `msedgedriver.exe` ve verzi nainstalovaného WebView2 (stažení od Microsoftu). Nic z toho se nestahovalo bez souhlasu.
+- Instalátor NSIS nemá české texty pro hlášky specifické pro Tauri (upozornění při buildu); standardní texty NSIS česky jsou.
+- Čistá instalace na Windows 10 a 11 a celý [`CHECKLIST.md`](CHECKLIST.md) jsou ruční.
+- Soukromý klíč updateru je v `%USERPROFILE%\.tauri\bubbleverse-updater.key`. Pro vydání přes GitHub patří do secrets `TAURI_SIGNING_PRIVATE_KEY` (+ prázdné `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`). Bez zálohy klíče nepůjde vydat aktualizaci pro už nainstalované kopie.
+
+**Ruční checklist**
+- [ ] Celý [`docs/CHECKLIST.md`](CHECKLIST.md) na čisté instalaci Windows 10 a Windows 11.

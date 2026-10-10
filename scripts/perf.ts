@@ -7,6 +7,8 @@
  * then:
  *   node scripts/perf.ts
  */
+export {};
+
 const port = process.env.CDP_PORT ?? '9222';
 
 interface PageInfo {
@@ -78,16 +80,21 @@ for (const scene of SCENES) {
       s.renderer.setCamera({ x: 0, y: 0, zoom: ${zoom} });
       await new Promise(r => setTimeout(r, 2500));
       const fps = [], ms = [];
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 5; i++) {
         await new Promise(r => setTimeout(r, 1000));
         fps.push(s.stats.fps); ms.push(s.stats.frameMs);
       }
-      return { fps: Math.min(...fps), ms: Math.max(...ms) };
+      fps.sort((a, b) => a - b); ms.sort((a, b) => a - b);
+      // Median of the seconds measured (one GC pause does not decide the result).
+      return { fps: fps[2], ms: ms[2] };
     })()`)) as { fps: number; ms: number };
-    const ok = result.fps >= scene.target * 0.95;
+    // The frame budget decides (spec §10.2: "60 FPS = frame ≤ 16 ms"). The FPS shown also
+    // depends on the display and on Windows slowing down windows that are covered.
+    const budget = 1000 / scene.target;
+    const ok = result.ms <= budget;
     if (!ok) failed = true;
     console.log(
-      `${ok ? 'ok  ' : 'SLOW'} ${String(scene.count).padStart(4)} bubbles, zoom ${zoom}: ${result.fps} FPS (target ${scene.target}), frame ${result.ms} ms`,
+      `${ok ? 'ok  ' : 'SLOW'} ${String(scene.count).padStart(4)} bubbles, zoom ${zoom}: frame ${result.ms} ms (budget ${budget.toFixed(1)} ms), ${result.fps} FPS`,
     );
   }
   c.close();

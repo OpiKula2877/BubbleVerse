@@ -507,7 +507,9 @@ export class WorldRenderer {
   private loop = (now: number): void => {
     this.raf = 0;
     if (this.destroyed) return;
-    const minGap = this.fpsLimit > 0 ? 1000 / this.fpsLimit - 1 : 0;
+    // Some slack: display frames come a little early or late, and a frame skipped for being
+    // 0.2 ms early would halve the frame rate.
+    const minGap = this.fpsLimit > 0 ? (1000 / this.fpsLimit) * 0.85 : 0;
     if (now - this.lastRender < minGap) {
       this.raf = requestAnimationFrame(this.loop);
       return;
