@@ -68,8 +68,13 @@ function argsFor(
         text: '%',
         args: [{ type: 'field_number', name: input.name, value: Number(input.default ?? 0) }],
       };
-    case 'textf':
     case 'combo':
+      // Filled by pressing the keys (the editor registers `field_combo`).
+      return {
+        text: '%',
+        args: [{ type: 'field_combo', name: input.name, value: String(input.default ?? '') }],
+      };
+    case 'textf':
     case 'time':
       return {
         text: '%',

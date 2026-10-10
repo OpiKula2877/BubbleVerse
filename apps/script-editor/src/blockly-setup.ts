@@ -15,6 +15,7 @@ import type { CustomBlock } from '@bv/world';
 import * as Blockly from 'blockly/core';
 import * as Cs from 'blockly/msg/cs';
 import * as En from 'blockly/msg/en';
+import { registerFieldCombo } from './field-combo';
 
 /**
  * Blockly for the script editor: blocks generated from the catalog (spec §8.3), the theme
@@ -50,6 +51,7 @@ export function defineBlocks(
   colors: ThemeColors,
   custom: readonly CustomBlock[],
 ): void {
+  registerFieldCombo();
   Blockly.setLocale((lang === 'cs' ? Cs : En) as unknown as Record<string, string>);
   const defs = [
     ...literalBlocks(colors),
@@ -90,6 +92,51 @@ export function makeTheme(c: ThemeColors, font: string): Blockly.Theme {
   );
   theme.setFontStyle({ family: font, weight: '600', size: 11 });
   return theme;
+}
+
+/**
+ * The block palette (flyout) has its own size: zooming the workspace does not change it, the
+ * palette's own magnifier does. Remembered per computer as a view convenience.
+ */
+const PALETTE_KEY = 'bv.paletteScale';
+export const PALETTE_SCALE = { min: 0.5, max: 1.5, start: 0.85, step: 1.15 };
+
+function storedPaletteScale(): number {
+  try {
+    const v = Number(localStorage.getItem(PALETTE_KEY));
+    return v >= PALETTE_SCALE.min && v <= PALETTE_SCALE.max ? v : PALETTE_SCALE.start;
+  } catch {
+    return PALETTE_SCALE.start;
+  }
+}
+
+let paletteScale = storedPaletteScale();
+
+class PaletteFlyout extends Blockly.VerticalFlyout {
+  override getFlyoutScale(): number {
+    return paletteScale;
+  }
+}
+
+export function getPaletteScale(): number {
+  return paletteScale;
+}
+
+/** Makes the palette bigger (1), smaller (-1) or resets it (0); returns the new scale. */
+export function zoomPalette(ws: Workspace, dir: 1 | -1 | 0): number {
+  const next =
+    dir === 0
+      ? PALETTE_SCALE.start
+      : paletteScale * (dir > 0 ? PALETTE_SCALE.step : 1 / PALETTE_SCALE.step);
+  paletteScale = Math.min(PALETTE_SCALE.max, Math.max(PALETTE_SCALE.min, next));
+  try {
+    localStorage.setItem(PALETTE_KEY, String(paletteScale));
+  } catch {
+    /* only a convenience */
+  }
+  const flyout = ws.getFlyout();
+  if (flyout?.isVisible()) flyout.reflow();
+  return paletteScale;
 }
 
 export interface FlyoutSources {
@@ -134,6 +181,7 @@ export function createWorkspace(
     },
     grid: { spacing: 32, length: 3, colour: o.colors.grid, snap: false },
     move: { scrollbars: true, drag: true, wheel: false },
+    plugins: { flyoutsVerticalToolbox: PaletteFlyout },
   });
   ws.registerToolboxCategoryCallback(SEARCH_CATEGORY, () => {
     const found = searchBlocks(o.flyouts.query());
@@ -179,10 +227,12 @@ export function showSearch(ws: Workspace): void {
   else toolbox.setSelectedItem(item);
 }
 
-/** Puts an element (the block search field) at the top of the toolbox. */
-export function mountInToolbox(ws: Workspace, el: HTMLElement): void {
+/** Puts an element at the top (the block search field) or bottom (the palette zoom) of the toolbox. */
+export function mountInToolbox(ws: Workspace, el: HTMLElement, at: 'top' | 'bottom' = 'top'): void {
   const div = (ws.getToolbox() as Blockly.Toolbox | null)?.HtmlDiv;
-  if (div && el.parentElement !== div) div.prepend(el);
+  if (!div || el.parentElement === div) return;
+  if (at === 'top') div.prepend(el);
+  else div.append(el);
 }
 
 export function isCustomType(type: string): boolean {

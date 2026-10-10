@@ -23,11 +23,13 @@
     Blockly,
     createWorkspace,
     defineBlocks,
+    getPaletteScale,
     makeTheme,
     mountInToolbox,
     registerEditCustom,
     showSearch,
     updateToolbox,
+    zoomPalette,
   } from './blockly-setup';
   import Console from './Console.svelte';
   import { EditorSession, type EditorRequest } from './session.svelte';
@@ -40,6 +42,8 @@
   if (import.meta.env.DEV) Object.assign(window, { bvEditor: s, bvBlockly: Blockly });
   let host: HTMLDivElement | undefined = $state();
   let searchBox: HTMLDivElement | undefined = $state();
+  let paletteBar: HTMLDivElement | undefined = $state();
+  let paletteScale = $state(getPaletteScale());
   let searchInput: HTMLInputElement | undefined = $state();
   let query = $state('');
   let ready = $state(false);
@@ -129,6 +133,7 @@
     s.ws = ws;
     ws.addChangeListener((e) => s.onChange(e));
     if (searchBox) mountInToolbox(ws, searchBox);
+    if (paletteBar) mountInToolbox(ws, paletteBar, 'bottom');
     registerEditCustom(
       () => t('editor.editBlock'),
       (id) => void s.openCustom(id),
@@ -318,6 +323,35 @@
   <Console {s} />
 </div>
 
+<!-- Moved to the bottom of Blockly's toolbox: the palette's own zoom. -->
+<div class="palette-zoom" bind:this={paletteBar}>
+  <Icon name="search" size={14} />
+  <button
+    type="button"
+    title={t('editor.paletteSmaller')}
+    aria-label={t('editor.paletteSmaller')}
+    onclick={() => s.ws && (paletteScale = zoomPalette(s.ws, -1))}
+  >
+    <Icon name="minus" size={14} />
+  </button>
+  <button
+    type="button"
+    class="pct"
+    title={t('editor.paletteReset')}
+    onclick={() => s.ws && (paletteScale = zoomPalette(s.ws, 0))}
+  >
+    {Math.round(paletteScale * 100)} %
+  </button>
+  <button
+    type="button"
+    title={t('editor.paletteBigger')}
+    aria-label={t('editor.paletteBigger')}
+    onclick={() => s.ws && (paletteScale = zoomPalette(s.ws, 1))}
+  >
+    <Icon name="plus" size={14} />
+  </button>
+</div>
+
 <!-- Moved into Blockly's toolbox: the block search sits on top of the palette (spec §5.1). -->
 <div class="search" bind:this={searchBox}>
   <Icon name="search" size={14} />
@@ -495,6 +529,43 @@
     color: var(--bv-text);
     font: inherit;
     font-size: 13px;
+  }
+  .palette-zoom {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 6px;
+    height: 30px;
+    border-radius: calc(var(--bv-radius) * 0.6);
+    border: 1px solid var(--bv-border);
+    background: var(--bv-panel);
+    color: var(--bv-text-muted);
+  }
+  .palette-zoom button {
+    display: grid;
+    place-items: center;
+    min-width: 26px;
+    height: 24px;
+    border: none;
+    border-radius: calc(var(--bv-radius) * 0.4);
+    background: none;
+    color: var(--bv-text);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .palette-zoom button:hover {
+    background: var(--bv-button-hover);
+  }
+  .palette-zoom .pct {
+    flex: 1;
+  }
+  :global(.blocklyToolbox) {
+    padding-bottom: 46px;
   }
   .hint {
     color: var(--bv-text-2);
