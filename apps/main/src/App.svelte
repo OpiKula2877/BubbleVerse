@@ -15,6 +15,9 @@
   import { handleKey, runAction } from './lib/actions';
   import { sendWorldToEditor, startScriptEditorBridge } from './lib/script-editor';
   import { startFileDrop } from './generator/drop';
+  import { openPackageFile } from './lib/packages';
+  import { checkForUpdates } from './lib/updates';
+  import { listen } from '@tauri-apps/api/event';
   import { store } from './lib/store.svelte';
   import Settings from './settings/Settings.svelte';
   import DialogHost from './shell/DialogHost.svelte';
@@ -51,6 +54,16 @@
     booted = { draft: b.draft };
     startIfReady();
     offs.push(await startScriptEditorBridge(), await startFileDrop());
+    if (store.core.isTauri) {
+      // A .bubble file this start was opened with, and ones opened later (spec §9.4).
+      const startup = await store.core.call<string | null>('startup_package');
+      if (startup) void openPackageFile(startup);
+      offs.push(await listen<string>('bv://open-package', (e) => void openPackageFile(e.payload)));
+      // Updates are looked for a while after start, never in development builds.
+      if (store.settings.general.checkUpdates && !import.meta.env.DEV) {
+        window.setTimeout(() => void checkForUpdates(false), 15000);
+      }
+    }
     const core = store.core;
     offs.push(
       core.on('world-published', (w) => {

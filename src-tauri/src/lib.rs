@@ -14,12 +14,19 @@ use app::state::AppState;
 pub fn run() {
     let windowed = std::env::var("BV_WINDOWED").is_ok_and(|v| v == "1");
     let autostarted = std::env::args().any(|a| a == app::autostart::AUTOSTART_ARG);
+    app::packages::remember_startup(&std::env::args().collect::<Vec<_>>());
 
     let result = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             app::windows::show_main(app);
+            // Double click on a .bubble file while BubbleVerse runs (spec §9.4).
+            if let Some(path) = app::packages::package_arg(&args) {
+                app::packages::open_package(app, path);
+            }
         }))
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_notification::init())
         .register_asynchronous_uri_scheme_protocol(app::protocol::SCHEME, app::protocol::handle)
         .invoke_handler(tauri::generate_handler![
@@ -72,6 +79,7 @@ pub fn run() {
             app::generator::auto_icon,
             app::packages::export_package,
             app::packages::import_package,
+            app::packages::startup_package,
             app::data::data_info,
             app::data::open_data_folder,
             app::data::clean_assets,

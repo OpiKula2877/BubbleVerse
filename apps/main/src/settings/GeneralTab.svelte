@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { Field, Icon, Segmented, Select, t, Toggle, type Settings } from '@bv/ui';
+  import { Button, Field, Icon, Segmented, Select, t, Toggle, type Settings } from '@bv/ui';
+  import { checkForUpdates } from '../lib/updates';
   import { store } from '../lib/store.svelte';
 
   const g = $derived(store.settings.general);
@@ -77,13 +78,21 @@
   label={t('settings.sortByUsage')}
   onchange={(v) => void store.saveSettings({ ...store.settings, search: { sortByUsage: v } })}
 />
-<Toggle
-  checked={g.checkUpdates}
-  label={t('settings.checkUpdates')}
-  onchange={(v) => set({ checkUpdates: v })}
-/>
+<div class="updates">
+  <Toggle
+    checked={g.checkUpdates}
+    label={t('settings.checkUpdates')}
+    onchange={(v) => set({ checkUpdates: v })}
+  />
+  <Button small onclick={() => void checkForUpdates(true)}>{t('update.checkNow')}</Button>
+</div>
 
 <style>
+  .updates {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
   .warn {
     display: flex;
     gap: 8px;

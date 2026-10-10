@@ -598,5 +598,13 @@
   "sounds.default": "vestavěný",
   "sounds.custom": "vlastní",
   "sounds.test": "Přehrát",
-  "sounds.files": "Zvuky"
+  "sounds.files": "Zvuky",
+  "update.none": "BubbleVerse je aktuální.",
+  "update.title": "Je dostupná aktualizace",
+  "update.text": "Je dostupná verze {version} (máš {current}). Nainstaluje se a BubbleVerse se restartuje.",
+  "update.install": "Nainstalovat a restartovat",
+  "update.later": "Později",
+  "update.downloading": "Stahuji aktualizaci…",
+  "update.failed": "Aktualizace se nepovedla: {message}",
+  "update.checkNow": "Zkontrolovat teď"
 }

@@ -66,7 +66,11 @@ function renameAssets<T>(value: T, renamed: Record<string, string>): T {
 /** Asks for a `.bubble` file and reads it; `null` when cancelled or unreadable. */
 export async function pickPackage(): Promise<LoadedPackage | null> {
   const path = await store.core.pickFile(FILTERS);
-  if (!path) return null;
+  return path ? readPackage(path) : null;
+}
+
+/** Reads a `.bubble` file; `null` when it cannot be read (the error is shown). */
+export async function readPackage(path: string): Promise<LoadedPackage | null> {
   try {
     const r = await store.core.call<{
       manifest: PackageManifest;
@@ -89,4 +93,12 @@ export async function pickPackage(): Promise<LoadedPackage | null> {
     store.error(e);
     return null;
   }
+}
+
+/** A `.bubble` file opened from Explorer: the import preview in edit mode (spec §9.4). */
+export async function openPackageFile(path: string): Promise<void> {
+  const pkg = await readPackage(path);
+  if (!pkg) return;
+  if (!store.editor) (await import('./actions')).enterEdit();
+  if (store.editor) store.editor.modal = { kind: 'import', pkg, parentId: null };
 }

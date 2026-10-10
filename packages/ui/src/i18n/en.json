@@ -598,5 +598,13 @@
   "sounds.default": "built-in",
   "sounds.custom": "custom",
   "sounds.test": "Play",
-  "sounds.files": "Sounds"
+  "sounds.files": "Sounds",
+  "update.none": "BubbleVerse is up to date.",
+  "update.title": "Update available",
+  "update.text": "Version {version} is available (you have {current}). It installs and BubbleVerse restarts.",
+  "update.install": "Install and restart",
+  "update.later": "Later",
+  "update.downloading": "Downloading the update…",
+  "update.failed": "The update failed: {message}",
+  "update.checkNow": "Check now"
 }

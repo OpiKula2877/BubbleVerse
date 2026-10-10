@@ -139,3 +139,15 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-09 · Editory pohybu
 - **Rozhodnutí:** editory cesty, oběžné dráhy a bloudění pracují s kopií pohybu, Enter ji uloží jako jeden krok Undo, Esc ji zahodí. Klik přidá bod cesty na konec. Tažení z nového bodu udělá hladký bod s úchyty. Úchyt poloměru X oběžné dráhy nastavuje i natočení. Rychlost, směr a fáze oběžné dráhy zůstávají v inspektoru (§4.4). Oblast bloudění se kreslí od bubliny ven.
 - **Důvod:** §4.4 popisuje ovládání jen v hlavních rysech.
+
+### 2026-10-10 · Zvuky
+- **Rozhodnutí:** vestavěné zvuky (kliknutí tlačítka, akord při aktivaci bubliny) se syntetizují přes WebAudio, aplikace tedy nemá zvukové soubory. Vlastní zvuky jsou assety mp3, wav nebo ogg. Výchozí stav zvuků je vypnuto. Ztlumení „když běží hra na celou obrazovku“ používá stejný signál jako auto-pauza.
+- **Důvod:** §7.7 neurčuje, které zvuky aplikace má, ani výchozí stav. Tichý start nikoho neruší.
+
+### 2026-10-10 · Pozadí světa
+- **Rozhodnutí:** hvězdy jsou na vzdálené rovině v pixelech obrazovky (zoom je nemění), s paralaxou se posouvají o 15 % pohybu kamery, bez ní stojí. Obrázek a video pokrývají monitor a s paralaxou se posouvají jen o malý kus. Mřížka mění rozestup podle zoomu. Hvězdy a video potřebují snímky jen při běžícím pohybu a kreslí se málo často (hvězdy ~10×, video ~30× za sekundu).
+- **Důvod:** §7.6 popisuje jen volby. „Klid = 0 FPS“ a tapeta v klidu ~0 % GPU (§10).
+
+### 2026-10-10 · Vydání a aktualizace
+- **Rozhodnutí:** instalátor NSIS pro aktuálního uživatele (bez správce), čeština a angličtina, asociace souborů `.bubble`. Aktualizace se hledají 15 s po startu (ne ve vývojové verzi) v `latest.json` posledního GitHub Release a ověřují klíčem updateru. Soukromý klíč je mimo repozitář v `%USERPROFILE%\.tauri\bubbleverse-updater.key` (bez hesla). Release workflow vytvoří jen koncept vydání, zveřejnění je ruční.
+- **Důvod:** §16 (bezplatný klíč updateru, SHA-256 otisky, žádné podepisování). Instalace bez správce sedí k tomu, že BubbleVerse sám běží bez admin práv (§5.4).

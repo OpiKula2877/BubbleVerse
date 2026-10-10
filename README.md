@@ -30,6 +30,7 @@ pnpm tauri dev
 | `BV_DEV_AUTOSTART=1` | let a development build register itself in "Start with Windows" |
 | `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9222` | DevTools access, used by `node scripts/cdp.ts` |
 | `?scene=200` / `?scene=1000` | load the performance test scene (not saved unless edited) |
+| `?scene=solar` / `?scene=fx` | the solar system from the spec and a showcase of links and edge effects |
 
 Development builds keep their data in `%APPDATA%\BubbleVerse-dev`; release builds use
 `%APPDATA%\BubbleVerse`.
@@ -46,13 +47,33 @@ pnpm check
 runs, in order: block catalog freshness, ESLint + Prettier, the hardcoded text/color check, TypeScript
 and Svelte type checks, Vitest, `cargo fmt`, `cargo clippy -D warnings` and `cargo test`.
 
-## Building
+Performance and end-to-end tests run against a development app started with the DevTools port:
 
 ```bash
+pnpm test:perf   # 200 and 1000 bubble scenes against the targets of spec §10.2
+pnpm test:e2e    # needs tauri-driver and msedgedriver, see e2e/wdio.conf.ts
+```
+
+## Building and releasing
+
+The installer is NSIS (per-user, English and Czech). Updates come from GitHub Releases and are
+verified with the Tauri updater key; the app itself is **not code-signed** (spec §15, §16), so
+Windows SmartScreen shows "Windows protected your PC" on first install: *More info → Run anyway*.
+
+```bash
+# the updater private key never goes into the repository
+export TAURI_SIGNING_PRIVATE_KEY="$(cat ~/.tauri/bubbleverse-updater.key)"
+export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=""
 pnpm tauri build
 ```
 
-produces the NSIS installer in `src-tauri/target/release/bundle/nsis/`.
+produces the installer and its `.sig` file in `src-tauri/target/release/bundle/nsis/`.
+
+A tag `v*` pushed to GitHub runs `.github/workflows/release.yml`: it builds the installer, the
+updater manifest `latest.json` and `SHA256SUMS.txt` into a draft release. The repository needs
+the secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Bump the
+version in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `package.json` first.
+The release checklist is in [`docs/CHECKLIST.md`](docs/CHECKLIST.md).
 
 ## Repository layout
 
@@ -66,5 +87,6 @@ apps/main         app window: user mode, edit mode, inspector, settings
 apps/searchbar    compact global search bar
 apps/wallpaper    desktop wallpaper
 apps/script-editor  script editor window (Blockly): palette with search, test, step, macro recording
-scripts/          block code generator, hardcoded text/color check, DevTools helper
+scripts/          block code generator, hardcoded text/color check, DevTools helper, perf test
+e2e/              end-to-end tests (tauri-driver + WebdriverIO)
 ```
