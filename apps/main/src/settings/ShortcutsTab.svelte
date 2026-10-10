@@ -30,17 +30,19 @@
     const index = new WorldIndex(w);
     const out: { id: string; combo: string; scope: 'app' | 'global'; path: string }[] = [];
     for (const b of w.bubbles) {
-      b.scripts.forEach((slot, i) => {
-        const s = resolveSlot(w, slot);
-        if (s && s.trigger[0] === OP.ev_hotkey) {
-          out.push({
-            id: `script:${b.id}:${i}`,
-            combo: String(s.trigger[1] ?? ''),
-            scope: s.trigger[2] === 'app' ? 'app' : 'global',
-            path: index.pathString(b.id),
-          });
-        }
-      });
+      const hotkeys = b.scripts
+        .map((slot, i) => ({ s: resolveSlot(w, slot), i }))
+        .filter(({ s }) => s && s.trigger[0] === OP.ev_hotkey);
+      for (const { s, i } of hotkeys) {
+        const path = index.pathString(b.id);
+        out.push({
+          id: `script:${b.id}:${i}`,
+          combo: String(s!.trigger[1] ?? ''),
+          scope: s!.trigger[2] === 'app' ? 'app' : 'global',
+          // Several hotkey scripts in one bubble are told apart by their number.
+          path: hotkeys.length > 1 ? t('shortcuts.scriptN', { path, n: i + 1 }) : path,
+        });
+      }
     }
     return out;
   });
@@ -57,8 +59,9 @@
     return script ? script.path : tk(`shortcut.${id}`);
   }
 
+  /** Distinct messages: two scripts in one bubble (or same-named bubbles) read the same. */
   function problems(id: string): string[] {
-    return collisions
+    const list = collisions
       .filter((c) => c.id === id)
       .map((c) =>
         c.reserved
@@ -67,6 +70,7 @@
             ? t('shortcuts.windows')
             : t('shortcuts.collision', { other: nameOf(c.with) }),
       );
+    return [...new Set(list)];
   }
 
   function save(list: Shortcut[]) {
@@ -153,8 +157,9 @@
     gap: 6px;
   }
   .row {
-    display: grid;
-    grid-template-columns: 1fr 150px auto auto;
+    /* Wraps the scope and override controls under the name when the panel is narrow. */
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
@@ -162,11 +167,13 @@
     border-radius: calc(var(--bv-radius) * 0.75);
   }
   .name {
+    flex: 1 1 160px;
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
   }
   .combo {
+    flex: none;
+    width: 150px;
     height: 30px;
     padding: 0 10px;
     border-radius: calc(var(--bv-radius) * 0.75);
@@ -187,7 +194,7 @@
     cursor: default;
   }
   .warn {
-    grid-column: 1 / -1;
+    flex-basis: 100%;
     display: flex;
     align-items: center;
     gap: 6px;

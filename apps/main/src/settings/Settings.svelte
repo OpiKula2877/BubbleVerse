@@ -12,10 +12,10 @@
 
   const tabs = [
     { id: 'general', icon: 'gear' },
-    { id: 'appearance', icon: 'image' },
-    { id: 'shortcuts', icon: 'bolt' },
+    { id: 'appearance', icon: 'palette' },
+    { id: 'shortcuts', icon: 'keyboard' },
     { id: 'background', icon: 'image' },
-    { id: 'sounds', icon: 'bolt' },
+    { id: 'sounds', icon: 'volume' },
     { id: 'performance', icon: 'sparkles' },
     { id: 'scripts', icon: 'code' },
     { id: 'data', icon: 'folder' },

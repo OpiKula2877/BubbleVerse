@@ -9,7 +9,7 @@
 </script>
 
 <div class="field" class:wide>
-  <span class="label">{label}</span>
+  <span class="label" title={label}>{label}</span>
   <div class="control">{@render children()}</div>
 </div>
 
@@ -28,9 +28,9 @@
   .label {
     color: var(--bv-text-2);
     font-size: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.25;
+    /* Long labels (and longer translations) wrap instead of being cut off. */
+    overflow-wrap: anywhere;
   }
   .control {
     min-width: 0;
