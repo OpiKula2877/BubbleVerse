@@ -6,8 +6,23 @@ import { browser, expect } from '@wdio/globals';
  * steps (shortcuts, typing, clicks) go through the real UI.
  */
 
-const ready = () =>
-  browser.waitUntil(
+/** The app has several webviews (app, search bar, wallpaper); the tests drive the app window. */
+async function toAppWindow(): Promise<void> {
+  await browser.waitUntil(
+    async () => {
+      for (const handle of await browser.getWindowHandles()) {
+        await browser.switchToWindow(handle);
+        if ((await browser.getUrl()).includes('/main/')) return true;
+      }
+      return false;
+    },
+    { timeout: 30_000, interval: 500 },
+  );
+}
+
+const ready = async () => {
+  await toAppWindow();
+  await browser.waitUntil(
     () =>
       browser.execute(
         () => !!(window as unknown as { bvStore?: { ready: boolean } }).bvStore?.ready,
@@ -16,6 +31,7 @@ const ready = () =>
       timeout: 30_000,
     },
   );
+};
 
 /** Runs code in the app window with the store and the core. */
 function inApp<T>(fn: string): Promise<T> {

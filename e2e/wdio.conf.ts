@@ -9,12 +9,13 @@
  * The app runs windowed with its own temporary data folder, so real data is never touched.
  */
 import { spawn, type ChildProcess } from 'node:child_process';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 let driver: ChildProcess | null = null;
+let data: string | null = null;
 
 export const config: WebdriverIO.Config = {
   runner: 'local',
@@ -36,7 +37,7 @@ export const config: WebdriverIO.Config = {
   mochaOpts: { ui: 'bdd', timeout: 120_000 },
 
   beforeSession: () => {
-    const data = mkdtempSync(join(tmpdir(), 'bubbleverse-e2e-'));
+    data = mkdtempSync(join(tmpdir(), 'bubbleverse-e2e-'));
     const native = process.env.MSEDGEDRIVER;
     driver = spawn('tauri-driver', native ? ['--native-driver', native] : [], {
       stdio: [null, process.stdout, process.stderr],
@@ -47,5 +48,8 @@ export const config: WebdriverIO.Config = {
   afterSession: () => {
     driver?.kill();
     driver = null;
+    // The test data folder is ours (made in beforeSession).
+    if (data) rmSync(data, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
+    data = null;
   },
 };
