@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
+  import { playSound } from '../sound';
 
   let {
     variant = 'default',
@@ -34,7 +35,10 @@
   {title}
   aria-label={title}
   {disabled}
-  {onclick}
+  onclick={(e) => {
+    playSound('click');
+    onclick?.(e);
+  }}
 >
   {#if icon}<Icon name={icon} size={small ? 15 : 17} />{/if}
   {#if children}<span>{@render children()}</span>{/if}

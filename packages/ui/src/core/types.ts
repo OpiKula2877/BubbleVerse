@@ -130,7 +130,7 @@ export interface CoreEvents {
   shortcut: string;
   search: string;
   'wallpaper-status': 'off' | 'live' | 'fallback';
-  autopause: { paused: boolean };
+  autopause: { paused: boolean; signals?: { fullscreen: boolean } };
 }
 
 export type Unsubscribe = () => void;

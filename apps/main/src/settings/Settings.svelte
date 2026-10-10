@@ -7,6 +7,7 @@
   import ScriptsTab from './ScriptsTab.svelte';
   import DataTab from './DataTab.svelte';
   import BackgroundTab from './BackgroundTab.svelte';
+  import SoundsTab from './SoundsTab.svelte';
   import ShortcutsTab from './ShortcutsTab.svelte';
 
   const tabs = [
@@ -14,6 +15,7 @@
     { id: 'appearance', icon: 'image' },
     { id: 'shortcuts', icon: 'bolt' },
     { id: 'background', icon: 'image' },
+    { id: 'sounds', icon: 'bolt' },
     { id: 'performance', icon: 'sparkles' },
     { id: 'scripts', icon: 'code' },
     { id: 'data', icon: 'folder' },
@@ -44,6 +46,7 @@
       {#if store.settingsTab === 'appearance'}<AppearanceTab />{/if}
       {#if store.settingsTab === 'shortcuts'}<ShortcutsTab />{/if}
       {#if store.settingsTab === 'background'}<BackgroundTab />{/if}
+      {#if store.settingsTab === 'sounds'}<SoundsTab />{/if}
       {#if store.settingsTab === 'performance'}<PerformanceTab />{/if}
       {#if store.settingsTab === 'scripts'}<ScriptsTab />{/if}
       {#if store.settingsTab === 'data'}<DataTab />{/if}

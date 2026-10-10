@@ -13,6 +13,9 @@ fn content_type(path: &std::path::Path) -> &'static str {
         "png" => "image/png",
         "mp4" => "video/mp4",
         "webm" => "video/webm",
+        "mp3" => "audio/mpeg",
+        "wav" => "audio/wav",
+        "ogg" => "audio/ogg",
         _ => "application/octet-stream",
     }
 }

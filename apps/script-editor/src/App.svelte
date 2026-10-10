@@ -2,6 +2,7 @@
   import {
     applyTheme,
     Button,
+    configureSounds,
     getCore,
     Icon,
     Modal,
@@ -64,6 +65,7 @@
     const lang = next.general.language;
     const langChanged = lang !== s.lang;
     setLang(lang);
+    configureSounds(next.sounds, (h) => core.assetUrl(h));
     s.lang = lang;
     const ws = s.ws;
     if (!ws) return;

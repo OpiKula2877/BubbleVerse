@@ -588,5 +588,15 @@
   "background.windowsHint": "Jako pozadí světa se použije tvoje tapeta plochy Windows.",
   "background.stars": "Animované hvězdy",
   "background.parallax": "Paralaxa",
-  "background.grid": "Mřížka"
+  "background.grid": "Mřížka",
+  "sounds.ui": "Zvuky UI",
+  "sounds.activation": "Zvuk aktivace bubliny",
+  "sounds.volume": "Hlasitost",
+  "sounds.muteFullscreen": "Ztlumit, když běží hra na celou obrazovku",
+  "sounds.clickSound": "Zvuk kliknutí",
+  "sounds.activationSound": "Zvuk aktivace",
+  "sounds.default": "vestavěný",
+  "sounds.custom": "vlastní",
+  "sounds.test": "Přehrát",
+  "sounds.files": "Zvuky"
 }

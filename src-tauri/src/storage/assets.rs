@@ -15,7 +15,7 @@ use crate::error::{AppError, AppResult};
 const MAX_IMAGE_SIDE: u32 = 2048;
 /// Videos above this size get a warning (spec §9.2).
 const VIDEO_WARN_BYTES: u64 = 50 * 1024 * 1024;
-const KNOWN_EXTS: [&str; 4] = ["webp", "mp4", "webm", "png"];
+const KNOWN_EXTS: [&str; 7] = ["webp", "mp4", "webm", "png", "mp3", "wav", "ogg"];
 
 #[derive(Clone, Debug, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -60,7 +60,8 @@ impl AssetStore {
         self.import_bytes(&name, &bytes)
     }
 
-    /// Converts PNG/JPG/BMP/ICO to WebP and GIF to animated WebP; videos are kept as they are.
+    /// Converts PNG/JPG/BMP/ICO to WebP and GIF to animated WebP; videos and sounds are kept
+    /// as they are.
     pub fn import_bytes(&self, name: &str, bytes: &[u8]) -> AppResult<AssetInfo> {
         let ext = Path::new(name)
             .extension()
@@ -74,6 +75,8 @@ impl AssetStore {
                 }
                 Ok(info)
             }
+            // Sounds (spec §7.7) are kept as they are.
+            "mp3" | "wav" | "ogg" => self.store(bytes, &ext),
             "gif" => self.import_gif(bytes),
             "webp" => {
                 let img = image::load_from_memory(bytes)?;

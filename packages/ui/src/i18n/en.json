@@ -588,5 +588,15 @@
   "background.windowsHint": "Your Windows desktop wallpaper is used as the world background.",
   "background.stars": "Animated stars",
   "background.parallax": "Parallax",
-  "background.grid": "Grid"
+  "background.grid": "Grid",
+  "sounds.ui": "UI sounds",
+  "sounds.activation": "Sound when a bubble starts",
+  "sounds.volume": "Volume",
+  "sounds.muteFullscreen": "Mute while a game runs full screen",
+  "sounds.clickSound": "Click sound",
+  "sounds.activationSound": "Activation sound",
+  "sounds.default": "built-in",
+  "sounds.custom": "custom",
+  "sounds.test": "Play",
+  "sounds.files": "Sounds"
 }

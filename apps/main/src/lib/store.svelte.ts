@@ -1,5 +1,6 @@
 import {
   applyTheme,
+  configureSounds,
   resolveBackground,
   defaultSettings,
   getCore,
@@ -124,6 +125,7 @@ class AppStore {
       uiScale: a.uiScale,
     });
     setLang(this.settings.general.language);
+    configureSounds(this.settings.sounds, (h) => this.core.assetUrl(h));
     const c = this.colors;
     const rgb = (k: keyof ThemeColors) => hexToRgb(c[k]).color;
     const grid = hexToRgb(c.grid);

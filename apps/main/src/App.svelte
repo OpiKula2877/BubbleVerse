@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { t, tk } from '@bv/ui';
+  import { playSound, setFullscreenActive, t, tk } from '@bv/ui';
   import {
     effectsShowcase,
     generateScene,
@@ -73,7 +73,12 @@
         store.paused = p;
         syncMotion();
       }),
-      core.on('fx', (fx) => store.renderer?.scriptFx(fx)),
+      core.on('fx', (fx) => {
+        store.renderer?.scriptFx(fx);
+        if (fx.kind === 'activated') playSound('activate');
+      }),
+      // Sounds are muted while a game runs full screen (spec §7.7).
+      core.on('autopause', (a) => setFullscreenActive(a.signals?.fullscreen ?? false)),
       // Script errors also show as a message so they are noticed outside the script editor.
       core.on('log', (entry) => {
         if (entry.level !== 'error') return;
