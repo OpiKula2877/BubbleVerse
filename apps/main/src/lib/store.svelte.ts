@@ -1,5 +1,6 @@
 import {
   applyTheme,
+  resolveBackground,
   defaultSettings,
   getCore,
   hexToRgb,
@@ -138,7 +139,7 @@ class AppStore {
     if (r) {
       r.setColors(colors);
       const bg = this.settings.background.app;
-      r.setBackground({ kind: bg.kind, color: bg.color, color2: bg.color2, angle: bg.angle });
+      void resolveBackground(bg, this.core).then((b) => r.setBackground(b));
       r.setPrefs({ names: this.settings.view.names, skins: this.settings.view.skins });
       r.setLodZoom(this.settings.performance.lodZoom);
       r.setMaxVideos(this.settings.performance.maxVideos);

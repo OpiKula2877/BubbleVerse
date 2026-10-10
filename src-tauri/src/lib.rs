@@ -51,6 +51,7 @@ pub fn run() {
             app::commands::pause_shortcuts,
             app::wallpaper::wallpaper_snapshot,
             app::wallpaper::wallpaper_status,
+            app::wallpaper::windows_wallpaper_asset,
             app::prompts::prompt_answer,
             app::editor::open_script_editor,
             app::editor::editor_request,

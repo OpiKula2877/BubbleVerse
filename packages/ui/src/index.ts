@@ -4,6 +4,7 @@ export * from './theme/tokens';
 export * from './theme/themes';
 export * from './theme/apply';
 export * from './settings';
+export * from './background';
 export * from './core/index';
 export { default as Icon } from './components/Icon.svelte';
 export { default as Button } from './components/Button.svelte';

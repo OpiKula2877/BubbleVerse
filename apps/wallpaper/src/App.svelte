@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     applyTheme,
+    resolveBackground,
     getCore,
     hexToRgb,
     setLang,
@@ -84,7 +85,7 @@
     setLang(s.general.language);
     if (!r) return;
     const bg = s.background.same ? s.background.app : s.background.wallpaper;
-    r.setBackground({ kind: bg.kind, color: bg.color, color2: bg.color2, angle: bg.angle });
+    void resolveBackground(bg, core).then((b) => r.setBackground(b));
     r.setPrefs({ names: s.view.names, skins: s.view.skins });
     r.setLodZoom(s.performance.lodZoom);
     r.setMaxVideos(s.performance.maxVideos);

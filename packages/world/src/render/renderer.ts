@@ -1,4 +1,4 @@
-import { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
+import { Application, Container, Graphics, Text } from 'pixi.js';
 import { defaultLabel } from '../model/defaults';
 import { fillColor, SkinResolver } from '../model/skin';
 import { WorldIndex } from '../model/tree';
@@ -12,6 +12,7 @@ import { ExpandState } from './expand';
 import { particleDots } from './effects';
 import { linkShape } from './links';
 import { SpritePool } from './sprite-pool';
+import { WorldBackground, type BackgroundLook } from './background';
 import { AnimatedMedia, animatedHash } from './media';
 import { SkinTextures } from './textures';
 import {
@@ -57,12 +58,7 @@ export interface Overlay {
   grid: number | null;
 }
 
-export interface BackgroundLook {
-  kind: string;
-  color: string;
-  color2: string;
-  angle: number;
-}
+export type { BackgroundLook } from './background';
 
 export interface RenderStats {
   fps: number;
@@ -107,7 +103,10 @@ export class WorldRenderer {
   private app: Application;
   private stage = new Container();
   private bgLayer = new Container();
-  private bgSprite = new Sprite();
+  private bg: WorldBackground;
+  /** Frames needed only by the background (stars, video): drawn at a low rate. */
+  private ambientMs = 0;
+  private ambientTimer = 0;
   private passRoot = new Container();
   private clip = new Graphics();
   private worldLayer = new Container();
@@ -165,12 +164,6 @@ export class WorldRenderer {
   };
   private overlay: Overlay = { rect: null, guides: [], grid: null };
   private mouseWorld: Vec2 | null = null;
-  private background: BackgroundLook = {
-    kind: 'color',
-    color: '#0E1220',
-    color2: '#0E1220',
-    angle: 0,
-  };
 
   // Script effects (runtime only, spec §5.4)
   private glows = new Map<BubbleId, { until: number; tint: number }>();
@@ -201,6 +194,7 @@ export class WorldRenderer {
     this.app = new Application();
     this.textures = new SkinTextures(opts.assetUrl, () => this.invalidateSkins());
     this.media = new AnimatedMedia(opts.assetUrl, () => this.requestRender());
+    this.bg = new WorldBackground(opts.assetUrl, () => this.requestRender());
   }
 
   static async create(opts: RendererOptions): Promise<WorldRenderer> {
@@ -220,8 +214,9 @@ export class WorldRenderer {
     opts.host.appendChild(r.app.canvas);
     r.app.canvas.style.display = 'block';
     r.stage.addChild(r.bgLayer, r.passRoot, r.clip);
-    r.bgLayer.addChild(r.bgSprite);
+    r.bgLayer.addChild(r.bg.screen);
     r.passRoot.addChild(r.worldLayer);
+    r.worldLayer.addChild(r.bg.world.layer);
     r.worldLayer.addChild(
       r.links.layer,
       r.bubbleLayer,
@@ -284,6 +279,7 @@ export class WorldRenderer {
   setMotion(on: boolean): void {
     if (this.motion !== on && !on) this.physics.reset();
     this.motion = on;
+    this.bg.setPlaying(on && !this.suspended);
     this.requestRender();
   }
 
@@ -298,8 +294,8 @@ export class WorldRenderer {
   }
 
   setBackground(bg: BackgroundLook): void {
-    this.background = bg;
-    this.bgSprite.texture = this.backgroundTexture(bg);
+    this.bg.set(bg);
+    this.bg.setPlaying(this.motion && !this.suspended);
     this.requestRender();
   }
 
@@ -491,6 +487,8 @@ export class WorldRenderer {
   setSuspended(on: boolean): void {
     if (this.suspended === on) return;
     this.suspended = on;
+    this.bg.setPlaying(this.motion && !on);
+    if (on) clearTimeout(this.ambientTimer);
     if (on && this.raf) {
       cancelAnimationFrame(this.raf);
       this.raf = 0;
@@ -526,6 +524,9 @@ export class WorldRenderer {
       this.raf = requestAnimationFrame(this.loop);
     } else {
       this.lastFrame = 0;
+      clearTimeout(this.ambientTimer);
+      if (this.ambientMs)
+        this.ambientTimer = window.setTimeout(() => this.requestRender(), this.ambientMs);
     }
   };
 
@@ -547,6 +548,7 @@ export class WorldRenderer {
   /** Updates everything for this frame; returns true when another frame is needed. */
   private update(dt: number, nowMs: number): boolean {
     let busy = false;
+    this.ambientMs = this.bg.animated(this.motion) ? (this.bg.hasVideo ? 33 : 100) : 0;
     if (this.camAnim) {
       const a = this.camAnim;
       const t = Math.min(1, (nowMs - a.start) / a.ms);
@@ -921,9 +923,7 @@ export class WorldRenderer {
         vp.anchorCss.x - vp.anchorWorld.x * vp.k,
         vp.anchorCss.y - vp.anchorWorld.y * vp.k,
       );
-      this.bgSprite.position.set(vp.css.x, vp.css.y);
-      this.bgSprite.width = vp.css.w;
-      this.bgSprite.height = vp.css.h;
+      this.bg.drawPass(vp, this.camera, performance.now() / 1000, this.motion);
       if (multi) this.clip.clear().rect(vp.css.x, vp.css.y, vp.css.w, vp.css.h).fill(0xffffff);
       this.cull(vp);
       r.render({ container: this.stage, clear: i === 0 });
@@ -941,28 +941,6 @@ export class WorldRenderer {
       v.root.renderable =
         d.x + m >= w.x && d.x - m <= w.x + w.w && d.y + m >= w.y && d.y - m <= w.y + w.h;
     }
-  }
-
-  private backgroundTexture(bg: BackgroundLook): Texture {
-    const el = document.createElement('canvas');
-    el.width = 256;
-    el.height = 256;
-    const ctx = el.getContext('2d');
-    if (ctx) {
-      if (bg.kind === 'gradient') {
-        const a = (bg.angle * Math.PI) / 180;
-        const dx = Math.cos(a) * 128;
-        const dy = Math.sin(a) * 128;
-        const g = ctx.createLinearGradient(128 - dx, 128 - dy, 128 + dx, 128 + dy);
-        g.addColorStop(0, bg.color);
-        g.addColorStop(1, bg.color2);
-        ctx.fillStyle = g;
-      } else {
-        ctx.fillStyle = bg.color;
-      }
-      ctx.fillRect(0, 0, 256, 256);
-    }
-    return Texture.from(el);
   }
 
   private invalidateSkins(): void {
@@ -987,6 +965,8 @@ export class WorldRenderer {
     for (const v of this.views.values()) v.destroy();
     this.views.clear();
     this.media.destroy();
+    this.bg.destroy();
+    clearTimeout(this.ambientTimer);
     this.app.destroy(true, { children: true });
   }
 }

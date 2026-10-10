@@ -237,3 +237,26 @@ mod base64_light {
         }
     }
 }
+
+/// The user's own Windows wallpaper as an asset, for "Windows wallpaper" as the world
+/// background (spec §7.6). While the static fallback is active, the original one is used.
+#[tauri::command]
+pub async fn windows_wallpaper_asset(
+    app: AppHandle,
+) -> AppResult<Option<crate::storage::assets::AssetInfo>> {
+    super::generator::blocking(move || {
+        let state = app.state::<AppState>();
+        let original = kv::meta(&state.db(), META_ORIGINAL)?;
+        let Some(path) = original.or_else(wallpaper::current_wallpaper) else {
+            return Ok(None);
+        };
+        match state.assets.import_file(std::path::Path::new(&path)) {
+            Ok(info) => Ok(Some(info)),
+            Err(e) => {
+                log::info!("windows wallpaper {path}: {e}");
+                Ok(None)
+            }
+        }
+    })
+    .await
+}
