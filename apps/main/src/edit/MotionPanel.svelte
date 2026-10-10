@@ -91,6 +91,7 @@
       {t('motionEdit.hintWander')}
     {/if}
   </p>
+  <p class="hint bv-muted">{t('motionEdit.hintView')}</p>
 </div>
 
 <style>

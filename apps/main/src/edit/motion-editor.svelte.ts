@@ -1,6 +1,7 @@
 import {
   mapBubbles,
   orbitWouldCycle,
+  visibleWorld,
   type BubbleId,
   type OrbitMotion,
   type PathMotion,
@@ -72,6 +73,18 @@ class MotionEditorState {
     editor.menu = null;
     // The inspector shows the bubble (orbit speed, direction and phase are set there).
     editor.select([id], id);
+    this.reveal(id);
+  }
+
+  /** Brings a bubble that is off screen into view, so its track can be drawn right away. */
+  private reveal(id: BubbleId): void {
+    const r = store.renderer;
+    const pos = r?.basePositions().get(id);
+    const vp = r?.viewports().find((v) => v.primary);
+    if (!r || !pos || !vp) return;
+    const b = visibleWorld(vp);
+    const inside = pos.x >= b.x && pos.x <= b.x + b.w && pos.y >= b.y && pos.y <= b.y + b.h;
+    if (!inside) r.setCamera({ ...r.camera, x: pos.x, y: pos.y }, 450);
   }
 
   /** Orbit center by click; a center that would make a cycle is refused (spec §3.5). */

@@ -11,6 +11,7 @@
     setPathHandle,
     SkinResolver,
     toggleSmooth,
+    panBy,
     viewportAt,
     visibleWorld,
     wanderAreaFromDrag,
@@ -49,11 +50,15 @@
     | { kind: 'rx' | 'ry' }
     | { kind: 'wander' };
   let drag: Drag | null = null;
+  /** Right or middle button drag moves the view while editing. */
+  let panning = false;
 
   const active = $derived(motionEditor.active);
   const track = $derived(motionEditor.track);
 
   function toScreen(w: Vec2): Vec2 {
+    // Everything drawn follows the camera, so each use re-runs with the frame counter.
+    void frame;
     const r = store.renderer;
     if (!r) return w;
     const vps = r.viewports();
@@ -118,6 +123,12 @@
   const near = (a: Vec2, b: Vec2, px = 9) => Math.hypot(a.x - b.x, a.y - b.y) <= px;
 
   function pointerDown(e: PointerEvent) {
+    if (e.button === 1 || e.button === 2) {
+      e.preventDefault();
+      (e.currentTarget as Element).setPointerCapture(e.pointerId);
+      panning = true;
+      return;
+    }
     if (e.button !== 0 || !track || !active) return;
     const c = { x: e.clientX, y: e.clientY };
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
@@ -167,6 +178,12 @@
   }
 
   function move(e: PointerEvent) {
+    if (panning) {
+      const r = store.renderer;
+      const vp = r ? viewportAt(r.viewports(), { x: e.clientX, y: e.clientY }) : undefined;
+      if (r && vp) r.setCamera(panBy(r.camera, vp, e.movementX, e.movementY));
+      return;
+    }
     const d = drag;
     const tr = motionEditor.track;
     if (!d || !tr) return;
@@ -194,6 +211,7 @@
 
   function up() {
     drag = null;
+    panning = false;
   }
 
   function dblclick(e: MouseEvent) {
@@ -289,6 +307,7 @@
   onpointerup={up}
   ondblclick={dblclick}
   onwheel={wheel}
+  oncontextmenu={(e) => e.preventDefault()}
 >
   <rect class="dim" x="0" y="0" width="100%" height="100%" />
   <circle class="me" cx={baseScreen.x} cy={baseScreen.y} r={Math.max(6, radius * k)} />
