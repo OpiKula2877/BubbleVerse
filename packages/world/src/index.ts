@@ -13,6 +13,7 @@ export * from './edit/clipboard';
 export * from './edit/snap';
 export * from './edit/selection';
 export * from './render/viewports';
+export * from './render/follow';
 export * from './render/expand';
 export * from './render/textures';
 export * from './render/renderer';

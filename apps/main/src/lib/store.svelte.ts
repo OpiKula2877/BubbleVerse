@@ -52,6 +52,8 @@ class AppStore {
   settingsOpen = $state(false);
   settingsTab = $state('general');
   viewMenuOpen = $state(false);
+  /** The user moved the view by hand: the camera stops following the bubbles until Home. */
+  cameraTouched = $state(false);
   stats = $state<RenderStats | null>(null);
   toast = $state<{ text: string; error: boolean } | null>(null);
   dialog = $state<DialogSpec | null>(null);

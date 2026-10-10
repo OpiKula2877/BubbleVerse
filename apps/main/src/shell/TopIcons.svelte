@@ -57,6 +57,17 @@
       />
     </div>
     <div class="row">
+      <span>{t('view.camera')}</span>
+      <Segmented
+        value={view.camera}
+        options={[
+          { value: 'fit', label: t('view.camera.fit') },
+          { value: 'home', label: t('view.camera.home') },
+        ]}
+        onchange={(v) => setView({ camera: v })}
+      />
+    </div>
+    <div class="row">
       <span>{t('view.skins')}</span>
       <Toggle checked={view.skins} onchange={(v) => setView({ skins: v })} />
     </div>

@@ -62,9 +62,23 @@ export interface Settings {
     clickSound: string | null;
     muteInFullscreen: boolean;
   };
-  search: { sortByUsage: boolean };
-  view: { names: 'always' | 'hover' | 'never'; skins: boolean; motionPaused: boolean };
+  search: {
+    sortByUsage: boolean;
+    /** Global search shows the whole universe with the field, or only the field. */
+    globalLook: 'universe' | 'bar';
+    animation: SearchAnimation;
+  };
+  view: {
+    names: 'always' | 'hover' | 'never';
+    skins: boolean;
+    motionPaused: boolean;
+    /** `fit`: the camera keeps every shown bubble in view; `home`: the saved home view. */
+    camera: 'fit' | 'home';
+  };
 }
+
+/** How the universe appears with the global search. */
+export type SearchAnimation = 'none' | 'fade' | 'zoom' | 'portal' | 'blur';
 
 export const DEFAULT_SHORTCUTS: Shortcut[] = [
   { action: 'toggleApp', combo: 'Ctrl+Alt+B', scope: 'global', overrideWindows: false },
@@ -134,7 +148,7 @@ export function defaultSettings(): Settings {
       clickSound: null,
       muteInFullscreen: true,
     },
-    search: { sortByUsage: false },
-    view: { names: 'always', skins: true, motionPaused: false },
+    search: { sortByUsage: false, globalLook: 'universe', animation: 'zoom' },
+    view: { names: 'always', skins: true, motionPaused: false, camera: 'fit' },
   };
 }

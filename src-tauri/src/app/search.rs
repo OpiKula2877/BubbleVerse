@@ -67,12 +67,31 @@ fn show(app: &AppHandle, mode: &str) {
     let _ = w.set_focus();
 }
 
-/// Global search from anywhere: the compact bar, without bubbles.
+/// Global search from anywhere. With the "universe" look the app window comes up with its
+/// bubbles and background (its page plays the chosen entrance and then shows itself, so
+/// nothing flashes); with the "bar" look only the compact field appears.
 pub fn open_global(app: &AppHandle) {
-    // When the app window is in front, search in it instead (spec §6.1).
+    let universe = app.state::<AppState>().settings().search.global_look == "universe";
     if let Some(main) = app.get_webview_window(windows::MAIN) {
-        if main.is_visible().unwrap_or(false) && main.is_focused().unwrap_or(false) {
+        let visible = main.is_visible().unwrap_or(false) && !main.is_minimized().unwrap_or(false);
+        // When the app window is in front, search in it instead (spec §6.1).
+        if visible && (universe || main.is_focused().unwrap_or(false)) {
+            windows::present_main(app);
             let _ = app.emit_to(windows::MAIN, events::SEARCH, "app");
+            return;
+        }
+        if universe && !visible {
+            let _ = app.emit_to(windows::MAIN, events::SEARCH, "global");
+            // If the page does not answer (still loading), show the window anyway.
+            let app = app.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_millis(800));
+                if let Some(w) = app.get_webview_window(windows::MAIN) {
+                    if !w.is_visible().unwrap_or(true) {
+                        windows::present_main(&app);
+                    }
+                }
+            });
             return;
         }
     }

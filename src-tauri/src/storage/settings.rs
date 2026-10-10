@@ -123,10 +123,24 @@ pub struct Sounds {
     pub mute_in_fullscreen: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SearchSettings {
     pub sort_by_usage: bool,
+    /// Global search: "universe" (the world appears with the field) | "bar" (only the field).
+    pub global_look: String,
+    /// How the universe appears: "none" | "fade" | "zoom" | "portal" | "blur".
+    pub animation: String,
+}
+
+impl Default for SearchSettings {
+    fn default() -> Self {
+        SearchSettings {
+            sort_by_usage: false,
+            global_look: "universe".into(),
+            animation: "zoom".into(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -136,6 +150,8 @@ pub struct ViewSettings {
     pub names: String,
     pub skins: bool,
     pub motion_paused: bool,
+    /// "fit": the camera keeps every shown bubble in view | "home": the saved home view.
+    pub camera: String,
 }
 
 impl Default for Settings {
@@ -284,6 +300,7 @@ impl Default for ViewSettings {
             names: "always".into(),
             skins: true,
             motion_paused: false,
+            camera: "fit".into(),
         }
     }
 }
@@ -301,6 +318,15 @@ impl Settings {
         self.performance.max_videos = self.performance.max_videos.clamp(0, 64);
         if !["en", "cs"].contains(&self.general.language.as_str()) {
             self.general.language = "en".into();
+        }
+        if !["fit", "home"].contains(&self.view.camera.as_str()) {
+            self.view.camera = "fit".into();
+        }
+        if !["universe", "bar"].contains(&self.search.global_look.as_str()) {
+            self.search.global_look = "universe".into();
+        }
+        if !["none", "fade", "zoom", "portal", "blur"].contains(&self.search.animation.as_str()) {
+            self.search.animation = "zoom".into();
         }
         self
     }

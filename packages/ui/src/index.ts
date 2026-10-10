@@ -22,3 +22,5 @@ export { default as Menu } from './components/Menu.svelte';
 export type { MenuItem } from './components/menu';
 export { default as SearchField } from './components/SearchField.svelte';
 export * from './shortcuts';
+export * from './capture';
+export * from './browser-guard';

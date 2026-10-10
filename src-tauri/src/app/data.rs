@@ -5,10 +5,54 @@ use std::path::{Path, PathBuf};
 use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
 
-use super::state::AppState;
+use super::state::{empty_world, AppState};
 use crate::error::{AppError, AppResult};
 use crate::os::launch;
 use crate::paths::{Paths, LOCATION_FILE};
+use crate::storage::settings::Settings;
+use crate::storage::{codec, world_store};
+
+/// Everything a reset clears besides the world and the settings.
+const RESET_TABLES: &[&str] = &[
+    "globals",
+    "bubble_vars",
+    "search_history",
+    "usage",
+    "script_layouts",
+];
+
+/// Settings → Data: back to a fresh install (bubbles, scripts, settings, theme, background,
+/// variables, search history). The current world goes to the backups first, so the reset can
+/// be undone from there; backups and the data folder stay.
+#[tauri::command]
+pub fn reset_app(app: AppHandle) -> AppResult<()> {
+    let state = app.state::<AppState>();
+    let keep = state.settings().data.backups as usize;
+    let current = (*state.published()).clone();
+    world_store::write_backup(
+        &state.paths.backups(),
+        &codec::encode(&current)?,
+        keep.max(1),
+    )?;
+    state.runtime.stop_all();
+    {
+        let db = state.db();
+        for table in RESET_TABLES {
+            db.conn.execute(&format!("DELETE FROM {table}"), [])?;
+        }
+    }
+    let world = empty_world();
+    world_store::publish(&mut state.db(), &world)?;
+    state
+        .runtime
+        .load_variables(Default::default(), Default::default());
+    state.install_published(world);
+    // The language stays: the reset should not switch to a language the user cannot read.
+    let mut fresh = Settings::default();
+    fresh.general.language = state.settings().general.language;
+    super::commands::apply_settings(&app, fresh)?;
+    Ok(())
+}
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,5 +1,6 @@
 import { SearchSession, type SearchKey, type SearchResult, type SearchView } from '@bv/search';
 import { fitCamera, WorldIndex, type BubbleId, type Camera } from '@bv/world';
+import { leaveUniverse } from '../lib/intro';
 import { store } from '../lib/store.svelte';
 
 /** Search in the app window (`Ctrl+F`, spec §6.1): one engine, the world greys out, the camera follows. */
@@ -8,11 +9,14 @@ class SearchController {
   view = $state.raw<SearchView | null>(null);
   private session: SearchSession | null = null;
   private cameraBefore: Camera | null = null;
+  /** Opened by the global search over the desktop: the window hides again on close. */
+  private global = false;
   /** Folders opened only for searching; they collapse again on close (spec §6.3). */
   private opened = new Set<BubbleId>();
 
-  async start(): Promise<void> {
+  async start(global = false): Promise<void> {
     if (this.open) return;
+    this.global = global;
     const world = store.world;
     const [history, usage] = await Promise.all([
       store.core.searchHistory().catch(() => [] as string[]),
@@ -110,6 +114,10 @@ class SearchController {
   close(restoreCamera = true): void {
     if (!this.open) return;
     this.open = false;
+    if (this.global) {
+      this.global = false;
+      void leaveUniverse();
+    }
     this.view = null;
     this.session = null;
     const r = store.renderer;

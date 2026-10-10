@@ -9,6 +9,10 @@
     void store.saveSettings({ ...store.settings, general: { ...g, ...patch } });
   }
 
+  function setSearch(patch: Partial<Settings['search']>) {
+    void store.saveSettings({ ...store.settings, search: { ...store.settings.search, ...patch } });
+  }
+
   const monitors = $derived(
     (store.layout?.monitors ?? []).map((m, i) => ({
       value: m.id,
@@ -76,8 +80,33 @@
 <Toggle
   checked={store.settings.search.sortByUsage}
   label={t('settings.sortByUsage')}
-  onchange={(v) => void store.saveSettings({ ...store.settings, search: { sortByUsage: v } })}
+  onchange={(v) => setSearch({ sortByUsage: v })}
 />
+<Field label={t('settings.globalLook')}>
+  <Segmented
+    value={store.settings.search.globalLook}
+    options={[
+      { value: 'universe', label: t('settings.globalLook.universe') },
+      { value: 'bar', label: t('settings.globalLook.bar') },
+    ]}
+    onchange={(v) => setSearch({ globalLook: v })}
+  />
+</Field>
+{#if store.settings.search.globalLook === 'universe'}
+  <Field label={t('settings.searchAnimation')}>
+    <Select
+      value={store.settings.search.animation}
+      options={[
+        { value: 'zoom', label: t('settings.searchAnimation.zoom') },
+        { value: 'portal', label: t('settings.searchAnimation.portal') },
+        { value: 'blur', label: t('settings.searchAnimation.blur') },
+        { value: 'fade', label: t('settings.searchAnimation.fade') },
+        { value: 'none', label: t('settings.searchAnimation.none') },
+      ]}
+      onchange={(v) => setSearch({ animation: v })}
+    />
+  </Field>
+{/if}
 <div class="updates">
   <Toggle
     checked={g.checkUpdates}

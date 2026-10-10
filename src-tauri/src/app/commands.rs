@@ -150,6 +150,11 @@ pub async fn check_targets(targets: Vec<String>) -> Vec<bool> {
 }
 
 #[tauri::command]
+pub fn present_main(app: AppHandle) {
+    windows::present_main(&app);
+}
+
+#[tauri::command]
 pub fn hide_main(app: AppHandle) {
     windows::hide_main(&app);
 }
@@ -226,6 +231,24 @@ pub fn set_global(name: String, value: Value, state: State<'_, AppState>) {
 #[tauri::command]
 pub fn pause_shortcuts(paused: bool) {
     crate::os::hook::set_paused(paused);
+}
+
+/// Waits for the user to press a new shortcut (every key is kept from Windows and other apps
+/// meanwhile). `None` when cancelled, on Esc alone or after 30 s.
+#[tauri::command]
+pub async fn capture_combo() -> Option<String> {
+    let (id, rx) = crate::os::hook::begin_capture();
+    let got = tauri::async_runtime::spawn_blocking(move || {
+        rx.recv_timeout(std::time::Duration::from_secs(30))
+    })
+    .await;
+    crate::os::hook::end_capture(id);
+    got.ok().and_then(|r| r.ok()).flatten()
+}
+
+#[tauri::command]
+pub fn cancel_capture() {
+    crate::os::hook::cancel_capture();
 }
 
 #[tauri::command]

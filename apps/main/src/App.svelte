@@ -12,7 +12,7 @@
   import { motionEditor } from './edit/motion-editor.svelte';
   import MotionOverlay from './edit/MotionOverlay.svelte';
   import { Editor } from './lib/editor.svelte';
-  import { handleKey, runAction } from './lib/actions';
+  import { handleKey, handleKeyUp, resetKeys, runAction } from './lib/actions';
   import { sendWorldToEditor, startScriptEditorBridge } from './lib/script-editor';
   import { startFileDrop } from './generator/drop';
   import { openPackageFile } from './lib/packages';
@@ -27,6 +27,7 @@
   import WorldCanvas from './world/WorldCanvas.svelte';
   import SearchOverlay from './search/SearchOverlay.svelte';
   import { search } from './search/search.svelte';
+  import { enterUniverse } from './lib/intro';
 
   const offs: (() => void)[] = [];
   // Development: the store is reachable from the dev tools (and CDP checks).
@@ -106,7 +107,11 @@
         store.settingsOpen = true;
       }),
       core.on('shortcut', (action) => runAction(action)),
-      core.on('search', () => void search.start()),
+      core.on('search', (mode) => {
+        if (mode !== 'global') return void search.start();
+        // The universe comes up over the desktop with the search field.
+        void search.start(true).then(() => enterUniverse());
+      }),
       core.on('wallpaper-status', (s) => (store.wallpaperStatus = s)),
     );
   });
@@ -173,6 +178,17 @@
     syncMotion();
   });
 
+  // In view mode the camera keeps every shown bubble on screen, also while they move,
+  // until the user moves the view by hand (Home brings it back).
+  $effect(() => {
+    store.renderer?.setFollow(
+      store.settings.view.camera === 'fit' &&
+        store.mode === 'user' &&
+        !search.open &&
+        !store.cameraTouched,
+    );
+  });
+
   function resize() {
     store.viewport = { w: window.innerWidth, h: window.innerHeight };
     store.renderer?.setLayout(store.screenLayout);
@@ -182,7 +198,7 @@
   const scale = $derived(store.settings.appearance.uiScale / 100);
 </script>
 
-<svelte:window onkeydown={handleKey} onresize={resize} />
+<svelte:window onkeydown={handleKey} onkeyup={handleKeyUp} onblur={resetKeys} onresize={resize} />
 
 <WorldCanvas onready={onRenderer} />
 

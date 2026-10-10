@@ -150,6 +150,7 @@
     if (drag.kind === 'pan') {
       const vp = viewportAt(renderer.viewports(), p);
       if (vp) renderer.setCamera(panBy(renderer.camera, vp, e.movementX, e.movementY));
+      store.cameraTouched = true;
     } else if (drag.kind === 'move' && wp) {
       const { delta, guides } = moveDelta(drag, wp);
       store.editor?.live(moveBubbles(drag.before, drag.ids, delta));
@@ -263,6 +264,7 @@
     e.preventDefault();
     const factor = Math.exp(-e.deltaY * 0.0015);
     renderer.setCamera(zoomAt(store.screenLayout, renderer.camera, css(e), factor));
+    store.cameraTouched = true;
   }
 
   function updateTooltip(hit: BubbleId | null, p: Vec2) {

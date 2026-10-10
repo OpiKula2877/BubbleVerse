@@ -15,9 +15,11 @@ import { SpritePool } from './sprite-pool';
 import { WorldBackground, type BackgroundLook } from './background';
 import { AnimatedMedia, animatedHash } from './media';
 import { SkinTextures } from './textures';
+import { approachCamera, boxAround, CameraFollow } from './follow';
 import {
   computeViewports,
   cssToWorld,
+  fitCamera,
   lerpCamera,
   viewportAt,
   visibleWorld,
@@ -139,6 +141,8 @@ export class WorldRenderer {
   };
   camera: Camera = { x: 0, y: 0, zoom: 1 };
   private camAnim: { from: Camera; to: Camera; start: number; ms: number } | null = null;
+  /** Keeps every shown bubble in view (view mode, wallpaper). */
+  private follow: CameraFollow | null = null;
   private vps: Viewport[] = [];
 
   /** Motion and physics run (user mode or preview). */
@@ -274,6 +278,13 @@ export class WorldRenderer {
       this.camera = cam;
     }
     this.requestRender();
+  }
+
+  /** Turns the camera that keeps every shown bubble in view on or off. */
+  setFollow(on: boolean): void {
+    if (!!this.follow === on) return;
+    this.follow = on ? new CameraFollow() : null;
+    if (on) this.requestRender();
   }
 
   setMotion(on: boolean): void {
@@ -732,6 +743,16 @@ export class WorldRenderer {
     if (this.drawParticles(particles)) busy = true;
     if (this.drawFx(nowS)) busy = true;
     if (this.drawSays(nowS)) busy = true;
+    if (this.follow && !this.camAnim) {
+      const shownNow = this.display.filter((d) => d.vis > 0.5);
+      const box = this.follow.envelope(boxAround(shownNow), nowMs);
+      if (box) {
+        const target = fitCamera(this.layout, box, 0.12, 1.5);
+        const step = approachCamera(this.camera, target, dt);
+        this.camera = step.camera;
+        if (!step.done) busy = true;
+      }
+    }
     this.drawOverlay();
     return busy;
   }

@@ -18,6 +18,8 @@ pub fn create_main(app: &AppHandle) -> AppResult<WebviewWindow> {
         .visible(false)
         .focused(true)
         .shadow(false)
+        // Lets the global search fade the universe in over the desktop.
+        .transparent(true)
         .resizable(windowed)
         // Files dropped from Explorer open the bulk generator (spec §4.6).
         .decorations(windowed);
@@ -70,6 +72,20 @@ pub fn show_main(app: &AppHandle) {
     if let Some(w) = app.get_webview_window(MAIN) {
         let _ = w.show();
         let _ = w.unminimize();
+        let _ = w.set_focus();
+    }
+    super::wallpaper::sync_sleep(app);
+}
+
+/// Shows the app window and takes the keyboard even when another app is in front (global
+/// search from anywhere).
+pub fn present_main(app: &AppHandle) {
+    if let Some(w) = app.get_webview_window(MAIN) {
+        let _ = w.show();
+        let _ = w.unminimize();
+        if let Ok(h) = w.hwnd() {
+            crate::os::focus::force_foreground(::windows::Win32::Foundation::HWND(h.0));
+        }
         let _ = w.set_focus();
     }
     super::wallpaper::sync_sleep(app);

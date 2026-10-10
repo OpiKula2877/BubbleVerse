@@ -82,6 +82,30 @@
     };
   }
 
+  /** Everything back to a fresh install; the current world stays in the backups. */
+  function reset() {
+    store.dialog = {
+      title: t('data.resetTitle'),
+      text: t('data.resetText'),
+      buttons: [
+        {
+          label: t('data.resetButton'),
+          kind: 'danger',
+          action: () =>
+            void store.core
+              .call('reset_app')
+              .then(async () => {
+                store.renderer?.setCamera({ x: 0, y: 0, zoom: 1 }, 450);
+                store.notify(t('data.resetDone'));
+                await refresh();
+              })
+              .catch((e) => store.error(e)),
+        },
+        { label: t('common.cancel'), action: () => {} },
+      ],
+    };
+  }
+
   async function clean() {
     try {
       const n = await store.core.call<number>('clean_assets');
@@ -151,6 +175,16 @@
   {/if}
   <div class="row">
     <Button small icon="trash" onclick={() => void clean()}>{t('data.clean')}</Button>
+  </div>
+</Section>
+
+<Section title={t('data.reset')}>
+  <p class="bv-muted hint">{t('data.resetHint')}</p>
+  {#if store.editor}<p class="bv-muted hint">{t('data.resetEditHint')}</p>{/if}
+  <div class="row">
+    <Button small variant="danger" icon="undo" disabled={!!store.editor} onclick={reset}
+      >{t('data.resetButton')}</Button
+    >
   </div>
 </Section>
 
