@@ -108,6 +108,8 @@
     if (!r || !settings) return;
     const asleep = !searching && (sleeping || autoPaused);
     r.setSuspended(asleep);
+    // Every bubble stays in view, also while it moves (unless the home view is chosen).
+    r.setFollow(settings.view.camera === 'fit' && !searching);
     r.setMotion(!trayPaused && !settings.view.motionPaused && !autoPaused);
   }
 
@@ -128,7 +130,7 @@
     if (!d.active) {
       r.setSearch({ active: false, colored: new Set(), path: new Set(), current: null });
       r.setWorld(world!, true);
-      r.setCamera(home(), 450);
+      if (settings?.view.camera !== 'fit') r.setCamera(home(), 450);
       return;
     }
     for (const id of d.path) if (!r.expand.isExpanded(id)) r.expand.set(id, true);
