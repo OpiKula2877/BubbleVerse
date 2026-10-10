@@ -62,6 +62,15 @@
       store.renderer.setCamera({ ...store.renderer.camera, x: d.x, y: d.y }, 350);
   }
 
+  /** Right click on a row: the same menu as on the bubble in the world. */
+  function openMenu(e: MouseEvent, b: Bubble) {
+    e.preventDefault();
+    if (!editor.selection.ids.has(b.id)) editor.select([b.id], b.id);
+    const world = store.renderer?.basePositions().get(b.id) ?? b.position;
+    const u = store.toUi({ x: e.clientX, y: e.clientY });
+    editor.menu = { x: u.x, y: u.y, target: b.id, world };
+  }
+
   function pointerDown(e: PointerEvent, row: Row) {
     if (e.button !== 0) return;
     press = { id: row.b.id, x: e.clientX, y: e.clientY };
@@ -153,6 +162,7 @@
             else rowClick(e, row.b);
           }}
           ondblclick={() => focus(row.b)}
+          oncontextmenu={(e) => openMenu(e, row.b)}
           onkeydown={() => {}}
         >
           {#if row.hasKids}

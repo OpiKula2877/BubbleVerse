@@ -253,7 +253,9 @@
     if (!ed || !wp) return;
     if (hit && !ed.selection.ids.has(hit)) ed.select([hit], hit);
     if (!hit) ed.select([]);
-    ed.menu = { x: p.x - store.uiRect.x, y: p.y - store.uiRect.y, target: hit, world: wp };
+    // The menu lives in the UI layer, which Scale GUI zooms.
+    const u = store.toUi(p);
+    ed.menu = { x: u.x, y: u.y, target: hit, world: wp };
   }
 
   function wheel(e: WheelEvent) {

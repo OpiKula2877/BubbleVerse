@@ -20,6 +20,7 @@ import {
   type RenderColors,
   type RenderStats,
   type ScreenLayout,
+  type Vec2,
   type World,
   type WorldRenderer,
 } from '@bv/world';
@@ -104,6 +105,25 @@ class AppStore {
       w: r.w / sl.cssScale,
       h: r.h / sl.cssScale,
     };
+  }
+
+  /** Zoom of the UI layer (Scale GUI). */
+  get uiScale(): number {
+    return this.settings.appearance.uiScale / 100;
+  }
+
+  /** A window point (CSS px) in the coordinates of the zoomed UI layer. */
+  toUi(p: Vec2): Vec2 {
+    const r = this.uiRect;
+    const k = this.uiScale;
+    return { x: (p.x - r.x) / k, y: (p.y - r.y) / k };
+  }
+
+  /** A UI layer point back in window coordinates. */
+  fromUi(p: Vec2): Vec2 {
+    const r = this.uiRect;
+    const k = this.uiScale;
+    return { x: r.x + p.x * k, y: r.y + p.y * k };
   }
 
   /** The world currently shown: the draft in edit mode, else the saved version. */

@@ -39,7 +39,7 @@
   function menuItems(): MenuItem[] {
     const m = editor.menu;
     if (!m) return [];
-    const screen = { x: m.x + store.uiRect.x, y: m.y + store.uiRect.y };
+    const screen = store.fromUi(m);
     const target = m.target ? editor.index.get(m.target) : undefined;
     if (!target) {
       return [

@@ -41,9 +41,14 @@
     editor.quickCreate = null;
   }
 
-  const pos = $derived({
-    x: Math.min(Math.max(8, qc.x - store.uiRect.x + 20), store.uiRect.w - 300),
-    y: Math.min(Math.max(8, qc.y - store.uiRect.y - 20), store.uiRect.h - 220),
+  // The panel lives in the UI layer, which Scale GUI zooms.
+  const pos = $derived.by(() => {
+    const u = store.toUi(qc);
+    const k = store.uiScale;
+    return {
+      x: Math.min(Math.max(8, u.x + 20), store.uiRect.w / k - 300),
+      y: Math.min(Math.max(8, u.y - 20), store.uiRect.h / k - 220),
+    };
   });
 </script>
 
