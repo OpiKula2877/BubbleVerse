@@ -9,15 +9,31 @@ import { MODIFIER_NAMES, eventKey, formatCombo, type Combo } from './shortcuts';
  */
 export function captureCombo(): Promise<string | null> {
   const core = getCore();
-  if (core.isTauri) return core.call<string | null>('capture_combo').catch(() => null);
-  return captureInPage();
+  if (!core.isTauri) return captureInPage();
+  // The page listens too: if Windows ever dropped the core's hook, the keys reach the page and
+  // the capture still ends (keys the hook takes never reach the page, so only one answers).
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (combo: string | null, from: 'core' | 'page') => {
+      if (done) return;
+      done = true;
+      if (from === 'page') void core.call('cancel_capture').catch(() => undefined);
+      else pageCancel?.();
+      resolve(combo);
+    };
+    void core
+      .call<string | null>('capture_combo')
+      .catch(() => null)
+      .then((c) => finish(c, 'core'));
+    void captureInPage().then((c) => finish(c, 'page'));
+  });
 }
 
 /** Stops a running capture (a click elsewhere); its promise resolves with null. */
 export function cancelCapture(): void {
   const core = getCore();
   if (core.isTauri) void core.call('cancel_capture').catch(() => undefined);
-  else pageCancel?.();
+  pageCancel?.();
 }
 
 let pageCancel: (() => void) | null = null;

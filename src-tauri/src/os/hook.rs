@@ -3,7 +3,7 @@
 //! every minute in case Windows removed it anyway.
 
 use std::collections::HashSet;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{Mutex, OnceLock, RwLock};
 
@@ -11,8 +11,8 @@ use windows::Win32::Foundation::{HWND, LPARAM, LRESULT, WPARAM};
 use windows::Win32::UI::Input::KeyboardAndMouse::GetAsyncKeyState;
 use windows::Win32::UI::WindowsAndMessaging::{
     CallNextHookEx, GetClassNameW, GetForegroundWindow, GetMessageW, GetWindowThreadProcessId,
-    SetTimer, SetWindowsHookExW, UnhookWindowsHookEx, HHOOK, KBDLLHOOKSTRUCT, LLKHF_INJECTED, MSG,
-    WH_KEYBOARD_LL, WM_KEYDOWN, WM_SYSKEYDOWN, WM_TIMER,
+    PostThreadMessageW, SetTimer, SetWindowsHookExW, UnhookWindowsHookEx, HHOOK, KBDLLHOOKSTRUCT,
+    LLKHF_INJECTED, MSG, WH_KEYBOARD_LL, WM_APP, WM_KEYDOWN, WM_SYSKEYDOWN, WM_TIMER,
 };
 
 use super::keys::{format_combo, is_modifier, Combo};
@@ -122,6 +122,8 @@ static CAPTURE_ID: AtomicU64 = AtomicU64::new(0);
 pub fn begin_capture() -> (u64, Receiver<Option<String>>) {
     let (tx, rx) = std::sync::mpsc::channel();
     let id = CAPTURE_ID.fetch_add(1, Ordering::Relaxed) + 1;
+    // A fresh hook: Windows may have dropped the old one without a word.
+    reinstall_soon();
     let old = lock(&shared().capture).replace(Capture {
         id,
         tx,
@@ -206,7 +208,7 @@ fn modifier_up(vk: u32) -> bool {
         if let Some((id, sw)) = found {
             send(HookEvent::Shortcut(id));
             if sw && (peak.alt || peak.win) && matches!(vk, 0x12 | 0xA4 | 0xA5 | 0x5B | 0x5C) {
-                super::input::release_without_menu(vk);
+                outside_hook(move || super::input::release_without_menu(vk));
                 swallow = true;
             }
         }
@@ -226,6 +228,16 @@ fn modifier_up(vk: u32) -> bool {
         t.active = false;
     }
     swallow
+}
+
+/// Simulated input must never be sent from inside the hook: Windows would wait for this very
+/// hook to see it, the hook would time out and be dropped, and windows waiting on the input
+/// (the app's WebView) would freeze. A short-lived thread sends it a moment later, still long
+/// before the user lets go of Alt or Win.
+fn outside_hook(f: impl FnOnce() + Send + 'static) {
+    let _ = std::thread::Builder::new()
+        .name("bv-hook-input".into())
+        .spawn(f);
 }
 
 fn send(ev: HookEvent) {
@@ -260,7 +272,10 @@ pub fn desktop_in_front() -> bool {
 unsafe extern "system" fn hook_proc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
     if code >= 0 {
         let kb = &*(lparam.0 as *const KBDLLHOOKSTRUCT);
-        if (kb.flags.0 & LLKHF_INJECTED.0) == 0 && handle(wparam.0 as u32, kb.vkCode, kb.time) {
+        // Development builds can test capturing with simulated keys (BV_TEST_INJECT=1).
+        let injected = (kb.flags.0 & LLKHF_INJECTED.0) != 0
+            && !(cfg!(debug_assertions) && std::env::var_os("BV_TEST_INJECT").is_some());
+        if !injected && handle(wparam.0 as u32, kb.vkCode, kb.time) {
             return LRESULT(1);
         }
     }
@@ -349,27 +364,51 @@ fn handle(msg: u32, vk: u32, time: u32) -> bool {
         if combo.alt || combo.win {
             // Releasing Alt or Win alone would open the window menu or Start: an unassigned
             // key in between cancels that.
-            input::tap_dummy_key();
+            outside_hook(input::tap_dummy_key);
         }
     }
     swallow
 }
 
 fn install() -> Option<HHOOK> {
-    unsafe { SetWindowsHookExW(WH_KEYBOARD_LL, Some(hook_proc), None, 0).ok() }
+    unsafe {
+        // A global hook names the module of its procedure (this exe).
+        let module = windows::Win32::System::LibraryLoader::GetModuleHandleW(None).ok()?;
+        SetWindowsHookExW(WH_KEYBOARD_LL, Some(hook_proc), Some(module.into()), 0).ok()
+    }
 }
 
 /// Starts the hook thread. Events go to `tx`.
+/// The hook thread, for asking it to install the hook again.
+static HOOK_THREAD: AtomicU32 = AtomicU32::new(0);
+const WM_REINSTALL: u32 = WM_APP + 1;
+
+/// Asks the hook thread to install the hook again right away.
+pub fn reinstall_soon() {
+    let thread = HOOK_THREAD.load(Ordering::Relaxed);
+    if thread != 0 {
+        unsafe {
+            let _ = PostThreadMessageW(thread, WM_REINSTALL, WPARAM(0), LPARAM(0));
+        }
+    }
+}
+
 pub fn start(tx: Sender<HookEvent>) {
     *lock(&shared().tx) = Some(tx);
     std::thread::Builder::new()
         .name("bv-keyboard-hook".into())
         .spawn(|| unsafe {
+            HOOK_THREAD.store(
+                windows::Win32::System::Threading::GetCurrentThreadId(),
+                Ordering::Relaxed,
+            );
             let mut hook = install();
-            SetTimer(None, 0, 60_000, None);
+            // Often: Windows silently drops a hook that was slow once (for example while the
+            // PC was busy), and shortcuts would stop until it is back.
+            SetTimer(None, 0, 5_000, None);
             let mut msg = MSG::default();
             while GetMessageW(&mut msg, None, 0, 0).as_bool() {
-                if msg.message == WM_TIMER {
+                if msg.message == WM_TIMER || msg.message == WM_REINSTALL {
                     // Windows silently drops hooks that were too slow; put it back.
                     if let Some(h) = hook.take() {
                         let _ = UnhookWindowsHookEx(h);

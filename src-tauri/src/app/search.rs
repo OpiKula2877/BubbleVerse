@@ -35,6 +35,7 @@ pub fn create_searchbar(app: &AppHandle) -> AppResult<WebviewWindow> {
     .resizable(false)
     .inner_size(WIDTH, HEIGHT)
     .build()?;
+    crate::os::window_span::remove_system_menu(&w)?;
     Ok(w)
 }
 

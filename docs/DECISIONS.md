@@ -169,3 +169,7 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 - **Rozhodnutí:** každý blok má nápovědu (otazník v pravém horním rohu při najetí): popis, vstupy očíslované jako na bloku, co do nich napsat a v jakém formátu, a které bloky do nich pasují. Texty jsou v `packages/blocks/help.yaml`; `pnpm gen:blocks` hlídá, že každý blok a vstup má text v obou jazycích.
 - **Rozhodnutí:** prohlížečové menu a zkratky ruší i stránka sama (`guardBrowserUi`), protože nastavení WebView2 platí až od další navigace.
 - **Důvod:** požadavky uživatele po druhém testu.
+
+### 2026-10-10 · Zamrzání při výběru zkratky
+- **Příčina:** Alt (samotný nebo s mezerníkem) přepnul celoobrazovkové okno do režimu systémového menu. Když se zároveň měnil fokus (globální hledání otevřené s drženým Altem), WebView2 zamrzl. Klikání ani zkratky pak nefungovaly.
+- **Rozhodnutí:** hlavní okno a lišta hledání nemají systémové menu (styl bez `WS_SYSMENU` a `SC_KEYMENU` se zahodí). Akce ze zkratek s Alt/Win se provedou až po jejich puštění a vždy na UI vlákně. Simulované klávesy se nikdy neposílají z hooku. Hook se obnoví při každém výběru zkratky a jinak každých 5 s. Výběr zkratky dokončí i stránka sama, kdyby hook nedostal klávesy.
