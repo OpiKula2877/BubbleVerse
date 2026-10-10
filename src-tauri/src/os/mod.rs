@@ -18,5 +18,6 @@ pub mod recorder;
 pub mod registry;
 pub mod sysinfo;
 pub mod wallpaper;
+pub mod webview;
 pub mod winctl;
 pub mod window_span;

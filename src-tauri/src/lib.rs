@@ -87,6 +87,7 @@ pub fn run() {
             app::data::write_theme_file,
             app::data::read_theme_file,
         ])
+        .on_page_load(|webview, _| os::webview::lock_browser(webview))
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();
             let paths = paths::Paths::new(paths::Paths::default_root()?)?;
