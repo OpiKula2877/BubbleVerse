@@ -145,7 +145,7 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 - **Důvod:** §7.7 neurčuje, které zvuky aplikace má, ani výchozí stav. Tichý start nikoho neruší.
 
 ### 2026-10-10 · Pozadí světa
-- **Rozhodnutí:** hvězdy jsou na vzdálené rovině v pixelech obrazovky (zoom je nemění), s paralaxou se posouvají o 15 % pohybu kamery, bez ní stojí. Obrázek a video pokrývají monitor a s paralaxou se posouvají jen o malý kus. Mřížka mění rozestup podle zoomu. Hvězdy a video potřebují snímky jen při běžícím pohybu a kreslí se málo často (hvězdy ~10×, video ~30× za sekundu).
+- **Rozhodnutí:** hvězdy jsou na vzdálené rovině v pixelech obrazovky (zoom je nemění), s paralaxou se posouvají o 15 % pohybu kamery, bez ní stojí. Barva, gradient, obrázek i video pokrývají každý monitor zvlášť (na hranici monitorů je proto vidět začátek nového gradientu); obrázek a video se s paralaxou posouvají jen o malý kus. Mřížka mění rozestup podle zoomu. Hvězdy a video potřebují snímky jen při běžícím pohybu a kreslí se málo často (hvězdy ~10×, video ~30× za sekundu).
 - **Důvod:** §7.6 popisuje jen volby. „Klid = 0 FPS“ a tapeta v klidu ~0 % GPU (§10).
 
 ### 2026-10-10 · Vydání a aktualizace

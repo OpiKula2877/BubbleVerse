@@ -16,13 +16,13 @@
 - Testy (stav na konci fáze 1): 91 TS testů, 44 Rust testů. End-to-end přes skutečné jádro: Uložit → záloha → aktivace → spuštění programu.
 
 **Ruční checklist (na 2 monitorech)**
-- [ ] Okno pokryje oba monitory, UI je jen na hlavním, velikosti bublin sedí i při různém DPI.
+- [x] Okno pokryje oba monitory, UI je jen na hlavním, velikosti bublin sedí i při různém DPI (ověřeno 2026-10-10 na 2 monitorech 125 % + 100 %).
 - [ ] Vytvořit strom o 3 úrovních (main → složka → akce s cestou k programu).
-- [ ] Přetáhnout bublinu z jednoho monitoru na druhý.
+- [x] Přetáhnout bublinu z jednoho monitoru na druhý (ověřeno 2026-10-10, bublina skončí přesně pod kurzorem).
 - [ ] Uložit, restartovat PC, po startu je BubbleVerse v tray, otevřít a kliknutím spustit program.
 
 **Známé problémy**
-- Na tomto PC je teď aktivní jen jeden monitor, takže vícemonitorové chování jsem ověřil jen výpočty a testy.
+- Vícemonitorové chování je ověřené na 2 monitorech se stejným rozlišením a různým DPI; 3 monitory a odpojení za běhu zbývají (viz [`CHECKLIST.md`](CHECKLIST.md)).
 - Uživatel nemá zatím klávesovou zkratku na otevření okna (`Ctrl+Alt+B` je ve fázi 2), okno jde otevřít z tray.
 
 ## Fáze 2 – Vyhledávání: hotovo (ruční kontrola zbývá)
@@ -125,11 +125,12 @@
 - Instalátor NSIS (pro uživatele, čeština + angličtina, asociace `.bubble`) a podpis pro updater: `pnpm tauri build` vytvořil `BubbleVerse_0.1.0_x64-setup.exe` (5,8 MB) a `.sig`.
 - Auto-update z GitHub Releases ověřovaný klíčem updateru, tlačítko „Zkontrolovat teď“ v Obecných. Workflow CI (`pnpm check`) a Release (koncept vydání s `latest.json` a `SHA256SUMS.txt`).
 - Výkonový test `pnpm test:perf` (na tomto PC, vývojový build): 200 bublin 2–6 ms na snímek, 1000 bublin 4–5 ms (rozpočet 16,7 / 22,2 ms). FPS ukazuje ~48, protože Windows zpomaluje zakryté okno.
-- E2E testy (tauri-driver + WebdriverIO) pro tři toky z §12 jsou napsané a typově zkontrolované.
+- E2E testy (tauri-driver 2.1.0 + msedgedriver 154.0.4258.62 + WebdriverIO) pro tři toky z §12: 3/3 prošly (vytvořit → uložit → `Ctrl+F` → spustit, hromadný generátor, import s varováním). Běží s dočasnou složkou dat, kterou po sobě smažou.
+- Dva monitory (hlavní 1920×1080 při 125 %, druhý 1920×1080 při 100 %): okno pokrývá 3840×1080, výřezy mají k = 1 a 0,8, svět navazuje přes hranici, UI je jen na hlavním monitoru. Přetažení bubliny v editaci z hlavního monitoru na druhý ji položí přesně pod kurzor. Tapeta je `live` a kreslí hvězdy, mřížku i bubliny na obou monitorech.
 - Testy: 166 TS, 73 Rust. `pnpm check` prochází.
 
 **Známé problémy a co zbývá**
-- E2E testy zatím neběžely: potřebují `cargo install tauri-driver` a `msedgedriver.exe` ve verzi nainstalovaného WebView2 (stažení od Microsoftu). Nic z toho se nestahovalo bez souhlasu.
+- E2E testy potřebují `msedgedriver.exe` ve verzi nainstalovaného WebView2 (cesta v `MSEDGEDRIVER`); po aktualizaci WebView2 je potřeba stáhnout novou verzi.
 - Instalátor NSIS nemá české texty pro hlášky specifické pro Tauri (upozornění při buildu); standardní texty NSIS česky jsou.
 - Čistá instalace na Windows 10 a 11 a celý [`CHECKLIST.md`](CHECKLIST.md) jsou ruční.
 - Soukromý klíč updateru je v `%USERPROFILE%\.tauri\bubbleverse-updater.key`. Pro vydání přes GitHub patří do secrets `TAURI_SIGNING_PRIVATE_KEY` (+ prázdné `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`). Bez zálohy klíče nepůjde vydat aktualizaci pro už nainstalované kopie.
