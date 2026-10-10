@@ -122,10 +122,13 @@
   $effect(() => sendWorldToEditor(store.world));
 
   let renderer: WorldRenderer | null = null;
+  /** The renderer exists (store.renderer itself is not reactive). */
+  let rendererReady = $state(false);
 
   function onRenderer(r: WorldRenderer) {
     renderer = r;
     store.renderer = r;
+    rendererReady = true;
     startIfReady();
   }
 
@@ -181,6 +184,7 @@
   // In view mode the camera keeps every shown bubble on screen, also while they move,
   // until the user moves the view by hand (Home brings it back).
   $effect(() => {
+    if (!rendererReady) return;
     store.renderer?.setFollow(
       store.settings.view.camera === 'fit' &&
         store.mode === 'user' &&

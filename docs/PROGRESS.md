@@ -151,3 +151,18 @@
 
 **Prošlo kontrolou bez nálezu:** všechny stránky nastavení (EN i CS), inspektor všech sekcí, kontextová menu, editor pohybu, klávesy edit módu (kopírovat, vložit, duplikovat, smazat, zpět, znovu, vybrat vše), uživatelský režim (rozbalení složky, tooltip), globální lišta hledání, všech 144 bloků katalogu v editoru včetně převodu na script, menu Blockly na pravém tlačítku.
 
+
+## Druhé kolo úprav (2026-10-10)
+
+**Hotovo a ověřené**
+- Výběr zkratky přes hook jádra (Alt+Space, Win… už neotevřou menu Windows), zkratky z modifikátoru samotného a akordy kláves – testy v Rustu i TS.
+- Nativní menu prohlížeče a jeho zkratky vypnuté i stránkou samotnou ve všech oknech.
+- Editor scriptů: kategorie bloků zůstane otevřená při zoomu, bez pravého panelu, režim spuštění v menu startovního bloku (ověřeno klikem), proměnné ve spodní záložce, nápověda ke všem 145 blokům (ověřeno: otazník v rohu bloku, okno s ①②, formáty a pasujícími bloky).
+- Kamera drží všechny bubliny v záběru (ověřeno na kopii dat uživatele: bubliny daleko od středu se ukázaly).
+- Globální hledání s vesmírem a animací (ověřeno: okno se ukáže s animací, pole má fokus, Esc okno schová).
+- Obnovení výchozího stavu (ověřeno na kopii dat: prázdný svět, předchozí verze v zálohách).
+
+**Ruční kontrola**
+- [ ] Skutečný stisk Alt+Space / Win / Ctrl samotného při výběru zkratky (automatický test hooku je jen v Rustu).
+- [ ] Pravé tlačítko na bublině v nainstalované verzi: jen menu aplikace.
+- [ ] Animace globálního hledání nad plochou na obou monitorech.

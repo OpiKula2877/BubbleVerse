@@ -5,19 +5,36 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { parse } from 'yaml';
-import { generateRust, generateTs, normalize, validateCatalog } from './gen-blocks-lib.ts';
+import {
+  generateHelpTs,
+  generateRust,
+  generateTs,
+  normalize,
+  validateCatalog,
+  validateHelp,
+  type BlockHelp,
+} from './gen-blocks-lib.ts';
 
 const root = resolve(import.meta.dirname, '..');
 const source = resolve(root, 'packages/blocks/catalog.yaml');
+const catalog = normalize(parse(readFileSync(source, 'utf8')));
+const help = parse(readFileSync(resolve(root, 'packages/blocks/help.yaml'), 'utf8')) as Record<
+  string,
+  BlockHelp
+>;
+
 const outputs = [
   { path: resolve(root, 'packages/blocks/src/generated/catalog.ts'), gen: generateTs },
   { path: resolve(root, 'src-tauri/src/script/generated/opcodes.rs'), gen: generateRust },
+  {
+    path: resolve(root, 'packages/blocks/src/generated/help.ts'),
+    gen: () => generateHelpTs(help),
+  },
 ];
 
-const catalog = normalize(parse(readFileSync(source, 'utf8')));
-const errors = validateCatalog(catalog);
+const errors = [...validateCatalog(catalog), ...validateHelp(catalog, help)];
 if (errors.length) {
-  console.error(`catalog.yaml is invalid:\n  ${errors.join('\n  ')}`);
+  console.error(`catalog.yaml or help.yaml is invalid:\n  ${errors.join('\n  ')}`);
   process.exit(1);
 }
 

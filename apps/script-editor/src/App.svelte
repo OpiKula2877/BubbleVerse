@@ -14,11 +14,13 @@
     tk,
     type Settings,
   } from '@bv/ui';
+  import { blockHelp, CATEGORIES, CUSTOM_PREFIX, hasHelp, type BlockHelpView } from '@bv/blocks';
   import type { ParamDef, World } from '@bv/world';
   import { emitTo, listen } from '@tauri-apps/api/event';
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { onDestroy, onMount } from 'svelte';
   import BlockDialog from './BlockDialog.svelte';
+  import BlockHelp from './BlockHelp.svelte';
   import {
     Blockly,
     createWorkspace,
@@ -56,6 +58,54 @@
     | { kind: 'shared'; name: string }
     | { kind: 'block'; id: string | null };
   let dialog = $state<Dialog | null>(null);
+  /** The ? at the top right of the block under the pointer, and the help it opens. */
+  let helpAt = $state<{ x: number; y: number; type: string } | null>(null);
+  let helpView = $state<BlockHelpView | null>(null);
+
+  function helpOf(type: string): BlockHelpView | null {
+    if (!type.startsWith(CUSTOM_PREFIX)) return blockHelp(type, s.lang);
+    const c = s.customBlocks.find((x) => x.id === type.slice(CUSTOM_PREFIX.length));
+    const cat = CATEGORIES.find((x) => x.id === 'custom');
+    if (!c) return null;
+    return {
+      title: [c.name, ...c.params.map((_, i) => '①②③④⑤⑥⑦⑧⑨⑩'[i] ?? '…')].join(' '),
+      text: t('help.custom'),
+      danger: false,
+      shape: 'stack',
+      category: { name: cat?.[s.lang] ?? '', colour: cat?.colour ?? '' },
+      inputs: c.params.map((p, i) => ({
+        n: i + 1,
+        name: p.name,
+        kind: p.type === 'bool' ? 'condition' : 'value',
+        hint: t('help.customInput', { name: p.name }),
+        fits: [],
+      })),
+    };
+  }
+
+  const helped = (type: string) => hasHelp(type) || type.startsWith(CUSTOM_PREFIX);
+
+  function hoverBlock(e: PointerEvent) {
+    const ws = s.ws;
+    if (!ws || !host || e.buttons || dialog) {
+      helpAt = null;
+      return;
+    }
+    const el = e.target as Element | null;
+    const id = el?.closest('[data-id]')?.getAttribute('data-id');
+    let block: Blockly.Block | null = id
+      ? (ws.getBlockById(id) ?? ws.getFlyout()?.getWorkspace().getBlockById(id) ?? null)
+      : null;
+    // Typed values (shadow blocks) show the help of the block they belong to.
+    while (block && !helped(block.type)) block = block.getParent();
+    if (!(block instanceof Blockly.BlockSvg)) {
+      helpAt = null;
+      return;
+    }
+    const r = block.pathObject.svgPath.getBoundingClientRect();
+    const h = host.getBoundingClientRect();
+    helpAt = { x: r.right - h.left, y: r.top - h.top, type: block.type };
+  }
   const offs: (() => void)[] = [];
 
   function look(next: Settings) {
@@ -332,7 +382,33 @@
   </nav>
 
   <main class="body" class:side={s.doc?.kind === 'shared' || s.doc?.kind === 'custom'}>
-    <div class="blockly" bind:this={host}></div>
+    <div class="stage">
+      <div
+        class="blockly"
+        role="application"
+        bind:this={host}
+        onpointermove={hoverBlock}
+        onwheel={() => (helpAt = null)}
+        onpointerleave={(e) => {
+          if (!(e.relatedTarget as Element | null)?.closest?.('.block-help')) helpAt = null;
+        }}
+      ></div>
+      {#if helpAt}
+        {@const at = helpAt}
+        <button
+          type="button"
+          class="block-help"
+          style:left="{at.x}px"
+          style:top="{at.y}px"
+          title={t('help.button')}
+          aria-label={t('help.button')}
+          onclick={() => {
+            helpView = helpOf(at.type);
+            helpAt = null;
+          }}>?</button
+        >
+      {/if}
+    </div>
     {#if s.doc?.kind === 'shared' || s.doc?.kind === 'custom'}
       <SidePanel {s} onEditBlock={(id) => (dialog = { kind: 'block', id })} />
     {/if}
@@ -388,6 +464,10 @@
     }}
   />
 </div>
+
+{#if helpView}
+  <BlockHelp help={helpView} onclose={() => (helpView = null)} />
+{/if}
 
 {#if dialog?.kind === 'close' || dialog?.kind === 'switch'}
   {@const d = dialog}
@@ -523,10 +603,35 @@
   .body.side {
     grid-template-columns: 1fr 300px;
   }
-  .blockly {
+  .stage {
     position: relative;
     min-width: 0;
     min-height: 0;
+  }
+  .blockly {
+    position: absolute;
+    inset: 0;
+  }
+  .block-help {
+    position: absolute;
+    z-index: 30;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--bv-bg);
+    border-radius: 50%;
+    background: var(--bv-accent);
+    color: var(--bv-accent-text);
+    font: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--bv-bg) 60%, transparent);
+  }
+  .block-help:hover {
+    transform: scale(1.12);
   }
   .search {
     display: flex;

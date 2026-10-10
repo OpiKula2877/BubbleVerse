@@ -4,11 +4,14 @@ import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import type { Catalog } from '../packages/blocks/src/catalog-types';
 import {
+  generateHelpTs,
   generateRust,
   generateTs,
   normalize,
   placeholders,
   validateCatalog,
+  validateHelp,
+  type BlockHelp,
 } from './gen-blocks-lib';
 
 const catalog = normalize(
@@ -84,5 +87,36 @@ describe('block catalog', () => {
     expect(rs).toContain('pub mod a_b {');
     expect(rs).toContain('pub const X: usize = 0;');
     expect(rs).toContain('fn is_dangerous(self) -> bool {\n        false');
+  });
+});
+
+describe('block help', () => {
+  const help = parse(
+    readFileSync(resolve(import.meta.dirname, '../packages/blocks/help.yaml'), 'utf8'),
+  ) as Record<string, BlockHelp>;
+
+  it('explains every block and every input in both languages', () => {
+    expect(validateHelp(catalog, help)).toEqual([]);
+  });
+
+  it('reports what is missing', () => {
+    const errors = validateHelp(tiny(), { a_b: { en: 'Does.', cs: '', inputs: {} } });
+    expect(errors).toContain('help a_b: missing cs text');
+    expect(errors).toContain('help a_b: input X needs en and cs');
+    expect(validateHelp(tiny(), {})).toContain('help a_b: missing');
+    expect(
+      validateHelp(tiny(), {
+        a_b: { en: 'x', cs: 'y', inputs: { X: { en: 'a', cs: 'b' } } },
+        zz: { en: 'x', cs: 'y' },
+      }),
+    ).toContain('help zz: no such block');
+  });
+
+  it('generates a typed module', () => {
+    const ts = generateHelpTs({
+      a_b: { en: 'Does.', cs: 'Dělá.', inputs: { X: { en: 'a', cs: 'b' } } },
+    });
+    expect(ts).toContain('export const HELP');
+    expect(ts).toContain('"Dělá."');
   });
 });
