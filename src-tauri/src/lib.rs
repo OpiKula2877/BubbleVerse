@@ -75,6 +75,8 @@ pub fn run() {
             app::data::open_data_folder,
             app::data::clean_assets,
             app::data::move_data,
+            app::data::write_theme_file,
+            app::data::read_theme_file,
         ])
         .setup(move |tauri_app| {
             let handle = tauri_app.handle().clone();

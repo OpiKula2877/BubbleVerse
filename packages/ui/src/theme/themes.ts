@@ -1,4 +1,4 @@
-import type { ThemeColors, ThemeId } from './tokens';
+import { HEX_COLOR, TOKENS, type ThemeColors, type ThemeId } from './tokens';
 
 export const LIGHT: ThemeColors = {
   bg: '#F4F5F8',
@@ -107,4 +107,36 @@ export const BUILTIN_THEMES: Record<Exclude<ThemeId, 'custom'>, ThemeColors> = {
 export function themeColors(id: ThemeId, custom?: Partial<ThemeColors>): ThemeColors {
   if (id === 'custom') return { ...DARK, ...custom };
   return BUILTIN_THEMES[id];
+}
+
+/** A theme file (`.bvtheme`, spec §7.2). */
+export interface ThemeFile {
+  format: 'bvtheme';
+  version: 1;
+  name: string;
+  colors: Partial<ThemeColors>;
+}
+
+export function serializeTheme(name: string, colors: Partial<ThemeColors>): string {
+  const file: ThemeFile = { format: 'bvtheme', version: 1, name, colors };
+  return JSON.stringify(file, null, 2);
+}
+
+/** Reads a theme file; unknown tokens and invalid colors are left out. `null` = not a theme. */
+export function parseTheme(text: string): { name: string; colors: Partial<ThemeColors> } | null {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof data !== 'object' || data === null) return null;
+  const d = data as Partial<ThemeFile>;
+  if (d.format !== 'bvtheme' || typeof d.colors !== 'object' || d.colors === null) return null;
+  const colors: Partial<ThemeColors> = {};
+  for (const token of TOKENS) {
+    const v = (d.colors as Record<string, unknown>)[token];
+    if (typeof v === 'string' && HEX_COLOR.test(v)) colors[token] = v.toUpperCase();
+  }
+  return { name: typeof d.name === 'string' ? d.name : '', colors };
 }

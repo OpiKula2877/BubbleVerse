@@ -33,3 +33,23 @@ describe('themes', () => {
     expect(hexToRgb('#00000080').alpha).toBeCloseTo(128 / 255);
   });
 });
+
+describe('theme files', () => {
+  it('round-trips a theme and drops unknown tokens and bad colors', async () => {
+    const { parseTheme, serializeTheme } = await import('./themes');
+    const text = serializeTheme('Mine', { bg: '#112233', accent: '#ff000080' });
+    expect(parseTheme(text)).toEqual({
+      name: 'Mine',
+      colors: { bg: '#112233', accent: '#FF000080' },
+    });
+    const dirty = JSON.stringify({
+      format: 'bvtheme',
+      version: 1,
+      name: 'x',
+      colors: { bg: 'red', nope: '#000000', text: '#ABCDEF' },
+    });
+    expect(parseTheme(dirty)).toEqual({ name: 'x', colors: { text: '#ABCDEF' } });
+    expect(parseTheme('{"format":"other"}')).toBeNull();
+    expect(parseTheme('not json')).toBeNull();
+  });
+});

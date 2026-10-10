@@ -106,3 +106,30 @@ pub fn move_data(dir: String, app: AppHandle) -> AppResult<()> {
     std::fs::write(standard.join(LOCATION_FILE), target.display().to_string())?;
     app.restart();
 }
+
+/// Theme files (`.bvtheme`, spec §7.2) are small JSON files; nothing else is written or read.
+fn theme_path(path: &str) -> AppResult<PathBuf> {
+    let p = PathBuf::from(path.trim());
+    let ok = p
+        .extension()
+        .is_some_and(|e| e.eq_ignore_ascii_case("bvtheme"));
+    if ok {
+        Ok(p)
+    } else {
+        Err(AppError::msg("themeFile"))
+    }
+}
+
+#[tauri::command]
+pub fn write_theme_file(path: String, text: String) -> AppResult<()> {
+    Ok(std::fs::write(theme_path(&path)?, text)?)
+}
+
+#[tauri::command]
+pub fn read_theme_file(path: String) -> AppResult<String> {
+    let p = theme_path(&path)?;
+    if std::fs::metadata(&p)?.len() > 1 << 20 {
+        return Err(AppError::msg("themeFile"));
+    }
+    Ok(std::fs::read_to_string(p)?)
+}
