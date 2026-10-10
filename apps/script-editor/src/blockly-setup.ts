@@ -113,6 +113,13 @@ function storedPaletteScale(): number {
 let paletteScale = storedPaletteScale();
 
 class PaletteFlyout extends Blockly.VerticalFlyout {
+  constructor(options: Blockly.Options) {
+    super(options);
+    // An opened category stays open while the workspace is zoomed or used; clicking the
+    // category again closes it.
+    this.autoClose = false;
+  }
+
   override getFlyoutScale(): number {
     return paletteScale;
   }
@@ -237,6 +244,33 @@ export function mountInToolbox(ws: Workspace, el: HTMLElement, at: 'top' | 'bott
 
 export function isCustomType(type: string): boolean {
   return type.startsWith(CUSTOM_PREFIX);
+}
+
+/** Context menu of hat blocks: what happens when the script is started while it runs. */
+export function registerRunModeMenu(o: {
+  isHat: (type: string) => boolean;
+  label: (mode: 'ignore' | 'restart' | 'parallel') => string;
+  current: (block: Blockly.Block) => string;
+  set: (block: Blockly.Block, mode: 'ignore' | 'restart' | 'parallel') => void;
+}): void {
+  const modes = ['ignore', 'restart', 'parallel'] as const;
+  modes.forEach((mode, i) => {
+    const id = `bv_run_mode_${mode}`;
+    if (Blockly.ContextMenuRegistry.registry.getItem(id))
+      Blockly.ContextMenuRegistry.registry.unregister(id);
+    Blockly.ContextMenuRegistry.registry.register({
+      id,
+      scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
+      weight: -10 + i,
+      displayText: (scope) =>
+        `${scope.block && o.current(scope.block) === mode ? '✓ ' : '\u2003'}${o.label(mode)}`,
+      preconditionFn: (scope) =>
+        scope.block && !scope.block.isInFlyout && o.isHat(scope.block.type) ? 'enabled' : 'hidden',
+      callback: (scope) => {
+        if (scope.block) o.set(scope.block, mode);
+      },
+    });
+  });
 }
 
 /** A context menu entry on custom block calls: open the block's definition. */

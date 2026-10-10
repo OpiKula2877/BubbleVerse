@@ -1,12 +1,22 @@
 <script lang="ts">
-  import { Icon, t } from '@bv/ui';
+  import { getCore, Icon, t, type MessageKey } from '@bv/ui';
   import { tick } from 'svelte';
-  import type { EditorSession } from './session.svelte';
+  import { formatValue, type EditorSession } from './session.svelte';
 
-  /** Debug console (spec §5.5): prints, errors with bubble path and block, times. */
+  /**
+   * Bottom area: the debug console (spec §5.5: prints, errors with bubble path and block,
+   * times) and the variables of the open scripts (spec §5.1).
+   */
   let { s }: { s: EditorSession } = $props();
 
+  const core = getCore();
+  const scopeKey: Record<string, MessageKey> = {
+    s: 'editor.scopeS',
+    b: 'editor.scopeB',
+    g: 'editor.scopeG',
+  };
   let open = $state(true);
+  let tab = $state<'console' | 'vars'>('console');
   let onlyThis = $state(true);
   let list: HTMLDivElement | undefined = $state();
 
@@ -28,9 +38,24 @@
   <header>
     <button type="button" class="toggle" onclick={() => (open = !open)}>
       <Icon name={open ? 'chevronDown' : 'chevronRight'} size={14} />
-      {t('editor.console')}
     </button>
-    {#if open}
+    <button
+      type="button"
+      class="tab"
+      class:on={open && tab === 'console'}
+      onclick={() => ((tab = 'console'), (open = true))}>{t('editor.console')}</button
+    >
+    <button
+      type="button"
+      class="tab"
+      class:on={open && tab === 'vars'}
+      onclick={() => {
+        tab = 'vars';
+        open = true;
+        void s.refreshValues();
+      }}>{t('editor.variables')} ({s.panel.vars.length})</button
+    >
+    {#if open && tab === 'console'}
       <label class="only">
         <input type="checkbox" bind:checked={onlyThis} />
         {t('editor.onlyThis')}
@@ -38,9 +63,39 @@
       <button type="button" class="clear" onclick={() => s.clearConsole()}
         >{t('editor.clear')}</button
       >
+    {:else if open}
+      <button type="button" class="clear" onclick={() => void s.refreshValues()}
+        >{t('editor.refresh')}</button
+      >
+      <button
+        type="button"
+        class="clear"
+        onclick={() => void core.call('open_settings', { tab: 'scripts' })}
+        >{t('editor.allGlobals')}</button
+      >
     {/if}
   </header>
-  {#if open}
+  {#if open && tab === 'vars'}
+    <div class="lines">
+      {#each s.panel.vars as v (`${v.scope}:${v.name}`)}
+        <div class="var">
+          <span class="vname">{v.name}</span>
+          <span class="muted">{t(scopeKey[v.scope]!)}</span>
+          {#if v.scope === 's'}
+            <span class="muted">{t('editor.varRunOnly')}</span>
+          {:else}
+            <input
+              class="value"
+              value={formatValue(s.values[v.scope][v.name])}
+              aria-label={v.name}
+              onchange={(e) =>
+                void s.setVariable(v.scope as 'b' | 'g', v.name, e.currentTarget.value)}
+            />
+          {/if}
+        </div>
+      {/each}
+    </div>
+  {:else if open}
     <div class="lines" bind:this={list}>
       {#each lines as l (l.id)}
         <button
@@ -77,6 +132,7 @@
     padding: 4px 10px;
   }
   .toggle,
+  .tab,
   .clear {
     display: flex;
     align-items: center;
@@ -88,10 +144,44 @@
     font-weight: 600;
     cursor: pointer;
   }
+  .tab {
+    padding: 2px 4px;
+    border-bottom: 2px solid transparent;
+  }
+  .tab.on {
+    color: var(--bv-text);
+    border-bottom-color: var(--bv-accent);
+  }
   .clear {
-    margin-left: auto;
     font-weight: 400;
     color: var(--bv-accent);
+  }
+  .only + .clear,
+  .tab + .clear {
+    margin-left: auto;
+  }
+  .var {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 3px 0;
+  }
+  .vname {
+    font-weight: 600;
+    font-family: inherit;
+  }
+  .muted {
+    color: var(--bv-text-muted);
+  }
+  .value {
+    height: 22px;
+    max-width: 200px;
+    padding: 0 6px;
+    border-radius: calc(var(--bv-radius) * 0.5);
+    border: 1px solid var(--bv-input-border);
+    background: var(--bv-input);
+    color: var(--bv-text);
+    font: inherit;
   }
   .only {
     display: flex;

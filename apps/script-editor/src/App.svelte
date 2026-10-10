@@ -27,12 +27,13 @@
     makeTheme,
     mountInToolbox,
     registerEditCustom,
+    registerRunModeMenu,
     showSearch,
     updateToolbox,
     zoomPalette,
   } from './blockly-setup';
   import Console from './Console.svelte';
-  import { EditorSession, type EditorRequest } from './session.svelte';
+  import { EditorSession, isHat, parseRunMode, type EditorRequest } from './session.svelte';
   import SidePanel from './SidePanel.svelte';
 
   /** The script editor window (spec §5.1). */
@@ -138,6 +139,21 @@
       () => t('editor.editBlock'),
       (id) => void s.openCustom(id),
     );
+    registerRunModeMenu({
+      isHat,
+      label: (mode) =>
+        t('editor.runModeItem', {
+          mode: t(
+            mode === 'ignore'
+              ? 'editor.runIgnore'
+              : mode === 'restart'
+                ? 'editor.runRestart'
+                : 'editor.runParallel',
+          ),
+        }),
+      current: (block) => parseRunMode(block.data),
+      set: (block, mode) => s.setRunMode(mode, block),
+    });
     if (req) await s.load(req);
     ready = true;
     const resize = new ResizeObserver(() => Blockly.svgResize(ws));
@@ -315,9 +331,11 @@
     {/if}
   </nav>
 
-  <main class="body">
+  <main class="body" class:side={s.doc?.kind === 'shared' || s.doc?.kind === 'custom'}>
     <div class="blockly" bind:this={host}></div>
-    <SidePanel {s} onEditBlock={(id) => (dialog = { kind: 'block', id })} />
+    {#if s.doc?.kind === 'shared' || s.doc?.kind === 'custom'}
+      <SidePanel {s} onEditBlock={(id) => (dialog = { kind: 'block', id })} />
+    {/if}
   </main>
 
   <Console {s} />
@@ -499,8 +517,11 @@
   }
   .body {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr;
     min-height: 0;
+  }
+  .body.side {
+    grid-template-columns: 1fr 300px;
   }
   .blockly {
     position: relative;

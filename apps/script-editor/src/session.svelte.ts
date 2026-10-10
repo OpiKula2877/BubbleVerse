@@ -138,7 +138,7 @@ function fitCustomCalls(b: BlockState, custom: readonly CustomBlock[]): BlockSta
   return out;
 }
 
-function parseRunMode(data: string | undefined | null): RunMode {
+export function parseRunMode(data: string | undefined | null): RunMode {
   try {
     const m = data ? (JSON.parse(data) as { runMode?: RunMode }).runMode : undefined;
     return m === 'restart' || m === 'parallel' ? m : 'ignore';
@@ -423,8 +423,9 @@ export class EditorSession {
     }
   }
 
-  setRunMode(mode: RunMode): void {
-    const hat = this.selectedHat();
+  /** Run mode of a script, kept on its hat block (from the hat's context menu). */
+  setRunMode(mode: RunMode, block?: Blockly.Block): void {
+    const hat = block ?? this.selectedHat();
     if (!hat) return;
     let data: Record<string, unknown> = {};
     try {
@@ -984,7 +985,7 @@ export class EditorSession {
   }
 }
 
-function isHat(type: string): boolean {
+export function isHat(type: string): boolean {
   const b = BLOCKS.find((x) => x.id === type);
   return b?.shape === 'hat';
 }
