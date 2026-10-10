@@ -1,13 +1,48 @@
-//! Key combos like `Ctrl+Alt+B` (same names as `packages/ui/src/shortcuts.ts`) and their
-//! Windows virtual-key codes.
+//! Key combos like `Ctrl+Alt+B`, `Ctrl` alone or `T+L+P` held together (same names as
+//! `packages/ui/src/shortcuts.ts`) and their Windows virtual-key codes.
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub struct Combo {
     pub ctrl: bool,
     pub alt: bool,
     pub shift: bool,
     pub win: bool,
-    pub vk: u32,
+    /// Other keys held together, sorted; empty for a tap of the modifiers alone.
+    pub keys: Vec<u32>,
+}
+
+impl Combo {
+    pub fn has_modifier(&self) -> bool {
+        self.ctrl || self.alt || self.shift || self.win
+    }
+
+    /// Sets the flag of a modifier key; false for other keys.
+    pub fn add_modifier(&mut self, vk: u32) -> bool {
+        match vk {
+            0x11 | 0xA2 | 0xA3 => self.ctrl = true,
+            0x12 | 0xA4 | 0xA5 => self.alt = true,
+            0x10 | 0xA0 | 0xA1 => self.shift = true,
+            0x5B | 0x5C => self.win = true,
+            _ => return false,
+        }
+        true
+    }
+}
+
+/// Text of a combo; `order` gives the keys in the order they were pressed.
+pub fn format_combo(c: &Combo, order: &[u32]) -> String {
+    let mut parts: Vec<String> = [
+        (c.ctrl, "Ctrl"),
+        (c.alt, "Alt"),
+        (c.shift, "Shift"),
+        (c.win, "Win"),
+    ]
+    .iter()
+    .filter(|(on, _)| *on)
+    .map(|(_, n)| n.to_string())
+    .collect();
+    parts.extend(order.iter().filter_map(|&vk| key_name(vk)));
+    parts.join("+")
 }
 
 const NAMED: &[(&str, u32)] = &[
@@ -137,10 +172,15 @@ pub fn key_name(vk: u32) -> Option<String> {
         0x30..=0x39 | 0x41..=0x5A => char::from_u32(vk).map(String::from),
         0x60..=0x69 => Some(format!("Num{}", vk - 0x60)),
         0x70..=0x87 => Some(format!("F{}", vk - 0x70 + 1)),
-        _ => DISPLAY
-            .iter()
-            .find(|(v, _)| *v == vk)
-            .map(|(_, n)| n.to_string()),
+        // Keys without a usual name keep their code, so any key can be a shortcut.
+        0x01..=0xFE => Some(
+            DISPLAY
+                .iter()
+                .find(|(v, _)| *v == vk)
+                .map(|(_, n)| n.to_string())
+                .unwrap_or_else(|| format!("Vk{vk:02X}")),
+        ),
+        _ => None,
     }
 }
 
@@ -162,6 +202,12 @@ pub fn vk_of(name: &str) -> Option<u32> {
         };
     }
     let lower = n.to_ascii_lowercase();
+    if let Some(code) = lower
+        .strip_prefix("vk")
+        .and_then(|h| u32::from_str_radix(h, 16).ok())
+    {
+        return (1..=0xFE).contains(&code).then_some(code);
+    }
     if let Some(num) = lower.strip_prefix('f').and_then(|d| d.parse::<u32>().ok()) {
         return (1..=24).contains(&num).then_some(0x70 + num - 1);
     }
@@ -189,7 +235,6 @@ pub fn parse_combo(text: &str) -> Option<Combo> {
     if text.trim_end().ends_with("++") {
         parts.push("Plus".into());
     }
-    let mut key = None;
     for p in parts {
         match p.to_ascii_lowercase().as_str() {
             "ctrl" | "control" => c.ctrl = true,
@@ -197,15 +242,15 @@ pub fn parse_combo(text: &str) -> Option<Combo> {
             "shift" => c.shift = true,
             "win" | "meta" | "super" => c.win = true,
             _ => {
-                if key.is_some() {
-                    return None;
+                let vk = vk_of(&p)?;
+                if !c.add_modifier(vk) && !c.keys.contains(&vk) {
+                    c.keys.push(vk);
                 }
-                key = Some(vk_of(&p)?);
             }
         }
     }
-    c.vk = key?;
-    Some(c)
+    c.keys.sort_unstable();
+    (c.has_modifier() || !c.keys.is_empty()).then_some(c)
 }
 
 #[cfg(test)]
@@ -233,21 +278,41 @@ mod tests {
                 alt: true,
                 shift: false,
                 win: false,
-                vk: 0x42
+                keys: vec![0x42]
             })
         );
-        assert_eq!(parse_combo("alt+space").map(|c| c.vk), Some(0x20));
+        assert_eq!(parse_combo("alt+space").map(|c| c.keys), Some(vec![0x20]));
         assert_eq!(parse_combo("Ctrl+Alt+Shift+S").map(|c| c.shift), Some(true));
-        assert_eq!(parse_combo("Home").map(|c| c.vk), Some(0x24));
+        assert_eq!(parse_combo("Home").map(|c| c.keys), Some(vec![0x24]));
         assert_eq!(
-            parse_combo("Win+F12").map(|c| (c.win, c.vk)),
-            Some((true, 0x7B))
+            parse_combo("Win+F12").map(|c| (c.win, c.keys)),
+            Some((true, vec![0x7B]))
         );
-        assert_eq!(parse_combo("Ctrl++").map(|c| c.vk), Some(0xBB));
-        assert_eq!(parse_combo("Num5").map(|c| c.vk), Some(0x65));
-        assert_eq!(parse_combo("Ctrl+Alt"), None);
-        assert_eq!(parse_combo("Ctrl+A+B"), None);
+        assert_eq!(parse_combo("Ctrl++").map(|c| c.keys), Some(vec![0xBB]));
+        assert_eq!(parse_combo("Num5").map(|c| c.keys), Some(vec![0x65]));
         assert_eq!(parse_combo("Ctrl+Bogus"), None);
+        assert_eq!(parse_combo(""), None);
+    }
+
+    #[test]
+    fn parses_modifier_taps_and_chords() {
+        let c = parse_combo("Ctrl").unwrap();
+        assert!(c.ctrl && c.keys.is_empty());
+        assert_eq!(
+            parse_combo("Ctrl+Alt").map(|c| (c.ctrl, c.alt)),
+            Some((true, true))
+        );
+        // Held together: the order does not matter.
+        assert_eq!(parse_combo("T+L+P"), parse_combo("P+T+L"));
+        assert_eq!(
+            parse_combo("Ctrl+A+B").map(|c| c.keys),
+            Some(vec![0x41, 0x42])
+        );
+        assert_eq!(parse_combo("Vk07").map(|c| c.keys), Some(vec![0x07]));
+        let c = parse_combo("T+L+P").unwrap();
+        assert_eq!(format_combo(&c, &[0x54, 0x4C, 0x50]), "T+L+P");
+        let c = parse_combo("Ctrl+Shift+K").unwrap();
+        assert_eq!(format_combo(&c, &[0x4B]), "Ctrl+Shift+K");
     }
 
     #[test]

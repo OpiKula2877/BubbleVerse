@@ -1,14 +1,14 @@
-import { comboFromEvent, getCore, normalizeCombo, t } from '@bv/ui';
+import { cancelCapture, captureCombo, normalizeCombo, t } from '@bv/ui';
 import * as Blockly from 'blockly/core';
 
 /**
- * The shortcut field of the "when … is pressed" block: a click starts listening and the next
- * key combination pressed is written in, so nobody has to know key names. Esc or a click
- * elsewhere cancels.
+ * The shortcut field of the "when … is pressed" block: a click starts listening and the keys
+ * pressed next are written in (any keys: `Alt+Space`, `Ctrl` alone, `T+L+P` held together),
+ * so nobody has to know key names. Esc alone or a click elsewhere cancels.
  */
 export class FieldCombo extends Blockly.Field<string> {
   override SERIALIZABLE = true;
-  private stop: (() => void) | null = null;
+  private listening = false;
 
   static override fromJson(options: Blockly.FieldConfig & { value?: string }): FieldCombo {
     return new FieldCombo(options.value ?? 'Ctrl+Alt+K');
@@ -19,46 +19,31 @@ export class FieldCombo extends Blockly.Field<string> {
   }
 
   protected override getText_(): string {
-    return this.stop ? t('editor.pressKeys') : `⌨ ${this.getValue() ?? ''}`;
+    return this.listening ? t('editor.pressKeys') : `⌨ ${this.getValue() ?? ''}`;
   }
 
   protected override showEditor_(): void {
-    if (this.stop) return;
-    const core = getCore();
-    const key = (e: KeyboardEvent) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const plain = !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey;
-      if (e.key === 'Escape' && plain) return stop();
-      const combo = comboFromEvent(e);
-      if (!combo) return;
-      stop();
-      this.setValue(combo);
-    };
-    const click = () => stop();
-    const stop = () => {
-      window.removeEventListener('keydown', key, true);
-      window.removeEventListener('pointerdown', click, true);
-      window.removeEventListener('blur', click);
-      // Shortcuts held by the core would never reach the editor while listening.
-      void core.call('pause_shortcuts', { paused: false }).catch(() => undefined);
-      this.stop = null;
-      this.forceRerender();
-    };
-    this.stop = stop;
-    void core.call('pause_shortcuts', { paused: true }).catch(() => undefined);
-    window.addEventListener('keydown', key, true);
+    if (this.listening) return;
+    this.listening = true;
+    this.forceRerender();
+    const click = () => cancelCapture();
     // The click that opened the field is still being handled.
     setTimeout(() => {
-      if (this.stop !== stop) return;
+      if (!this.listening) return;
       window.addEventListener('pointerdown', click, true);
       window.addEventListener('blur', click);
     });
-    this.forceRerender();
+    void captureCombo().then((combo) => {
+      window.removeEventListener('pointerdown', click, true);
+      window.removeEventListener('blur', click);
+      this.listening = false;
+      if (combo && !this.disposed) this.setValue(combo);
+      if (!this.disposed) this.forceRerender();
+    });
   }
 
   override dispose(): void {
-    this.stop?.();
+    if (this.listening) cancelCapture();
     super.dispose();
   }
 }

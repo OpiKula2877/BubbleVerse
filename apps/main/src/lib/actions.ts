@@ -1,4 +1,4 @@
-import { eventMatches, t } from '@bv/ui';
+import { ComboTracker, comboId, parseCombo, t } from '@bv/ui';
 import { Editor } from './editor.svelte';
 import { search } from '../search/search.svelte';
 import { store } from './store.svelte';
@@ -15,6 +15,7 @@ function finishEdit(): void {
   store.editor?.dispose();
   store.editor = null;
   store.mode = 'user';
+  store.cameraTouched = false;
   const r = store.renderer;
   r?.setSelection(new Set());
   r?.setOverlay({ rect: null, guides: [], grid: null });
@@ -55,8 +56,11 @@ export function toggleEdit(): void {
   else enterEdit();
 }
 
+/** Home: back to the camera that shows every bubble, or to the saved home view. */
 export function goHome(): void {
-  store.renderer?.setCamera(store.home, 450);
+  store.cameraTouched = false;
+  if (store.settings.view.camera === 'home' || store.editor)
+    store.renderer?.setCamera(store.home, 450);
 }
 
 /** App actions from shortcuts and the core (spec §7.3, §14). */
@@ -95,28 +99,52 @@ function typing(e: KeyboardEvent): boolean {
   );
 }
 
-/** In-app keyboard shortcuts. */
-/** The app action whose configured shortcut this key event is (spec §7.3). */
-function shortcutAction(e: KeyboardEvent): string | null {
+/** Keys held in the window, for shortcuts like `T+L+P` or `Ctrl` alone. */
+const tracker = new ComboTracker();
+
+/** The app action whose configured shortcut a pressed combo is (spec §7.3). */
+function shortcutAction(pressed: string | null): string | null {
+  if (!pressed) return null;
+  const id = comboId(pressed);
   for (const s of store.settings.shortcuts) {
     // Shortcuts that the core hook catches never reach the window, except in the browser preview.
     const viaHook = store.core.isTauri && (s.scope === 'global' || s.overrideWindows);
-    if (!viaHook && eventMatches(e, s.combo)) return s.action;
+    if (!viaHook && comboId(s.combo) === id) return s.action;
   }
   return null;
 }
 
-/** Shortcuts without modifiers (like Home) would break typing in text fields. */
-function plainKey(e: KeyboardEvent): boolean {
-  return !e.ctrlKey && !e.altKey && !e.metaKey;
+/** Shortcuts without Ctrl, Alt or Win (like Home or T+L+P) would break typing in text fields. */
+function plainCombo(pressed: string): boolean {
+  const c = parseCombo(pressed);
+  return !c || (!c.ctrl && !c.alt && !c.win);
+}
+
+/** Key releases end taps of modifiers alone (`Ctrl` as a shortcut). */
+export function handleKeyUp(e: KeyboardEvent): void {
+  const pressed = tracker.up(e);
+  if (store.dialog || !pressed) return;
+  const action = shortcutAction(pressed);
+  if (action && !(plainCombo(pressed) && typing(e)) && !(search.open && action !== 'search'))
+    runAction(action);
+}
+
+/** The window lost the keyboard: keys held now are released elsewhere. */
+export function resetKeys(): void {
+  tracker.reset();
 }
 
 export function handleKey(e: KeyboardEvent): void {
+  const pressed = tracker.down(e);
   if (store.dialog) return;
   const ctrl = e.ctrlKey || e.metaKey;
   const key = e.key.toLowerCase();
-  const action = shortcutAction(e);
-  if (action && !(plainKey(e) && typing(e)) && !(search.open && action !== 'search')) {
+  const action = shortcutAction(pressed);
+  if (
+    action &&
+    !(pressed && plainCombo(pressed) && typing(e)) &&
+    !(search.open && action !== 'search')
+  ) {
     e.preventDefault();
     return runAction(action);
   }

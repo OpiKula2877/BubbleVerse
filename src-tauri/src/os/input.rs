@@ -113,10 +113,21 @@ pub fn press_combo(text: &str) -> AppResult<()> {
     .map(|(_, vk)| *vk)
     .collect();
     let mut inputs: Vec<INPUT> = mods.iter().map(|&vk| key_input(vk, false)).collect();
-    inputs.push(key_input(c.vk as u16, false));
-    inputs.push(key_input(c.vk as u16, true));
+    // Keys held together: all down, then all up in reverse.
+    inputs.extend(c.keys.iter().map(|&vk| key_input(vk as u16, false)));
+    inputs.extend(c.keys.iter().rev().map(|&vk| key_input(vk as u16, true)));
     inputs.extend(mods.iter().rev().map(|&vk| key_input(vk, true)));
     sent_all(&inputs)
+}
+
+/// Releases Alt or Win after an unassigned key, so Windows opens neither the window menu nor
+/// Start (the real release was swallowed).
+pub fn release_without_menu(vk: u32) {
+    send(&[
+        key_input(VK_DUMMY, false),
+        key_input(VK_DUMMY, true),
+        key_input(vk as u16, true),
+    ]);
 }
 
 /// Holds (`down`) or releases a single key.

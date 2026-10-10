@@ -2,7 +2,8 @@
   import { OP, resolveSlot } from '@bv/blocks';
   import {
     Button,
-    comboFromEvent,
+    cancelCapture,
+    captureCombo,
     DEFAULT_SHORTCUTS,
     findCollisions,
     Icon,
@@ -19,9 +20,15 @@
   const shortcuts = $derived(store.settings.shortcuts);
   let capturing = $state<string | null>(null);
 
-  // Shortcuts caught by the core would never reach this field while typing a new one.
+  // A click anywhere else cancels typing a shortcut.
   $effect(() => {
-    void store.core.call('pause_shortcuts', { paused: capturing !== null });
+    if (capturing === null) return;
+    const cancel = () => cancelCapture();
+    const timer = setTimeout(() => window.addEventListener('pointerdown', cancel, true));
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('pointerdown', cancel, true);
+    };
   });
 
   /** Hotkeys from bubble scripts, shown in the same list (spec §7.3). */
@@ -81,17 +88,13 @@
     save(shortcuts.map((s) => (s.action === action ? { ...s, ...p } : s)));
   }
 
-  function capture(e: KeyboardEvent, action: string) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.key === 'Escape') {
-      capturing = null;
-      return;
-    }
-    const combo = comboFromEvent(e);
-    if (!combo) return;
-    capturing = null;
-    if (normalizeCombo(combo)) patch(action, { combo });
+  /** The core takes every key meanwhile, so even `Alt+Space` or `Win` can be chosen. */
+  async function capture(action: string) {
+    if (capturing) cancelCapture();
+    capturing = action;
+    const combo = await captureCombo();
+    if (capturing === action) capturing = null;
+    if (combo && normalizeCombo(combo)) patch(action, { combo });
   }
 </script>
 
@@ -102,9 +105,7 @@
       <button
         class="combo"
         class:capturing={capturing === s.action}
-        onclick={() => (capturing = s.action)}
-        onkeydown={(e) => capturing === s.action && capture(e, s.action)}
-        onblur={() => capturing === s.action && (capturing = null)}
+        onclick={() => void capture(s.action)}
       >
         {capturing === s.action ? t('shortcuts.press') : s.combo}
       </button>
