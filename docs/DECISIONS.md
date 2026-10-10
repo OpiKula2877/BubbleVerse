@@ -151,3 +151,10 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-10 · Vydání a aktualizace
 - **Rozhodnutí:** instalátor NSIS pro aktuálního uživatele (bez správce), čeština a angličtina, asociace souborů `.bubble`. Aktualizace se hledají 15 s po startu (ne ve vývojové verzi) v `latest.json` posledního GitHub Release a ověřují klíčem updateru. Soukromý klíč je mimo repozitář v `%USERPROFILE%\.tauri\bubbleverse-updater.key` (bez hesla). Release workflow vytvoří jen koncept vydání, zveřejnění je ruční.
 - **Důvod:** §16 (bezplatný klíč updateru, SHA-256 otisky, žádné podepisování). Instalace bez správce sedí k tomu, že BubbleVerse sám běží bez admin práv (§5.4).
+
+### 2026-10-10 · Úpravy po prvním testování uživatelem
+- **Rozhodnutí:** WebView2 má ve všech oknech vypnuté vlastní kontextové menu a prohlížečové zkratky (tisk `Ctrl+P`, `F5`, `Alt+←`, hledání v stránce). Zůstávají jen menu a zkratky aplikace.
+- **Rozhodnutí:** nabídka bloků v editoru scriptů má vlastní velikost (lupa s − a + dole pod kategoriemi, 50–150 %, pamatuje si ji počítač); zoom plochy ji nemění.
+- **Rozhodnutí:** zkratka v bloku „při stisku … “ se zadává stiskem kláves (klik na pole, stisk kombinace, Esc zruší), ne psaním názvů kláves. Během zadávání jsou globální zkratky pozastavené.
+- **Rozhodnutí:** při úpravě cesty, oběžné dráhy a oblasti bloudění jde pohled posouvat tažením pravým nebo prostředním tlačítkem a přibližovat kolečkem; bublina mimo obrazovku se při otevření editoru ukáže. Strom v edit módu má na pravém tlačítku stejné menu jako bublina.
+- **Důvod:** požadavky uživatele po prvním testu (mimo výslovné znění specifikace, ale v jejím duchu: aplikace se nemá chovat jako webová stránka, §5.1 editor má být pohodlný).

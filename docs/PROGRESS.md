@@ -137,3 +137,17 @@
 
 **Ruční checklist**
 - [ ] Celý [`docs/CHECKLIST.md`](CHECKLIST.md) na čisté instalaci Windows 10 a Windows 11.
+
+## Po prvním testování uživatelem (2026-10-10)
+
+**Opraveno**
+- Body cesty a úchyty oběžné dráhy zůstávaly na obrazovce při posunu kamery; teď jedou se světem a pohled jde při úpravě posouvat pravým / prostředním tlačítkem.
+- Nativní menu WebView2 (Zpět, Aktualizovat, Uložit jako, Tisk) a prohlížečové zkratky (`Ctrl+P`, `F5`, `Alt+←`) jsou vypnuté ve všech oknech.
+- Editor scriptů: nabídka bloků se nezvětšuje se zoomem plochy, má vlastní lupu s − a +. Zkratka v bloku „při stisku“ se zadává stiskem kláves.
+- Nastavení → Zkratky padalo (prázdná stránka s nadpisem „Vzhled“), když dva scripty měly stejnou zkratku a stejnou cestu. Víc zkratek v jedné bublině se čísluje.
+- Kontextové menu a rychlé vytvoření se při Scale GUI ≠ 100 % otevíraly daleko od kurzoru.
+- Strom má kontextové menu na pravém tlačítku.
+- Popisky polí a názvy zkratek se zalamují místo useknutí; nastavení má odlišné ikony; doplněné české překlady (Záře, Najetí myší, …); sekce Najetí myší má stejné rozložení jako ostatní.
+
+**Prošlo kontrolou bez nálezu:** všechny stránky nastavení (EN i CS), inspektor všech sekcí, kontextová menu, editor pohybu, klávesy edit módu (kopírovat, vložit, duplikovat, smazat, zpět, znovu, vybrat vše), uživatelský režim (rozbalení složky, tooltip), globální lišta hledání, všech 144 bloků katalogu v editoru včetně převodu na script, menu Blockly na pravém tlačítku.
+
