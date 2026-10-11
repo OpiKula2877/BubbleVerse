@@ -2,7 +2,7 @@
   import { SearchSession, type SearchKey, type SearchResult, type SearchView } from '@bv/search';
   import { applyTheme, getCore, SearchField, setLang, themeColors, type Settings } from '@bv/ui';
   import type { World } from '@bv/world';
-  import { emitTo, listen } from '@tauri-apps/api/event';
+  import { emit, listen } from '@tauri-apps/api/event';
   import PromptBox from './PromptBox.svelte';
   import type { Prompt } from './prompt';
   import { getCurrentWindow } from '@tauri-apps/api/window';
@@ -39,7 +39,8 @@
   function toWallpaper(focus?: string | null) {
     if (mode !== 'desktop' || !core.isTauri) return;
     const v = view;
-    void emitTo('wallpaper', 'bv://desktop-search', {
+    // To the wallpaper, which runs in its own process (the core passes it on).
+    void emit('bv://desktop-search', {
       active: !!v,
       colored: v ? [...v.colored] : [],
       path: v ? [...v.path] : [],

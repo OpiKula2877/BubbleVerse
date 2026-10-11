@@ -12,6 +12,11 @@ use tauri::Manager;
 use app::state::AppState;
 
 pub fn run() {
+    let context = tauri::generate_context!();
+    if let Some(assets) = app::wallpaper_ipc::requested(&std::env::args().collect::<Vec<_>>()) {
+        app::wallpaper_proc::run(assets, context);
+        return;
+    }
     let windowed = std::env::var("BV_WINDOWED").is_ok_and(|v| v == "1");
     let autostarted = std::env::args().any(|a| a == app::autostart::AUTOSTART_ARG);
     app::packages::remember_startup(&std::env::args().collect::<Vec<_>>());
@@ -97,6 +102,7 @@ pub fn run() {
             let paths = paths::Paths::new(paths::Paths::default_root()?)?;
             let state = AppState::new(handle.clone(), paths, windowed, autostarted)?;
             let autostart = state.settings().general.autostart;
+            tauri_app.manage(state.assets.clone());
             tauri_app.manage(state);
             if let Err(e) = app::autostart::sync(autostart) {
                 log::warn!("autostart registration failed: {e}");
@@ -105,13 +111,14 @@ pub fn run() {
             app::windows::create_main(&handle)?;
             app::search::create_searchbar(&handle)?;
             app::shortcuts::start(&handle);
+            app::wallpaper::forward_events(&handle);
             app::wallpaper::apply(&handle);
             app::autopause::start(handle.clone());
             app::triggers::start(handle.clone(), autostarted);
             app::windows::watch_monitors(handle);
             Ok(())
         })
-        .build(tauri::generate_context!());
+        .build(context);
     match result {
         Ok(app) => app.run(|handle, event| {
             if let tauri::RunEvent::Exit = event {

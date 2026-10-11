@@ -16,4 +16,6 @@ pub mod state;
 pub mod tray;
 pub mod triggers;
 pub mod wallpaper;
+pub mod wallpaper_ipc;
+pub mod wallpaper_proc;
 pub mod windows;

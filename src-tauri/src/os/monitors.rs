@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use windows::core::BOOL;
 use windows::Win32::Foundation::{LPARAM, RECT};
 use windows::Win32::Graphics::Gdi::{
@@ -9,7 +9,7 @@ use windows::Win32::UI::WindowsAndMessaging::MONITORINFOF_PRIMARY;
 
 use super::com::from_wide;
 
-#[derive(Clone, Copy, Debug, Serialize, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct Rect {
     pub x: i32,
     pub y: i32,

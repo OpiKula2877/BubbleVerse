@@ -31,8 +31,13 @@ pub struct Bootstrap {
 
 #[tauri::command]
 pub fn bootstrap(window: WebviewWindow, state: State<'_, AppState>) -> AppResult<Bootstrap> {
+    bootstrap_for(window.label(), &state)
+}
+
+/// Everything a window needs at start; `window` = its label.
+pub fn bootstrap_for(window: &str, state: &AppState) -> AppResult<Bootstrap> {
     Ok(Bootstrap {
-        window: window.label().to_string(),
+        window: window.to_string(),
         version: env!("CARGO_PKG_VERSION").to_string(),
         settings: state.settings(),
         layout: state.layout(),

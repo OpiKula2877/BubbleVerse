@@ -3,7 +3,7 @@
 use tauri::http::{header, Request, Response, StatusCode};
 use tauri::{Manager, UriSchemeContext, UriSchemeResponder, Wry};
 
-use super::state::AppState;
+use crate::storage::assets::AssetStore;
 
 pub const SCHEME: &str = "bvasset";
 
@@ -31,7 +31,8 @@ pub fn handle(
     request: Request<Vec<u8>>,
     responder: UriSchemeResponder,
 ) {
-    let store = ctx.app_handle().state::<AppState>().assets.clone();
+    // Managed by the app and by the wallpaper process alike.
+    let store = ctx.app_handle().state::<AssetStore>().inner().clone();
     std::thread::spawn(move || {
         let hash = request.uri().path().trim_start_matches('/').to_string();
         let Some(path) = store.path_of(&hash) else {

@@ -168,7 +168,8 @@
 - [ ] Animace globálního hledání nad plochou na obou monitorech.
 
 ## Opravy po instalaci (2026-10-11)
-- Ukazatel myši zůstal neviditelný nad plochou po hledání přes Ctrl+F na ploše a spuštění bubliny. Ověřeno na počítači uživatele: nad plochou byl kurzor skrytý, nad jinými okny ne. Okna se teď dostávají dopředu bez `AttachThreadInput`. Ověřeno testem mimo aplikaci: prázdný vstup myši okno spolehlivě dostane dopředu.
+- Ukazatel myši zůstal neviditelný nad plochou po hledání přes Ctrl+F na ploše a spuštění bubliny. Ověřeno na počítači uživatele: nad plochou byl kurzor skrytý, nad jinými okny ne. Příčina: tapeta pod ikonami spojila vstup plochy s UI vláknem aplikace. Tapeta teď běží ve vlastním procesu. Ověřeno na kopii dat uživatele: okno tapety patří procesu tapety a má vlastní prohlížečový proces; tapeta kreslí svět, hledání na ploše ji zešedí; s oknem aplikace v popředí vlákno plochy fokus nesdílí; po zabití se proces tapety spustí znovu; po ukončení aplikace oba procesy skončí a plocha je jako dřív.
+- Ctrl+F na ploše funguje i bez kliknutí na plochu (v popředí žádné okno, skryté nebo minimalizované okno, hlavní panel).
 
 **Ruční kontrola**
 - [ ] Ctrl+F na ploše, psaní, Enter na bublině: ukazatel nad plochou zůstane vidět.
