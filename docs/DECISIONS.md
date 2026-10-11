@@ -173,3 +173,7 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-10 · Zamrzání při výběru zkratky
 - **Příčina:** Alt (samotný nebo s mezerníkem) přepnul celoobrazovkové okno do režimu systémového menu. Když se zároveň měnil fokus (globální hledání otevřené s drženým Altem), WebView2 zamrzl. Klikání ani zkratky pak nefungovaly.
 - **Rozhodnutí:** hlavní okno a lišta hledání nemají systémové menu (styl bez `WS_SYSMENU` a `SC_KEYMENU` se zahodí). Akce ze zkratek s Alt/Win se provedou až po jejich puštění a vždy na UI vlákně. Simulované klávesy se nikdy neposílají z hooku. Hook se obnoví při každém výběru zkratky a jinak každých 5 s. Výběr zkratky dokončí i stránka sama, kdyby hook nedostal klávesy.
+
+### 2026-10-11 · Neviditelný ukazatel myši na ploše
+- **Příčina:** lišta hledání se dostávala dopředu tak, že si aplikace na chvíli připojila vstupní frontu okna v popředí (`AttachThreadInput`). Po Ctrl+F na ploše to byla fronta plochy, která tak sdílela stav kurzoru s lištou. Při psaní v liště Windows skryly ukazatel („Skrýt ukazatel při psaní“). Po spuštění bubliny pak ukazatel zůstal nad plochou neviditelný.
+- **Rozhodnutí:** okna se dostávají dopředu bez připojování front. Aplikace nejdřív pošle prázdný vstup myši (bez pohybu a tlačítek), díky kterému Windows povolí `SetForegroundWindow`. Platí to pro lištu hledání, okno aplikace, výzvy scriptů i blok pro přepnutí na okno.

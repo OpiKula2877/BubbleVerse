@@ -166,3 +166,9 @@
 - [ ] Skutečný stisk Alt+Space / Win / Ctrl samotného při výběru zkratky (automatický test hooku je jen v Rustu).
 - [ ] Pravé tlačítko na bublině v nainstalované verzi: jen menu aplikace.
 - [ ] Animace globálního hledání nad plochou na obou monitorech.
+
+## Opravy po instalaci (2026-10-11)
+- Ukazatel myši zůstal neviditelný nad plochou po hledání přes Ctrl+F na ploše a spuštění bubliny. Ověřeno na počítači uživatele: nad plochou byl kurzor skrytý, nad jinými okny ne. Okna se teď dostávají dopředu bez `AttachThreadInput`. Ověřeno testem mimo aplikaci: prázdný vstup myši okno spolehlivě dostane dopředu.
+
+**Ruční kontrola**
+- [ ] Ctrl+F na ploše, psaní, Enter na bublině: ukazatel nad plochou zůstane vidět.

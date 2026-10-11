@@ -81,8 +81,8 @@ pub fn show_main(app: &AppHandle) {
 /// Shows the app window and takes the keyboard even when another app is in front (global
 /// search from anywhere).
 pub fn present_main(app: &AppHandle) {
-    // Window and focus changes belong to the UI thread: from the shortcut thread, borrowing
-    // input queues (force_foreground) could lock up the WebView.
+    // Window and focus changes belong to the UI thread: from the shortcut thread they could
+    // lock up the WebView.
     let a = app.clone();
     let _ = app.run_on_main_thread(move || present_now(&a));
 }
