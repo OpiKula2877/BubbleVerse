@@ -171,6 +171,8 @@
 - Ukazatel myši zůstal neviditelný nad plochou po hledání přes Ctrl+F na ploše a spuštění bubliny. Ověřeno na počítači uživatele: nad plochou byl kurzor skrytý, nad jinými okny ne. Příčina: tapeta pod ikonami spojila vstup plochy s UI vláknem aplikace. Tapeta teď běží ve vlastním procesu. Ověřeno na kopii dat uživatele: okno tapety patří procesu tapety a má vlastní prohlížečový proces; tapeta kreslí svět, hledání na ploše ji zešedí; s oknem aplikace v popředí vlákno plochy fokus nesdílí; po zabití se proces tapety spustí znovu; po ukončení aplikace oba procesy skončí a plocha je jako dřív.
 - Ctrl+F na ploše funguje i bez kliknutí na plochu (v popředí žádné okno, skryté nebo minimalizované okno, hlavní panel).
 - Hledání: `:` (hledej všude) oddálí kameru na celý svět a drží ho v záběru i za pohybu bublin, v okně aplikace i na tapetě; výběr úrovně nebo Backspace z `:` vrátí kameru na úroveň. Ověřeno na kopii dat uživatele: Apps → Backspace → `:` ukáže Apps i všechny čtyři bubliny Testing.
+- Hledání drží potvrzenou úroveň v záběru i za pohybu (bublina a všichni zobrazení potomci). Ověřeno na kopii dat uživatele: Apps s obíhajícími Testing – v okně aplikace 150 kontrol za 15 s (i při 20 FPS) a na tapetě (přes DevTools tapety) 150 kontrol, žádná bublina mimo obrazovku.
+- Editor orbitu: tlačítko „Všechny orbity“ (dráhy ostatních orbitů s jejich bublinami a jmény) a Ctrl při tažení úchytu přichytí natočení po 45°. Ověřeno: 4 orbity, 3 ostatní vykreslené se jmény; tah na 37° → s Ctrl 45°.
 
 **Ruční kontrola**
 - [ ] Ctrl+F na ploše, psaní, Enter na bublině: ukazatel nad plochou zůstane vidět.

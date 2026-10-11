@@ -55,6 +55,14 @@
     >
       {t('motionEdit.pickCenter')}
     </Button>
+    <Button
+      small
+      icon="eye"
+      active={motionEditor.allOrbits}
+      onclick={() => (motionEditor.allOrbits = !motionEditor.allOrbits)}
+    >
+      {t('motionEdit.allOrbits')}
+    </Button>
   {:else if track?.type === 'wander'}
     <Segmented
       value={track.area.shape}

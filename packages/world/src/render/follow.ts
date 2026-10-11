@@ -68,6 +68,30 @@ export class CameraFollow {
   }
 }
 
+/**
+ * One frame of the follow camera: it zooms out fast (a bubble reaching a new edge must not
+ * leave the screen) and comes back in calmly; `urgent` (a followed bubble is off screen now)
+ * is fast too.
+ */
+export function followStep(
+  cam: Camera,
+  target: Camera,
+  dt: number,
+  urgent = false,
+): { camera: Camera; done: boolean } {
+  return approachCamera(cam, target, dt, urgent || target.zoom < cam.zoom ? 0.15 : 0.8);
+}
+
+/** Whether `inner` lies fully inside `outer`. */
+export function boxInside(inner: PxRect, outer: PxRect): boolean {
+  return (
+    inner.x >= outer.x &&
+    inner.y >= outer.y &&
+    inner.x + inner.w <= outer.x + outer.w &&
+    inner.y + inner.h <= outer.y + outer.h
+  );
+}
+
 /** One frame of gliding towards `target` (about 0.5 s to get most of the way). */
 export function approachCamera(
   cam: Camera,

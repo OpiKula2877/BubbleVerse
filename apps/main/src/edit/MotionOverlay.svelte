@@ -10,6 +10,7 @@
     removePathPoint,
     setPathHandle,
     SkinResolver,
+    snapDirection,
     toggleSmooth,
     panBy,
     viewportAt,
@@ -19,6 +20,8 @@
     worldToCss,
     zoomAt,
     hashSeed,
+    type BubbleId,
+    type OrbitMotion,
     type PathMotion,
     type Vec2,
   } from '@bv/world';
@@ -52,6 +55,8 @@
   let drag: Drag | null = null;
   /** Right or middle button drag moves the view while editing. */
   let panning = false;
+  /** Last pointer position while dragging, to snap again when Ctrl goes down or up. */
+  let lastPointer: Vec2 | null = null;
 
   const active = $derived(motionEditor.active);
   const track = $derived(motionEditor.track);
@@ -95,7 +100,56 @@
     if (track?.type !== 'orbit' || !track.center) return null;
     return store.renderer?.basePositions().get(track.center) ?? null;
   });
-  const radius = $derived(active ? new SkinResolver(editor.index).skin(active.id).size / 2 : 20);
+  const skins = $derived(new SkinResolver(editor.index));
+  const radius = $derived(active ? skins.skin(active.id).size / 2 : 20);
+
+  /** Seconds of the motion shown: running with ▶, else the starting point (phase). */
+  function motionTime(): number {
+    return motionEditor.playing ? performance.now() / 1000 : 0;
+  }
+
+  function ellipsePoints(o: OrbitMotion, center: Vec2): string {
+    const pts: string[] = [];
+    for (let i = 0; i <= 72; i++) {
+      const off = orbitOffset({ ...o, speed: 0, phase: (i / 72) * 360 }, 0);
+      const s = toScreen({ x: center.x + off.x, y: center.y + off.y });
+      pts.push(`${s.x},${s.y}`);
+    }
+    return pts.join(' ');
+  }
+
+  /** "All orbits": every other orbit with its bubble drawn on it. */
+  const otherOrbits = $derived.by(() => {
+    void frame;
+    if (!motionEditor.allOrbits || track?.type !== 'orbit') return [];
+    const r = store.renderer;
+    const out: { id: BubbleId; name: string; line: string; at: Vec2; r: number }[] = [];
+    const t = motionTime();
+    for (const b of editor.index.world.bubbles) {
+      const o = b.motion.track;
+      if (b.id === active?.id || o?.type !== 'orbit' || !o.center) continue;
+      const c = r?.basePositions().get(o.center);
+      if (!c) continue;
+      const off = orbitOffset(o, t);
+      out.push({
+        id: b.id,
+        name: b.name,
+        line: ellipsePoints(o, c),
+        at: toScreen({ x: c.x + off.x, y: c.y + off.y }),
+        r: skins.skin(b.id).size / 2,
+      });
+    }
+    return out;
+  });
+
+  /** The edited bubble on its own orbit, where it starts (▶ shows it running). */
+  const ownOnOrbit = $derived.by(() => {
+    void frame;
+    if (!motionEditor.allOrbits || track?.type !== 'orbit' || !centerPos || motionEditor.playing)
+      return null;
+    const off = orbitOffset(track, 0);
+    return toScreen({ x: centerPos.x + off.x, y: centerPos.y + off.y });
+  });
 
   /** The ▶ preview dot. */
   const ghost = $derived.by(() => {
@@ -173,7 +227,7 @@
         drag = { kind: 'ry' };
     } else if (track.type === 'wander') {
       drag = { kind: 'wander' };
-      move(e);
+      dragTo(c, e.ctrlKey);
     }
   }
 
@@ -184,10 +238,14 @@
       if (r && vp) r.setCamera(panBy(r.camera, vp, e.movementX, e.movementY));
       return;
     }
+    dragTo({ x: e.clientX, y: e.clientY }, e.ctrlKey);
+  }
+
+  function dragTo(c: Vec2, ctrl: boolean) {
     const d = drag;
     const tr = motionEditor.track;
     if (!d || !tr) return;
-    const c = { x: e.clientX, y: e.clientY };
+    lastPointer = c;
     if (tr.type === 'path') {
       const r = rel(c, base);
       if (!r) return;
@@ -202,7 +260,8 @@
       }
     } else if (tr.type === 'orbit' && centerPos && (d.kind === 'rx' || d.kind === 'ry')) {
       const r = rel(c, centerPos);
-      if (r) motionEditor.track = dragOrbitHandle(tr, d.kind, r);
+      // Ctrl: the direction from the center snaps to 0°, 45°, 90°…
+      if (r) motionEditor.track = dragOrbitHandle(tr, d.kind, ctrl ? snapDirection(r, 45) : r);
     } else if (tr.type === 'wander' && d.kind === 'wander') {
       const r = rel(c, base);
       if (r) motionEditor.track = { ...tr, area: wanderAreaFromDrag(tr.area.shape, r) };
@@ -212,6 +271,7 @@
   function up() {
     drag = null;
     panning = false;
+    lastPointer = null;
   }
 
   function dblclick(e: MouseEvent) {
@@ -235,7 +295,13 @@
     }
   }
 
+  /** Ctrl pressed or let go while dragging snaps (or frees) the handle without moving. */
+  function ctrlChanged(e: KeyboardEvent) {
+    if (e.key === 'Control' && drag && lastPointer) dragTo(lastPointer, e.type === 'keydown');
+  }
+
   function key(e: KeyboardEvent) {
+    ctrlChanged(e);
     if (!motionEditor.active) return;
     const tag = (e.target as HTMLElement | null)?.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
@@ -278,13 +344,7 @@
   const ellipse = $derived.by(() => {
     void frame;
     if (track?.type !== 'orbit' || !centerPos) return '';
-    const pts: string[] = [];
-    for (let i = 0; i <= 72; i++) {
-      const o = orbitOffset({ ...track, speed: 0, phase: (i / 72) * 360 }, 0);
-      const s = toScreen({ x: centerPos.x + o.x, y: centerPos.y + o.y });
-      pts.push(`${s.x},${s.y}`);
-    }
-    return pts.join(' ');
+    return ellipsePoints(track, centerPos);
   });
   const baseScreen = $derived.by(() => {
     void frame;
@@ -296,7 +356,7 @@
   });
 </script>
 
-<svelte:window onkeydowncapture={key} />
+<svelte:window onkeydowncapture={key} onkeyupcapture={ctrlChanged} />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <svg
@@ -311,6 +371,12 @@
 >
   <rect class="dim" x="0" y="0" width="100%" height="100%" />
   <circle class="me" cx={baseScreen.x} cy={baseScreen.y} r={Math.max(6, radius * k)} />
+
+  {#each otherOrbits as o (o.id)}
+    <polyline class="other-line" points={o.line} />
+    <circle class="other" cx={o.at.x} cy={o.at.y} r={Math.max(6, o.r * k)} />
+    <text class="label" x={o.at.x} y={o.at.y - Math.max(6, o.r * k) - 6}>{o.name}</text>
+  {/each}
 
   {#if track?.type === 'path'}
     <polyline class="line" points={pathLine} />
@@ -346,6 +412,9 @@
     <circle class="center" cx={c.x} cy={c.y} r="7" />
     <circle class="handle big" cx={hx.x} cy={hx.y} r="8" />
     <circle class="handle big" cx={hy.x} cy={hy.y} r="8" />
+    {#if ownOnOrbit}
+      <circle class="ghost" cx={ownOnOrbit.x} cy={ownOnOrbit.y} r={Math.max(6, radius * k)} />
+    {/if}
   {:else if track?.type === 'wander'}
     {#if track.area.shape === 'circle'}
       <circle class="area" cx={baseScreen.x} cy={baseScreen.y} r={track.area.r * k} />
@@ -420,6 +489,25 @@
     stroke: var(--bv-accent);
     stroke-width: 2;
     stroke-dasharray: 8 5;
+  }
+  .other-line {
+    fill: none;
+    stroke: var(--bv-text-2);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 4;
+  }
+  .other {
+    fill: color-mix(in srgb, var(--bv-text-2) 30%, transparent);
+    stroke: var(--bv-text-2);
+    stroke-width: 2;
+  }
+  .label {
+    fill: var(--bv-text);
+    font-size: 12px;
+    text-anchor: middle;
+    paint-order: stroke;
+    stroke: var(--bv-dialog);
+    stroke-width: 3px;
   }
   .ghost {
     fill: color-mix(in srgb, var(--bv-highlight) 55%, transparent);

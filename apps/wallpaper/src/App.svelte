@@ -128,7 +128,10 @@
     const ids = id ? [id, ...index.children(id).map((b) => b.id)] : index.roots().map((b) => b.id);
     const box = r.boxOf(ids);
     if (box) r.setCamera(fitCamera(screenLayout(), box, 0.1, 2.5), 450);
-    return ids;
+    // Then the camera keeps it and every shown bubble under it in view (they may orbit).
+    return id
+      ? [id, ...index.descendants(id).map((b) => b.id)]
+      : index.world.bubbles.map((b) => b.id);
   }
 
   function desktopSearch(d: DesktopSearch) {
@@ -167,6 +170,7 @@
       graphicsApi: b.settings.performance.graphicsApi,
     });
     renderer = r;
+    if (import.meta.env.DEV) Object.assign(window, { bvRenderer: r });
     r.setLayout(screenLayout());
     r.setWorld(world, true);
     r.setCamera(home());

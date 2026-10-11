@@ -15,7 +15,7 @@ import { SpritePool } from './sprite-pool';
 import { WorldBackground, type BackgroundLook } from './background';
 import { AnimatedMedia, animatedHash } from './media';
 import { SkinTextures } from './textures';
-import { approachCamera, CameraFollow, followBox } from './follow';
+import { boxInside, CameraFollow, followBox, followStep } from './follow';
 import {
   computeViewports,
   cssToWorld,
@@ -758,10 +758,13 @@ export class WorldRenderer {
     if (this.drawSays(nowS)) busy = true;
     if (this.follow && !this.camAnim) {
       const shownNow = this.display.filter((d) => d.vis > 0.5);
-      const box = this.follow.envelope(followBox(shownNow, this.followed.ids), nowMs);
+      const now = followBox(shownNow, this.followed.ids);
+      const box = this.follow.envelope(now, nowMs);
       if (box) {
         const target = fitCamera(this.layout, box, 0.12, this.followed.maxZoom);
-        const step = approachCamera(this.camera, target, dt);
+        const ui = this.vps.find((v) => v.primary);
+        const urgent = !!now && !!ui && !boxInside(now, visibleWorld(ui));
+        const step = followStep(this.camera, target, dt, urgent);
         this.camera = step.camera;
         if (!step.done) busy = true;
       }

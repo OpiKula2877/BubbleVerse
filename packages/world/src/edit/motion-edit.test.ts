@@ -8,6 +8,7 @@ import {
   orbitHandles,
   removePathPoint,
   setPathHandle,
+  snapDirection,
   toggleSmooth,
   wanderAreaFromDrag,
 } from './motion-edit';
@@ -86,6 +87,23 @@ describe('orbit editing', () => {
     expect(turned.tilt).toBe(90);
     const taller = dragOrbitHandle(turned, 'ry', { x: -80, y: 3 });
     expect(taller.ry).toBe(80);
+  });
+
+  it('snaps the direction from the center to 45° steps (Ctrl), keeping the distance', () => {
+    const near = (v: { x: number; y: number }, x: number, y: number) => {
+      expect(v.x).toBeCloseTo(x, 6);
+      expect(v.y).toBeCloseTo(y, 6);
+    };
+    near(snapDirection({ x: 100, y: 10 }, 45), Math.hypot(100, 10), 0);
+    near(
+      snapDirection({ x: 50, y: 60 }, 45),
+      Math.hypot(50, 60) / Math.SQRT2,
+      Math.hypot(50, 60) / Math.SQRT2,
+    );
+    near(snapDirection({ x: -3, y: -200 }, 45), 0, -Math.hypot(3, 200));
+    expect(snapDirection({ x: 0, y: 0 }, 45)).toEqual({ x: 0, y: 0 });
+    // The X handle then gives a tilt of exactly 0°, 45°, 90°…
+    expect(dragOrbitHandle(o, 'rx', snapDirection({ x: 70, y: 80 }, 45)).tilt).toBe(45);
   });
 });
 

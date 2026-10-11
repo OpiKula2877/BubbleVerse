@@ -101,6 +101,15 @@ export function dragOrbitHandle(o: OrbitMotion, which: 'rx' | 'ry', p: Vec2): Or
   return { ...o, ry: Math.max(1, Math.round(Math.abs(along))) };
 }
 
+/** `p` turned to the nearest multiple of `stepDeg` around the origin (Ctrl while dragging). */
+export function snapDirection(p: Vec2, stepDeg: number): Vec2 {
+  const len = Math.hypot(p.x, p.y);
+  if (!len) return { x: 0, y: 0 };
+  const step = stepDeg * DEG;
+  const a = Math.round(Math.atan2(p.y, p.x) / step) * step;
+  return { x: len * Math.cos(a), y: len * Math.sin(a) };
+}
+
 /** Drawing the wander area from the bubble outwards to `d` (relative to the bubble). */
 export function wanderAreaFromDrag(shape: WanderArea['shape'], d: Vec2): WanderArea {
   if (shape === 'circle')

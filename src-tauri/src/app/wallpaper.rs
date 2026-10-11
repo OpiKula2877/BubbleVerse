@@ -115,7 +115,8 @@ fn running() -> bool {
 
 fn spawn(app: &AppHandle) -> AppResult<()> {
     let assets = app.state::<AppState>().assets.dir().to_path_buf();
-    let mut child = Command::new(std::env::current_exe()?)
+    let mut command = Command::new(std::env::current_exe()?);
+    command
         .arg(ARG)
         .arg(assets)
         .stdin(Stdio::piped())
@@ -125,8 +126,17 @@ fn spawn(app: &AppHandle) -> AppResult<()> {
         } else {
             Stdio::null()
         })
-        .creation_flags(NO_WINDOW)
-        .spawn()?;
+        .creation_flags(NO_WINDOW);
+    // Development builds: DevTools of the wallpaper on its own port (BV_WALLPAPER_CDP=9223).
+    if cfg!(debug_assertions) {
+        if let Ok(port) = std::env::var("BV_WALLPAPER_CDP") {
+            command.env(
+                "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
+                format!("--remote-debugging-port={port}"),
+            );
+        }
+    }
+    let mut child = command.spawn()?;
     let (Some(mut stdin), Some(stdout)) = (child.stdin.take(), child.stdout.take()) else {
         let _ = child.kill();
         return Err(AppError::msg("wallpaper process without pipes"));

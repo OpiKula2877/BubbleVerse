@@ -99,7 +99,10 @@ class SearchController {
     const r = store.renderer;
     const box = r?.boxOf(ids);
     if (r && box) r.setCamera(fitCamera(store.screenLayout, box, 0.1, 2.5), 450);
-    return ids;
+    // Then the camera keeps it and every shown bubble under it in view (they may orbit).
+    return id
+      ? [id, ...index.descendants(id).map((b) => b.id)]
+      : index.world.bubbles.map((b) => b.id);
   }
 
   private async activate(id: BubbleId, path: string): Promise<void> {

@@ -179,3 +179,9 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 - **Rozhodnutí:** tapeta běží ve vlastním procesu (`bubbleverse.exe --bv-wallpaper <složka assetů>`) s vlastní složkou WebView2 (`EBWebView-wallpaper`), tedy i s vlastním prohlížečovým procesem; jen ten je spojený s plochou. Aplikace mu po stdin posílá události (svět, nastavení, rozložení, pauza, efekty, autopauza, hledání na ploše, spánek, snímek) a odpovídá na jeho příkazy (`bootstrap`, stav tapety, snímek, tapeta Windows) – jeden JSON na řádek. Když proces tapety sám skončí, aplikace ho spustí znovu (nejvýš třikrát). Při vypnutí tapety nebo aplikace se proces tapety sám vyjme z plochy a skončí.
 - **Rozhodnutí:** okna se dostávají dopředu bez `AttachThreadInput`: aplikace nejdřív pošle prázdný vstup myši (bez pohybu a tlačítek), díky kterému Windows povolí `SetForegroundWindow`.
 - **Cena:** jeden proces WebView2 navíc, když je tapeta zapnutá.
+
+### 2026-10-11 · Kamera při hledání a editor orbitu
+- **Rozhodnutí:** po potvrzení úrovně v hledání kamera nejdřív zamíří na bublinu a její děti (spec §6.5) a pak průběžně drží v záběru bublinu a všechny její zobrazené potomky, i když obíhají; oddaluje se rychle, přibližuje pomalu. Bez potvrzené úrovně (po Backspace) drží všechny zobrazené bubliny, v režimu `:` celý svět.
+- **Rozhodnutí:** „Všechny orbity“ v editoru orbitu ukáže čárkovaně dráhy všech ostatních orbitů a na každé bublinu, která po ní obíhá, se jménem – v místě, kde začíná (při ▶ tam, kde právě je). Upravovaná bublina je vidět na své dráze taky.
+- **Rozhodnutí:** Ctrl při tažení úchytu orbitu přichytí směr od středu po 45° (natočení 0°, 45°, 90°…); délka zůstane. Funguje i stisk nebo puštění Ctrl během tažení.
+- **Důvod:** požadavky uživatele po testu (bubliny na orbitu utíkaly z obrazu, chtěl vidět všechny orbity a přesné úhly).

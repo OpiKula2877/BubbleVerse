@@ -60,6 +60,8 @@ class MotionEditorState {
   /** ▶ preview of the motion. */
   playing = $state(false);
   selected = $state<number | null>(null);
+  /** Orbit: every orbit of the world is drawn too, each with the bubble that runs on it. */
+  allOrbits = $state(false);
 
   start(kind: MotionEditKind, id: BubbleId, editor: Editor): void {
     const b = editor.index.get(id);
