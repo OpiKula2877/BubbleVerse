@@ -47,6 +47,8 @@
   let searching = false;
   /** `:` mode of the desktop search: the camera keeps the whole world in view. */
   let overview = false;
+  /** The confirmed level of the desktop search (bubble and children), kept in view. */
+  let focused: string[] | null = null;
   const offs: (() => void)[] = [];
 
   function screenLayout(): ScreenLayout {
@@ -113,17 +115,20 @@
     const asleep = !searching && (sleeping || autoPaused);
     r.setSuspended(asleep);
     // Every bubble stays in view, also while it moves (unless the home view is chosen).
-    r.setFollow((settings.view.camera === 'fit' && !searching) || (searching && overview));
+    if (searching && overview) r.setFollow(true);
+    else if (searching && focused) r.setFollow(true, focused, 2.5);
+    else r.setFollow(settings.view.camera === 'fit' && !searching);
     r.setMotion(!trayPaused && !settings.view.motionPaused && !autoPaused);
   }
 
-  function aim(id: string | null) {
+  function aim(id: string | null): string[] | null {
     const r = renderer;
-    if (!r || !world) return;
+    if (!r || !world) return null;
     const index = new WorldIndex(world);
     const ids = id ? [id, ...index.children(id).map((b) => b.id)] : index.roots().map((b) => b.id);
     const box = r.boxOf(ids);
     if (box) r.setCamera(fitCamera(screenLayout(), box, 0.1, 2.5), 450);
+    return ids;
   }
 
   function desktopSearch(d: DesktopSearch) {
@@ -132,6 +137,8 @@
     searching = d.active;
     // `:` mode lasts until a level is chosen or the search ends.
     overview = d.active && (!!d.overview || (overview && d.focus === undefined));
+    if (!d.active || d.overview) focused = null;
+    else if (d.focus !== undefined) focused = aim(d.focus);
     sync();
     if (!d.active) {
       r.setSearch({ active: false, colored: new Set(), path: new Set(), current: null });
@@ -146,7 +153,6 @@
       path: new Set(d.path),
       current: d.current,
     });
-    if (d.focus !== undefined) aim(d.focus);
   }
 
   onMount(async () => {

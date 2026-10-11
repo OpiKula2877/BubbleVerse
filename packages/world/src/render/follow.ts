@@ -21,6 +21,14 @@ export function boxAround(items: readonly { x: number; y: number; r: number }[])
   return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
 
+/** Box of the shown bubbles the camera follows: `ids` = only these (a focused level), else all. */
+export function followBox(
+  shown: readonly { id: string; x: number; y: number; r: number }[],
+  ids: ReadonlySet<string> | null,
+): PxRect | null {
+  return boxAround(ids ? shown.filter((b) => ids.has(b.id)) : shown);
+}
+
 function union(a: PxRect, b: PxRect): PxRect {
   const x = Math.min(a.x, b.x);
   const y = Math.min(a.y, b.y);

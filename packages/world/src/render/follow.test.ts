@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { approachCamera, boxAround, CameraFollow } from './follow';
+import { approachCamera, boxAround, CameraFollow, followBox } from './follow';
 
 describe('camera follow', () => {
   it('boxes the shown bubbles', () => {
@@ -10,6 +10,17 @@ describe('camera follow', () => {
         { x: 100, y: 50, r: 20 },
       ]),
     ).toEqual({ x: -10, y: -10, w: 130, h: 80 });
+  });
+
+  it('boxes only the chosen bubbles when a level is focused', () => {
+    const shown = [
+      { id: 'apps', x: 0, y: 0, r: 10 },
+      { id: 'kid', x: 100, y: 0, r: 10 },
+      { id: 'other', x: -500, y: 0, r: 10 },
+    ];
+    expect(followBox(shown, null)).toEqual({ x: -510, y: -10, w: 620, h: 20 });
+    expect(followBox(shown, new Set(['apps', 'kid']))).toEqual({ x: -10, y: -10, w: 120, h: 20 });
+    expect(followBox(shown, new Set(['gone']))).toBeNull();
   });
 
   it('keeps the area moving bubbles used lately, so the view does not breathe', () => {

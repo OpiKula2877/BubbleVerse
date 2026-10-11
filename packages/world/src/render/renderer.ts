@@ -15,7 +15,7 @@ import { SpritePool } from './sprite-pool';
 import { WorldBackground, type BackgroundLook } from './background';
 import { AnimatedMedia, animatedHash } from './media';
 import { SkinTextures } from './textures';
-import { approachCamera, boxAround, CameraFollow } from './follow';
+import { approachCamera, CameraFollow, followBox } from './follow';
 import {
   computeViewports,
   cssToWorld,
@@ -143,6 +143,12 @@ export class WorldRenderer {
   private camAnim: { from: Camera; to: Camera; start: number; ms: number } | null = null;
   /** Keeps every shown bubble in view (view mode, wallpaper). */
   private follow: CameraFollow | null = null;
+  /** Bubbles the follow camera keeps in view (`null` = all shown) and how close it may go. */
+  private followed: { ids: ReadonlySet<BubbleId> | null; key: string; maxZoom: number } = {
+    ids: null,
+    key: '',
+    maxZoom: 1.5,
+  };
   private vps: Viewport[] = [];
 
   /** Motion and physics run (user mode or preview). */
@@ -280,9 +286,16 @@ export class WorldRenderer {
     this.requestRender();
   }
 
-  /** Turns the camera that keeps every shown bubble in view on or off. */
-  setFollow(on: boolean): void {
-    if (!!this.follow === on) return;
+  /**
+   * Turns the camera that keeps every shown bubble in view on or off. With `ids` it keeps only
+   * those in view (a focused level: the bubble and its children, also while they orbit).
+   */
+  setFollow(on: boolean, ids: readonly BubbleId[] | null = null, maxZoom = 1.5): void {
+    const key = ids ? [...ids].sort().join(' ') : '';
+    const same = this.followed.key === key && this.followed.maxZoom === maxZoom;
+    if (!!this.follow === on && (!on || same)) return;
+    this.followed = { ids: ids ? new Set(ids) : null, key, maxZoom };
+    // A new target forgets where the previous one has been.
     this.follow = on ? new CameraFollow() : null;
     if (on) this.requestRender();
   }
@@ -745,9 +758,9 @@ export class WorldRenderer {
     if (this.drawSays(nowS)) busy = true;
     if (this.follow && !this.camAnim) {
       const shownNow = this.display.filter((d) => d.vis > 0.5);
-      const box = this.follow.envelope(boxAround(shownNow), nowMs);
+      const box = this.follow.envelope(followBox(shownNow, this.followed.ids), nowMs);
       if (box) {
-        const target = fitCamera(this.layout, box, 0.12, 1.5);
+        const target = fitCamera(this.layout, box, 0.12, this.followed.maxZoom);
         const step = approachCamera(this.camera, target, dt);
         this.camera = step.camera;
         if (!step.done) busy = true;

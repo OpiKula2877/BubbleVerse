@@ -185,13 +185,18 @@
   // until the user moves the view by hand (Home brings it back).
   $effect(() => {
     if (!rendererReady) return;
-    store.renderer?.setFollow(
-      (store.settings.view.camera === 'fit' &&
-        store.mode === 'user' &&
-        !search.open &&
-        !store.cameraTouched) ||
-        search.overview,
-    );
+    const r = store.renderer;
+    if (!r) return;
+    // While searching: the whole world in `:` mode, else the confirmed level (also orbiting).
+    if (search.open && search.overview) r.setFollow(true);
+    else if (search.open && search.focused) r.setFollow(true, search.focused, 2.5);
+    else
+      r.setFollow(
+        store.settings.view.camera === 'fit' &&
+          store.mode === 'user' &&
+          !search.open &&
+          !store.cameraTouched,
+      );
   });
 
   function resize() {

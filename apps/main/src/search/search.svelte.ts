@@ -9,6 +9,8 @@ class SearchController {
   view = $state.raw<SearchView | null>(null);
   /** `:` mode: the camera keeps the whole world in view, also while bubbles move. */
   overview = $state(false);
+  /** The confirmed level (bubble and children): the camera keeps it in view while it moves. */
+  focused = $state.raw<BubbleId[] | null>(null);
   private session: SearchSession | null = null;
   private cameraBefore: Camera | null = null;
   /** Opened by the global search over the desktop: the window hides again on close. */
@@ -57,7 +59,8 @@ class SearchController {
       case 'focus':
         this.overview = false;
         this.refresh();
-        return this.aim(r.id);
+        this.focused = this.aim(r.id);
+        return;
       case 'overview':
         this.overview = true;
         return this.refresh();
@@ -90,13 +93,13 @@ class SearchController {
   }
 
   /** Shows the confirmed bubble and its direct children with a margin (spec §6.5). */
-  private aim(id: BubbleId | null): void {
-    const r = store.renderer;
-    if (!r) return;
+  private aim(id: BubbleId | null): BubbleId[] {
     const index = new WorldIndex(store.world);
     const ids = id ? [id, ...index.children(id).map((b) => b.id)] : index.roots().map((b) => b.id);
-    const box = r.boxOf(ids);
-    if (box) r.setCamera(fitCamera(store.screenLayout, box, 0.1, 2.5), 450);
+    const r = store.renderer;
+    const box = r?.boxOf(ids);
+    if (r && box) r.setCamera(fitCamera(store.screenLayout, box, 0.1, 2.5), 450);
+    return ids;
   }
 
   private async activate(id: BubbleId, path: string): Promise<void> {
@@ -121,6 +124,7 @@ class SearchController {
     if (!this.open) return;
     this.open = false;
     this.overview = false;
+    this.focused = null;
     if (this.global) {
       this.global = false;
       void leaveUniverse();
