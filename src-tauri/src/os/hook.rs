@@ -261,12 +261,52 @@ pub fn app_in_front() -> bool {
     pid == std::process::id()
 }
 
-/// Whether the desktop (wallpaper and icons) is the active window.
+/// Whether the desktop (wallpaper and icons) is in front, also when nothing is: Windows often
+/// leaves no window, a hidden or minimized one or the taskbar in front after a window closes.
 pub fn desktop_in_front() -> bool {
+    let fg = foreground();
+    if fg.is_invalid() {
+        return desktop_like(None, false);
+    }
     let mut buf = [0u16; 64];
-    let n = unsafe { GetClassNameW(foreground(), &mut buf) };
+    let n = unsafe { GetClassNameW(fg, &mut buf) };
     let class = String::from_utf16_lossy(&buf[..n.max(0) as usize]);
-    matches!(class.as_str(), "Progman" | "WorkerW" | "SHELLDLL_DefView")
+    desktop_like(Some(&class), user_sees(fg))
+}
+
+/// A window the user can see: shown, not minimized and not cloaked (another virtual desktop,
+/// a suspended app).
+fn user_sees(hwnd: HWND) -> bool {
+    use windows::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED};
+    use windows::Win32::UI::WindowsAndMessaging::{IsIconic, IsWindowVisible};
+    unsafe {
+        let mut cloaked = 0u32;
+        let cloaked = DwmGetWindowAttribute(
+            hwnd,
+            DWMWA_CLOAKED,
+            (&mut cloaked as *mut u32).cast(),
+            std::mem::size_of::<u32>() as u32,
+        )
+        .is_ok()
+            && cloaked != 0;
+        IsWindowVisible(hwnd).as_bool() && !IsIconic(hwnd).as_bool() && !cloaked
+    }
+}
+
+/// `class` of the foreground window (`None` = no window); `seen` = the user can see it.
+fn desktop_like(class: Option<&str>, seen: bool) -> bool {
+    !seen
+        || matches!(
+            class,
+            Some(
+                "Progman"
+                    | "WorkerW"
+                    | "SHELLDLL_DefView"
+                    | "SysListView32"
+                    | "Shell_TrayWnd"
+                    | "Shell_SecondaryTrayWnd"
+            )
+        )
 }
 
 unsafe extern "system" fn hook_proc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
@@ -427,6 +467,26 @@ pub fn start(tx: Sender<HookEvent>) {
 mod tests {
     use super::*;
     use crate::os::keys::parse_combo;
+
+    #[test]
+    fn nothing_in_front_counts_as_the_desktop() {
+        // The desktop itself and the taskbar.
+        for class in [
+            "Progman",
+            "WorkerW",
+            "SHELLDLL_DefView",
+            "SysListView32",
+            "Shell_TrayWnd",
+        ] {
+            assert!(desktop_like(Some(class), true), "{class}");
+        }
+        // No window, or one the user cannot see (hidden, minimized, cloaked).
+        assert!(desktop_like(None, false));
+        assert!(desktop_like(Some("Notepad"), false));
+        // A real window in front.
+        assert!(!desktop_like(Some("Notepad"), true));
+        assert!(!desktop_like(Some("Tauri Window"), true));
+    }
 
     // One test for everything that touches the shared hook state, so tests never interleave.
     #[test]
