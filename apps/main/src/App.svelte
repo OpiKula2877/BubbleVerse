@@ -186,10 +186,11 @@
   $effect(() => {
     if (!rendererReady) return;
     store.renderer?.setFollow(
-      store.settings.view.camera === 'fit' &&
+      (store.settings.view.camera === 'fit' &&
         store.mode === 'user' &&
         !search.open &&
-        !store.cameraTouched,
+        !store.cameraTouched) ||
+        search.overview,
     );
   });
 

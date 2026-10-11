@@ -31,6 +31,8 @@
     current: string | null;
     /** Aim the camera at this bubble and its children (`null` = main bubbles). */
     focus?: string | null;
+    /** Aim the camera at the whole world (`:` mode). */
+    overview?: boolean;
   }
 
   const core = getCore();
@@ -43,6 +45,8 @@
   let autoPaused = false;
   let trayPaused = false;
   let searching = false;
+  /** `:` mode of the desktop search: the camera keeps the whole world in view. */
+  let overview = false;
   const offs: (() => void)[] = [];
 
   function screenLayout(): ScreenLayout {
@@ -109,7 +113,7 @@
     const asleep = !searching && (sleeping || autoPaused);
     r.setSuspended(asleep);
     // Every bubble stays in view, also while it moves (unless the home view is chosen).
-    r.setFollow(settings.view.camera === 'fit' && !searching);
+    r.setFollow((settings.view.camera === 'fit' && !searching) || (searching && overview));
     r.setMotion(!trayPaused && !settings.view.motionPaused && !autoPaused);
   }
 
@@ -126,6 +130,8 @@
     const r = renderer;
     if (!r) return;
     searching = d.active;
+    // `:` mode lasts until a level is chosen or the search ends.
+    overview = d.active && (!!d.overview || (overview && d.focus === undefined));
     sync();
     if (!d.active) {
       r.setSearch({ active: false, colored: new Set(), path: new Set(), current: null });

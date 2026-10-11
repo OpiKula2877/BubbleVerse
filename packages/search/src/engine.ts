@@ -40,7 +40,9 @@ export type SearchResult =
   /** Run an action bubble (or select it in edit mode). */
   | { kind: 'activate'; id: string; path: string }
   /** A level was confirmed: the camera should show this bubble and its children. */
-  | { kind: 'focus'; id: string | null };
+  | { kind: 'focus'; id: string | null }
+  /** `:` mode started: the camera should show the whole world. */
+  | { kind: 'overview' };
 
 export interface SearchView {
   /** Confirmed levels, ending with the separator, e.g. `Apps | Work | `. */
@@ -259,14 +261,16 @@ export class SearchSession {
   /** The text of the current segment changed (typing). A leading `:` starts the global mode. */
   input(raw: string): SearchResult {
     let text = raw;
+    let started = false;
     if (!this.segments.length && !this.global && text.startsWith(':')) {
       this.global = true;
+      started = true;
       text = text.slice(1);
     }
     this.text = text;
     this.index = 0;
     this.historyIndex = null;
-    return { kind: 'none' };
+    return started ? { kind: 'overview' } : { kind: 'none' };
   }
 
   key(k: SearchKey): SearchResult {
@@ -309,7 +313,7 @@ export class SearchSession {
     if (this.global && !this.segments.length) {
       this.global = false;
       this.index = 0;
-      return { kind: 'none' };
+      return { kind: 'focus', id: null };
     }
     if (this.segments.length) {
       this.segments.pop();

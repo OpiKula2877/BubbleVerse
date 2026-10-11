@@ -7,6 +7,8 @@ import { store } from '../lib/store.svelte';
 class SearchController {
   open = $state(false);
   view = $state.raw<SearchView | null>(null);
+  /** `:` mode: the camera keeps the whole world in view, also while bubbles move. */
+  overview = $state(false);
   private session: SearchSession | null = null;
   private cameraBefore: Camera | null = null;
   /** Opened by the global search over the desktop: the window hides again on close. */
@@ -53,8 +55,12 @@ class SearchController {
       case 'close':
         return this.close();
       case 'focus':
+        this.overview = false;
         this.refresh();
         return this.aim(r.id);
+      case 'overview':
+        this.overview = true;
+        return this.refresh();
       case 'activate':
         return void this.activate(r.id, r.path);
       default:
@@ -114,6 +120,7 @@ class SearchController {
   close(restoreCamera = true): void {
     if (!this.open) return;
     this.open = false;
+    this.overview = false;
     if (this.global) {
       this.global = false;
       void leaveUniverse();

@@ -143,6 +143,19 @@ describe('search engine', () => {
     expect(s.view().global).toBe(false);
   });
 
+  it('zooms out to everything when ":" starts and back to the main bubbles when it ends', () => {
+    const s = new SearchSession(items);
+    s.input('a');
+    s.key('tab');
+    expect(s.key('backspace')).toEqual({ kind: 'focus', id: null });
+    expect(s.input(':')).toEqual({ kind: 'overview' });
+    // Typing on in ":" mode keeps the overview.
+    expect(s.input('k')).toEqual({ kind: 'none' });
+    s.key('backspace');
+    expect(s.key('backspace')).toEqual({ kind: 'focus', id: null });
+    expect(s.view().global).toBe(false);
+  });
+
   it('switches to the level mode inside a folder confirmed in ":" mode', () => {
     const s = new SearchSession(items);
     s.input(':slo');

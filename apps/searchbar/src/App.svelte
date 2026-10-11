@@ -35,8 +35,11 @@
     setLang(s.general.language);
   }
 
-  /** Tells the wallpaper what to grey out and where to aim the camera. */
-  function toWallpaper(focus?: string | null) {
+  /**
+   * Tells the wallpaper what to grey out and where to aim the camera (`overview` = the whole
+   * world, for `:` mode).
+   */
+  function toWallpaper(focus?: string | null, overview = false) {
     if (mode !== 'desktop' || !core.isTauri) return;
     const v = view;
     // To the wallpaper, which runs in its own process (the core passes it on).
@@ -46,6 +49,7 @@
       path: v ? [...v.path] : [],
       current: v?.current?.item.id ?? null,
       ...(focus !== undefined ? { focus } : {}),
+      ...(overview ? { overview } : {}),
     });
   }
 
@@ -92,7 +96,7 @@
       return;
     }
     view = session.view();
-    toWallpaper(r.kind === 'focus' ? r.id : undefined);
+    toWallpaper(r.kind === 'focus' ? r.id : undefined, r.kind === 'overview');
   }
 
   onMount(async () => {
