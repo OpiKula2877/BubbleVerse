@@ -1,0 +1,93 @@
+/* Entrance and exit of the universe for the global search (see lib/intro.ts). */
+
+html[data-intro] #app {
+  transform-origin: var(--intro-x, 50%) var(--intro-y, 90%);
+  will-change: opacity, transform, filter, clip-path;
+}
+
+/* Painted before the window shows. */
+html[data-intro='fade-start'] #app,
+html[data-intro='zoom-start'] #app,
+html[data-intro='blur-start'] #app {
+  opacity: 0;
+}
+html[data-intro='portal-start'] #app {
+  clip-path: circle(0 at var(--intro-x) var(--intro-y));
+}
+
+html[data-intro='fade'] #app {
+  animation: bv-fade-in 420ms ease-out both;
+}
+html[data-intro='zoom'] #app {
+  animation: bv-zoom-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+html[data-intro='portal'] #app {
+  animation: bv-portal-in 560ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+html[data-intro='blur'] #app {
+  animation: bv-blur-in 480ms ease-out both;
+}
+
+html[data-intro='fade-out'] #app {
+  animation: bv-fade-in 260ms ease-in reverse both;
+}
+html[data-intro='zoom-out'] #app {
+  animation: bv-zoom-in 280ms ease-in reverse both;
+}
+html[data-intro='portal-out'] #app {
+  animation: bv-portal-in 280ms ease-in reverse both;
+}
+html[data-intro='blur-out'] #app {
+  animation: bv-blur-in 260ms ease-in reverse both;
+}
+
+@keyframes bv-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bv-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bv-portal-in {
+  from {
+    clip-path: circle(0 at var(--intro-x) var(--intro-y));
+  }
+  to {
+    clip-path: circle(150vmax at var(--intro-x) var(--intro-y));
+  }
+}
+
+@keyframes bv-blur-in {
+  from {
+    opacity: 0;
+    filter: blur(24px);
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-intro] #app {
+    animation-duration: 1ms !important;
+  }
+}

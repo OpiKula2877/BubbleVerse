@@ -1,0 +1,10 @@
+packages:
+  - packages/*
+  - apps/*
+
+# Install scripts of dependencies stay off: esbuild ships its binary as a separate package and
+# the WebDriver packages would only download drivers (E2E uses MSEDGEDRIVER instead).
+allowBuilds:
+  edgedriver: false
+  esbuild: false
+  geckodriver: false

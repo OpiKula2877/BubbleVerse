@@ -1,0 +1,14 @@
+{
+  "name": "@bv/app-script-editor",
+  "private": true,
+  "version": "0.2.0-beta",
+  "type": "module",
+  "dependencies": {
+    "@bv/blocks": "workspace:*",
+    "@bv/ui": "workspace:*",
+    "@bv/world": "workspace:*",
+    "@tauri-apps/api": "^2.12.1",
+    "blockly": "^13.3.0",
+    "svelte": "^5.57.1"
+  }
+}

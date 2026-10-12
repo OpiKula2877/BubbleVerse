@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "BubbleVerse",
+  "version": "0.2.0-beta",
+  "identifier": "com.opikula.bubbleverse",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm gen:blocks && pnpm build:web",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [],
+    "withGlobalTauri": false,
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "createUpdaterArtifacts": true,
+    "publisher": "OpiKula",
+    "shortDescription": "A living world of bubbles: launcher and automation for Windows",
+    "fileAssociations": [
+      {
+        "ext": [
+          "bubble"
+        ],
+        "name": "BubbleVerse package",
+        "description": "BubbleVerse package",
+        "role": "Editor",
+        "mimeType": "application/x-bubbleverse"
+      }
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": [
+          "English",
+          "Czech"
+        ],
+        "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "nsis/header.bmp",
+        "customLanguageFiles": {
+          "Czech": "nsis/Czech.nsh"
+        },
+        "startMenuFolder": "BubbleVerse"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDAxNjc1MTk0RkExRTgyMTkKUldRWmdoNzZsRkZuQVoyZjQxYWtVUy9tbEIzeTRhM0ZLc0FrYnhlcENITFVST2w3U0dtYlJZdGsK",
+      "endpoints": [
+        "https://github.com/OpiKula2877/BubbleVerse/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

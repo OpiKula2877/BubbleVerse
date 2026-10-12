@@ -1,0 +1,142 @@
+import { HEX_COLOR, TOKENS, type ThemeColors, type ThemeId } from './tokens';
+
+export const LIGHT: ThemeColors = {
+  bg: '#F4F5F8',
+  panel: '#FFFFFF',
+  bar: '#FAFBFC',
+  dialog: '#FFFFFF',
+  text: '#1B1D22',
+  'text-2': '#4A4F5C',
+  'text-muted': '#8A90A0',
+  accent: '#3B6FE0',
+  'accent-text': '#FFFFFF',
+  border: '#D9DCE3',
+  input: '#FFFFFF',
+  'input-border': '#C6CAD4',
+  button: '#ECEEF3',
+  'button-hover': '#E0E4EC',
+  'button-active': '#D0D6E2',
+  'button-text': '#1B1D22',
+  'search-dim': '#F4F5F8C0',
+  ghost: '#A0A6B4',
+  'red-path': '#D7192A',
+  selection: '#3B6FE0',
+  grid: '#1B1D2214',
+  guide: '#E0457B',
+  highlight: '#FFB020',
+  error: '#D7192A',
+  warning: '#D98A00',
+  success: '#1E9E5A',
+  tooltip: '#1B1D22',
+  'tooltip-text': '#FFFFFF',
+  scrollbar: '#C6CAD4',
+};
+
+export const DARK: ThemeColors = {
+  bg: '#14161B',
+  panel: '#1E2128',
+  bar: '#191C22',
+  dialog: '#242832',
+  text: '#ECEEF3',
+  'text-2': '#B4BAC8',
+  'text-muted': '#7A8194',
+  accent: '#5B8CFF',
+  'accent-text': '#FFFFFF',
+  border: '#2F3440',
+  input: '#15181E',
+  'input-border': '#3A404E',
+  button: '#2A2F3A',
+  'button-hover': '#343A47',
+  'button-active': '#3F4656',
+  'button-text': '#ECEEF3',
+  'search-dim': '#14161BC0',
+  ghost: '#6B7285',
+  'red-path': '#FF4D5A',
+  selection: '#5B8CFF',
+  grid: '#FFFFFF14',
+  guide: '#FF5C93',
+  highlight: '#FFC247',
+  error: '#FF4D5A',
+  warning: '#FFB020',
+  success: '#3DD68C',
+  tooltip: '#000000',
+  'tooltip-text': '#F2F2F2',
+  scrollbar: '#3A404E',
+};
+
+/** OpiKula style: red, black and their shades (palette from spec §7.2). */
+export const OPIKULA: ThemeColors = {
+  bg: '#0B0B0D',
+  panel: '#1A1A1F',
+  bar: '#121216',
+  dialog: '#1F1F25',
+  text: '#F2F2F2',
+  'text-2': '#C9C9CF',
+  'text-muted': '#85858F',
+  accent: '#D7192A',
+  'accent-text': '#F2F2F2',
+  border: '#2E1A1D',
+  input: '#111114',
+  'input-border': '#3A2226',
+  button: '#26161A',
+  'button-hover': '#7A0E14',
+  'button-active': '#D7192A',
+  'button-text': '#F2F2F2',
+  'search-dim': '#0B0B0DC0',
+  ghost: '#6E6E78',
+  'red-path': '#FF4D5A',
+  selection: '#FF4D5A',
+  grid: '#D7192A1F',
+  guide: '#FF4D5A',
+  highlight: '#FF4D5A',
+  error: '#FF4D5A',
+  warning: '#FFB020',
+  success: '#3DD68C',
+  tooltip: '#7A0E14',
+  'tooltip-text': '#F2F2F2',
+  scrollbar: '#7A0E14',
+};
+
+export const BUILTIN_THEMES: Record<Exclude<ThemeId, 'custom'>, ThemeColors> = {
+  light: LIGHT,
+  dark: DARK,
+  opikula: OPIKULA,
+};
+
+/** Colors for a theme id; the custom theme starts from Dark and overrides any tokens it defines. */
+export function themeColors(id: ThemeId, custom?: Partial<ThemeColors>): ThemeColors {
+  if (id === 'custom') return { ...DARK, ...custom };
+  return BUILTIN_THEMES[id];
+}
+
+/** A theme file (`.bvtheme`, spec §7.2). */
+export interface ThemeFile {
+  format: 'bvtheme';
+  version: 1;
+  name: string;
+  colors: Partial<ThemeColors>;
+}
+
+export function serializeTheme(name: string, colors: Partial<ThemeColors>): string {
+  const file: ThemeFile = { format: 'bvtheme', version: 1, name, colors };
+  return JSON.stringify(file, null, 2);
+}
+
+/** Reads a theme file; unknown tokens and invalid colors are left out. `null` = not a theme. */
+export function parseTheme(text: string): { name: string; colors: Partial<ThemeColors> } | null {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof data !== 'object' || data === null) return null;
+  const d = data as Partial<ThemeFile>;
+  if (d.format !== 'bvtheme' || typeof d.colors !== 'object' || d.colors === null) return null;
+  const colors: Partial<ThemeColors> = {};
+  for (const token of TOKENS) {
+    const v = (d.colors as Record<string, unknown>)[token];
+    if (typeof v === 'string' && HEX_COLOR.test(v)) colors[token] = v.toUpperCase();
+  }
+  return { name: typeof d.name === 'string' ? d.name : '', colors };
+}

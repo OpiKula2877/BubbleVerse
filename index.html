@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BubbleVerse – launcher pro Windows ve světě bublin</title>
+<meta name="description" content="BubbleVerse je launcher a automatizační nástroj pro Windows v podobě živého světa bublin. Instalátor pro Windows 10 a 11, otevřený zdrojový kód na GitHubu.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1F0508">
+<link rel="icon" href="data:image/png;base64,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">
+<style>
+/* Barvy stejné jako na stránce s ostatními aplikacemi (styl OpiKula). */
+:root {
+  --bg: #0E0A0A;
+  --surface: #170D0E;
+  --bar: #1F0508;
+  --input: #1E1112;
+  --border: #4A1218;
+  --text: #F2E6E6;
+  --muted: #A88A8C;
+  --accent: #C8102E;
+  --accent-hover: #DE1A3A;
+  --online: #4CC77A;
+  --radius: 6px;
+  --wrap: 1120px;
+  --logo: url("data:image/png;base64,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");
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.65 "Cascadia Code", "Cascadia Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--border); }
+a:hover { text-decoration-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font: inherit; }
+kbd { font: inherit; font-size: 0.92em; padding: 1px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; background: var(--input); }
+.wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: 24px; }
+.muted { color: var(--muted); }
+
+/* Logo: jeden obrázek, vložený přímo do stránky. */
+.logo { display: block; flex: none; background: var(--logo) center / cover no-repeat; border-radius: 22%; box-shadow: 0 0 0 1px var(--border); }
+
+/* Horní lišta jako v aplikacích. */
+.topbar { background: var(--bar); border-bottom: 1px solid var(--border); }
+.topbar .wrap { display: flex; align-items: center; gap: 28px; min-height: 56px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; }
+.brand .logo { width: 24px; height: 24px; }
+.topbar nav { display: flex; gap: 22px; margin-left: auto; font-size: 14px; }
+.topbar nav a { color: var(--muted); text-decoration: none; padding: 16px 0 14px; border-bottom: 2px solid transparent; }
+.topbar nav a:hover { color: var(--text); border-bottom-color: var(--accent); }
+.lang { display: flex; padding: 2px; border: 1px solid var(--border); border-radius: 999px; }
+.lang button { font: inherit; font-size: 12px; font-weight: 700; color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+.lang button:hover { color: var(--text); }
+.lang button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+/* ---- Panáček OK: logo otočené o 90°. O je obličej, dřík K jsou ruce, jeho dvě čáry nohy. Kliknutím udělá salto. ---- */
+.okguy { display: block; overflow: visible; color: var(--text); }
+.okguy-head, .okguy-torso, .okguy-arm, .okguy-leg { fill: none; stroke: currentColor; stroke-width: 9; }
+.okguy-arm, .okguy-torso { stroke-linecap: round; }
+.okguy-face ellipse { fill: currentColor; }
+.okguy-mouth { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; }
+.okguy * { transform-box: fill-box; }
+.okguy-body { transform-box: view-box; transform-origin: 50px 98px; }
+.okguy-legs { transform-origin: 50% 0%; }
+.okguy-arm-r, .okguy-leg-r { transform-origin: 0% 0%; }
+.okguy-arm-l, .okguy-leg-l { transform-origin: 100% 0%; }
+.okguy-face ellipse { transform-origin: center; animation: eye-blink 4.6s infinite; }
+.okguy[data-tap] { cursor: pointer; }
+.okguy.flip { animation: flip 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes flip { 50% { transform: translateY(-12px) rotateY(180deg); } to { transform: rotateY(360deg); } }
+@keyframes eye-blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+@keyframes hop { 50% { transform: translateY(-10px); } }
+
+/* Natahovač (animace): vyroste na dlouhých nohách a podívá se přes okno. */
+.guy-stretch .okguy-legs { animation: stretch-legs 7s ease-in-out infinite; }
+.guy-stretch .okguy-body { animation: stretch-body 7s ease-in-out infinite; }
+.guy-stretch .okguy-arm-r { animation: stretch-arm-r 7s ease-in-out infinite; }
+.guy-stretch .okguy-arm-l { animation: stretch-arm-l 7s ease-in-out infinite; }
+@keyframes stretch-legs { 0%, 20%, 64%, 100% { transform: none; } 32%, 52% { transform: scaleY(1.9); } }
+@keyframes stretch-body { 0%, 20%, 64%, 100% { transform: none; } 32%, 52% { transform: translateY(-40px) scale(1.12); } 42% { transform: translateY(-40px) scale(1.12) rotate(-4deg); } }
+@keyframes stretch-arm-r { 0%, 20%, 64%, 100% { transform: none; } 32%, 52% { transform: rotate(25deg); } }
+@keyframes stretch-arm-l { 0%, 20%, 64%, 100% { transform: none; } 32%, 52% { transform: rotate(-25deg); } }
+
+/* Tanečník (patička). */
+.guy-dancer .okguy-body { animation: sway 1.6s ease-in-out infinite; }
+.guy-dancer .okguy-arm-r { animation: dance-r 0.8s ease-in-out infinite alternate; }
+.guy-dancer .okguy-arm-l { animation: dance-l 0.8s ease-in-out infinite alternate; }
+.guy-dancer .okguy-leg-l { animation: step-l 0.8s ease-in-out infinite alternate; }
+.guy-dancer .okguy-leg-r { animation: step-r 0.8s ease-in-out infinite alternate; }
+@keyframes sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: translateY(-4px) rotate(7deg); } }
+@keyframes dance-r { from { transform: rotate(-50deg); } to { transform: rotate(25deg); } }
+@keyframes dance-l { from { transform: rotate(-25deg); } to { transform: rotate(50deg); } }
+@keyframes step-l { from { transform: rotate(12deg); } to { transform: rotate(-4deg); } }
+@keyframes step-r { from { transform: rotate(4deg); } to { transform: rotate(-12deg); } }
+
+.say { position: absolute; padding: 4px 10px; border-radius: 10px 10px 10px 2px; background: var(--accent); color: #fff; font-weight: 700; font-size: 12px;
+  white-space: nowrap; transform-origin: 0 100%; opacity: 0; animation: say 6s ease-in-out infinite; }
+@keyframes say { 0%, 100% { opacity: 0; transform: scale(0.6); } 2%, 18% { opacity: 1; transform: scale(1); } 21% { opacity: 0; transform: scale(0.8); } }
+
+/* ---- Hero ---- */
+.hero { min-height: min(720px, calc(100svh - 57px)); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 48px; align-items: center; padding-block: 56px 88px; }
+.kicker { margin: 0 0 20px; color: var(--accent); font-size: 14px; font-weight: 700; }
+.hero h1 { position: relative; font-size: clamp(38px, 8.4vw, 100px); line-height: 1.02; font-weight: 700; margin: 0 0 28px; letter-spacing: -0.02em; }
+/* Nadpis se při načtení "rozšifruje": zamíchaná kopie leží nad skutečným textem, ten zůstává pro čtečky. */
+.hero h1 .ghost { color: transparent; }
+.scramble { position: absolute; inset: 0; }
+.scramble .u { color: var(--accent); }
+.hero-lede { color: var(--muted); font-size: 18px; margin: 0 0 56px; max-width: 48ch; }
+.cta { display: flex; flex-wrap: wrap; gap: 16px 18px; align-items: center; }
+.download-meta { color: var(--muted); font-size: 13px; margin: 16px 0 0; max-width: 60ch; }
+
+.download, .ghbtn { display: inline-flex; align-items: center; gap: 12px; padding: 16px 26px; border-radius: var(--radius); font: inherit; font-weight: 700; font-size: 17px; text-decoration: none; cursor: pointer; }
+.download { border: 0; background: var(--accent); color: #fff; }
+.download:hover { background: var(--accent-hover); }
+.ghbtn { border: 1px solid var(--border); background: rgba(23, 13, 14, 0.7); color: var(--text); transition: border-color 0.2s, background-color 0.2s; }
+.ghbtn:hover { border-color: var(--accent); background: var(--surface); }
+.download svg, .ghbtn svg { width: 20px; height: 20px; flex: none; }
+/* Panáček se schovává za tlačítkem stažení. Po najetí vyskočí přes okraj a fandí. */
+.dl { position: relative; display: inline-block; }
+.peek-box { position: absolute; right: 14px; bottom: 100%; width: 72px; height: 90px; overflow: hidden; pointer-events: none; }
+.guy-peek { position: absolute; left: 0; bottom: 0; width: 72px; height: auto; transform: translateY(100%); transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.dl:hover .guy-peek, .dl:focus-within .guy-peek { transform: translateY(44%); }
+.dl:hover .guy-peek .okguy-arm-r, .dl:focus-within .guy-peek .okguy-arm-r { animation: cheer-r 0.4s ease-in-out 0.3s infinite alternate; }
+.dl:hover .guy-peek .okguy-arm-l, .dl:focus-within .guy-peek .okguy-arm-l { animation: cheer-l 0.4s ease-in-out 0.3s infinite alternate; }
+@keyframes cheer-r { from { transform: rotate(-12deg); } to { transform: rotate(-50deg); } }
+@keyframes cheer-l { from { transform: rotate(12deg); } to { transform: rotate(50deg); } }
+
+/* Logo uprostřed, kolem něj obíhají bubliny po elipsách (CSS, bez skriptu). */
+.hero-art { --k: 1.12; position: relative; width: calc(290px * var(--k)); aspect-ratio: 1; overflow: clip; }
+.hero-art .logo { position: absolute; inset: 27%; box-shadow: 0 0 0 1px var(--border), 0 30px 70px -30px #000; }
+.orb { position: absolute; inset: 0; transform: rotate(var(--t)); }
+.orb i { position: absolute; left: 50%; top: 50%; width: 0; height: 0; animation: ox var(--d) cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; }
+.orb b { position: absolute; width: calc(var(--s) * var(--k)); height: calc(var(--s) * var(--k)); margin: calc(var(--s) * var(--k) / -2); border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0) 55%), var(--c);
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.16);
+  animation: oy var(--d) cubic-bezier(0.37, 0, 0.63, 1) infinite alternate; animation-delay: calc(var(--d) / -2); }
+@keyframes ox { from { transform: translateX(calc(var(--rx) * var(--k) * -1)); } to { transform: translateX(calc(var(--rx) * var(--k))); } }
+@keyframes oy { from { transform: translateY(calc(var(--ry) * var(--k) * -1)); } to { transform: translateY(calc(var(--ry) * var(--k))); } }
+
+.js .hero-text > *, .js .hero-art { animation: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(28px); } }
+.js .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); transition-delay: calc(var(--i, 0) * 120ms); }
+.js .reveal.in { opacity: 1; transform: none; }
+
+/* ---- Sekce ---- */
+.sec { padding-block: 104px; border-top: 1px solid var(--border); }
+.sec h2 { font-size: clamp(40px, 5.4vw, 68px); line-height: 1; letter-spacing: -0.02em; margin: 0 0 24px; }
+.lede { margin: 0; max-width: 64ch; font-size: 17px; }
+.sec-head { margin-bottom: 64px; }
+
+/* Co to je: seznam vlevo, animace vpravo. */
+.app-how { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 64px; align-items: start; }
+.features { list-style: none; margin: 0; padding: 0; }
+.features li { border-top: 1px solid var(--border); }
+.features li:last-child { border-bottom: 1px solid var(--border); }
+.features .plain, .features .feat { position: relative; display: block; width: 100%; padding: 14px 12px 14px 26px; text-align: left; }
+.features .feat { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.features .feat:hover { color: #fff; }
+.features .plain::before, .features .feat::before { content: ""; position: absolute; left: 4px; top: 23px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); transition: border-radius 0.2s; }
+.features .feat.on { background: var(--bar); color: #fff; }
+.features .feat.on::before { border-radius: 1px; animation: beacon 1.2s ease-in-out infinite; }
+@keyframes beacon { 0%, 100% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.45); } 50% { box-shadow: 0 0 0 5px rgba(200, 16, 46, 0); } }
+
+.demo { position: relative; margin-top: 55px; }
+.demo > .okguy { position: absolute; z-index: 1; right: 28px; top: -55px; width: 56px; height: auto; }
+.scene { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #140C0D; box-shadow: 0 24px 60px -30px #000; }
+.scene-bar { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 6px 0 12px; background: var(--bar); border-bottom: 1px solid var(--border); font-size: 13px; }
+.scene-bar .logo { width: 16px; height: 16px; border-radius: 4px; }
+.scene-stage { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene-segs { margin-left: auto; display: flex; flex: none; }
+.scene-segs button { position: relative; width: 18px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; }
+.scene-segs button::after { content: ""; position: absolute; left: 3px; right: 3px; top: 12px; height: 4px; background: #2E1418; transition: background-color 0.3s; }
+.scene-segs button.done::after { background: #7A1424; }
+.scene-segs button.now::after { background: var(--accent); }
+.scene-segs button:hover::after { background: var(--muted); }
+.scene-no { flex: none; min-width: 3ch; margin-right: 6px; color: var(--muted); font-size: 12px; text-align: right; }
+.scene canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+.scene-log { min-height: 80px; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--surface); font-size: 13px; line-height: 1.45; }
+.scene-log p { display: flex; gap: 8px; margin: 0; }
+.scene-log p > span:first-child { color: var(--accent); }
+.scene-log .scene-prev { display: block; min-height: 1.45em; color: var(--muted); opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scene-cur { display: inline-block; width: 7px; height: 14px; margin-left: 2px; vertical-align: -2px; background: var(--accent); animation: blink 1.06s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---- Screenshoty ---- */
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 24px; }
+.shot { margin: 0; }
+.shot.big { grid-column: 1 / -1; }
+.window { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); box-shadow: 0 24px 60px -30px #000; }
+.window-bar { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; background: var(--bar); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; }
+.window-bar .logo { width: 16px; height: 16px; border-radius: 4px; }
+.window-bar span:last-child { margin-left: auto; color: var(--muted); letter-spacing: 0.4em; font-weight: 400; }
+/* Místo pro screenshot: když soubor existuje, překryje se přes pole. Když ne, zůstane popisek. */
+.slot { position: relative; aspect-ratio: 16 / 9; background: radial-gradient(#2A1316 1.2px, transparent 1.4px) 0 0 / 24px 24px, #120A0B; }
+.slot-ph { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 4px; padding: 16px; text-align: center; color: var(--muted); font-size: 13px; }
+.slot-ph b { color: var(--text); }
+.slot-ph code { padding: 2px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--input); font-size: 12px; }
+.slot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.caption { color: var(--muted); font-size: 13px; margin: 14px 0 0; }
+
+/* ---- Stažení ---- */
+.install { margin-top: 72px; border: 1px solid var(--border); border-radius: 12px; background: rgba(23, 13, 14, 0.75); }
+.install-toggle { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: center; padding: 24px 28px; font: inherit; color: inherit; text-align: left; background: none; border: 0; border-radius: 12px; cursor: pointer; }
+.install-title { font-size: 22px; font-weight: 700; }
+.install-sub { grid-row: 2; color: var(--muted); font-size: 14px; }
+.chev { grid-row: 1 / 3; grid-column: 2; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); display: grid; place-items: center; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s, border-color 0.2s; }
+.chev::before { content: ""; width: 9px; height: 9px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.install-toggle:hover .chev { border-color: var(--accent); }
+.install.open .chev { transform: rotate(180deg); background: var(--accent); border-color: var(--accent); }
+.install-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.install.open .install-body { grid-template-rows: 1fr; }
+.install-inner { overflow: hidden; min-height: 0; }
+.install-grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 48px; padding: 8px 28px 32px; opacity: 0; transform: translateY(-8px); transition: opacity 0.3s, transform 0.4s; }
+.install.open .install-grid { opacity: 1; transform: none; transition-delay: 0.1s; }
+.install-grid h3 { font-size: 18px; margin: 0 0 16px; }
+.needs { margin: 0; padding: 0 0 0 18px; }
+.needs li { margin: 6px 0; }
+.steps { counter-reset: step; list-style: none; margin: 0 0 8px; padding: 0; }
+.steps > li { counter-increment: step; position: relative; padding: 0 0 22px 48px; }
+.steps > li::before { content: counter(step); position: absolute; left: 0; top: -2px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+.steps > li:not(:last-child)::after { content: ""; position: absolute; left: 15px; top: 32px; bottom: 4px; width: 1px; background: var(--border); }
+.steps p { margin: 0; }
+.note { margin-top: 20px; padding: 14px 16px; border-left: 2px solid var(--accent); background: var(--surface); font-size: 14px; }
+.note p { margin: 0; }
+.note p + p { margin-top: 8px; }
+
+/* Pozadí: jemná mřížka teček na canvasu za vším. */
+.bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+
+footer { position: relative; border-top: 1px solid var(--border); background: var(--bar); color: var(--muted); font-size: 13px; }
+footer .wrap { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; padding-block: 28px; }
+.foot-guy { position: absolute; right: 24px; bottom: calc(100% - 12px); width: 56px; }
+.foot-guy .okguy { width: 100%; height: auto; }
+.foot-guy .say { top: -30px; left: -50px; }
+
+[hidden] { display: none !important; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-block: 32px 72px; gap: 8px; }
+  .hero-art { --k: 0.62; order: -1; justify-self: end; margin-bottom: -24px; }
+  .sec { padding-block: 72px; }
+  .sec-head { margin-bottom: 40px; }
+  .app-how, .install-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .demo { order: -1; margin-top: 24px; }
+  .shots { grid-template-columns: minmax(0, 1fr); }
+  .install { margin-top: 56px; }
+  .topbar nav { gap: 16px; }
+}
+@media (max-width: 520px) {
+  .wrap { padding-inline: 16px; }
+  body { font-size: 14px; }
+  .brand span:last-child { display: none; }
+  .topbar .wrap { gap: 14px; }
+  .topbar nav { gap: 12px; font-size: 13px; }
+  .hero-lede { font-size: 16px; }
+  .dl, .cta .ghbtn { display: flex; width: 100%; }
+  .download, .ghbtn { width: 100%; justify-content: center; }
+  .install-toggle { padding: 20px; }
+  .install-grid { padding: 4px 20px 24px; }
+  .foot-guy { right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .okguy, .okguy *, .js .hero-text > *, .js .hero-art, .orb i, .orb b, .say, .scene-cur, .features .feat.on::before { animation: none !important; }
+  .say { opacity: 1; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+  .guy-peek, .install-body, .install-grid, .chev { transition: none; }
+}
+</style>
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<canvas class="bg" aria-hidden="true"></canvas>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#"><span class="logo" aria-hidden="true"></span><span>BubbleVerse</span></a>
+    <nav aria-label="Navigace" data-en-aria="Navigation">
+      <a href="#co-to-je" data-en="What it is">Co to je</a>
+      <a href="#screenshoty" data-en="Screenshots">Screenshoty</a>
+      <a href="#stahnout" data-en="Download">Stáhnout</a>
+      <a href="https://github.com/OpiKula2877/BubbleVerse">GitHub</a>
+    </nav>
+    <div class="lang" role="group" aria-label="Jazyk / Language">
+      <button type="button" data-lang="cs" aria-pressed="true" title="Čeština">CZ</button>
+      <button type="button" data-lang="en" aria-pressed="false" title="English">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-text">
+      <p class="kicker" style="--i: 0" data-en="For Windows 10 and 11, open source">Pro Windows 10 a 11, s otevřeným zdrojovým kódem</p>
+      <h1 style="--i: 1"><span>BubbleVerse</span></h1>
+      <p class="hero-lede" style="--i: 2" data-en="A launcher and automation tool for Windows, built as a living world of bubbles. Programs, games and websites are bubbles you launch with a click or from the keyboard alone.">Launcher a automatizace pro Windows ve formě živého světa bublin. Programy, hry a weby jsou bubliny, které spustíš klikem nebo jen z klávesnice.</p>
+      <div class="cta" style="--i: 3">
+        <div class="dl"><span class="peek-box" aria-hidden="true"><svg class="okguy guy-peek" viewBox="0 0 100 120" aria-hidden="true" data-guy></svg></span><a class="download" href="https://github.com/OpiKula2877/BubbleVerse/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          <span data-en="Download for Windows">Stáhnout pro Windows</span>
+        </a></div>
+        <a class="ghbtn" href="https://github.com/OpiKula2877/BubbleVerse">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+          <span data-en="Source code on GitHub">Zdrojový kód na GitHubu</span>
+        </a>
+      </div>
+      <p class="download-meta" style="--i: 4" data-en="Windows 10 (22H2) and Windows 11. The installer is not code-signed, see the steps at the bottom of the page.">Windows 10 (22H2) a Windows 11. Instalátor není podepsaný certifikátem, postup je dole na stránce.</p>
+    </div>
+    <div class="hero-art" style="--i: 2" aria-hidden="true">
+      <span class="logo"></span>
+      <div class="orb" style="--t: -22deg; --rx: 128px; --ry: 50px; --d: 7s; --s: 24px; --c: #C8102E"><i><b></b></i></div>
+      <div class="orb" style="--t: 28deg; --rx: 104px; --ry: 40px; --d: 5.4s; --s: 17px; --c: #4F86C6"><i><b></b></i></div>
+      <div class="orb" style="--t: 74deg; --rx: 130px; --ry: 62px; --d: 9.5s; --s: 15px; --c: #D9A13B"><i><b></b></i></div>
+      <div class="orb" style="--t: -58deg; --rx: 86px; --ry: 34px; --d: 4.6s; --s: 12px; --c: #4CC77A"><i><b></b></i></div>
+    </div>
+  </section>
+
+  <!-- Co to je -->
+  <section class="sec wrap" id="co-to-je">
+    <div class="sec-head reveal">
+      <h2 data-en="What it is">Co to je</h2>
+      <p class="lede" data-en="BubbleVerse is a launcher and automation tool for Windows. Everything you launch is a bubble in one shared world: a program, a game, a website, or a folder holding more bubbles. Bubbles move and have physics, and you decide how they look and behave.">BubbleVerse je launcher a automatizační nástroj pro Windows. Všechno, co spouštíš, je bublina ve společném světě: program, hra, web nebo složka s dalšími bublinami. Bubliny se hýbou a mají fyziku. Vzhled i chování si nastavíš sám.</p>
+    </div>
+    <div class="app-how">
+      <div class="reveal">
+        <!-- data-stages: když animace ukazuje tuto fázi, řádek se rozsvítí. Kliknutí na řádek přeskočí na fázi. -->
+        <ul class="features">
+          <li><button type="button" class="feat" data-stages="0" data-en="Bubbles form a tree of main bubbles, folders and action bubbles. They follow paths, orbit one another and have physics.">Bubliny tvoří strom z hlavních bublin, složek a akčních bublin. Pohybují se po drahách, obíhají se a mají fyziku.</button></li>
+          <li><button type="button" class="feat" data-stages="1" data-en="Click a folder and its bubbles fly out of it. Click again and they fold back in.">Klikneš na složku a její bubliny z ní vyletí. Dalším kliknutím se zase schovají.</button></li>
+          <li><button type="button" class="feat" data-stages="2" data-en="Everything is reachable from the keyboard: <kbd>Ctrl+F</kbd> or a global shortcut. Search matches the start of a name, with fuzzy matching as a fallback.">Všechno se dá najít z klávesnice: <kbd>Ctrl+F</kbd> nebo globální zkratkou. Hledá podle začátku jména, jako zálohu používá fuzzy shodu.</button></li>
+          <li><button type="button" class="feat" data-stages="3 4" data-en="Action bubbles run scripts built from blocks, Scratch style. The bubble lights up as the script runs.">Akční bubliny spouští scripty poskládané z bloků jako ve Scratchi. Při běhu scriptu bublina svítí.</button></li>
+          <li><button type="button" class="feat" data-stages="5" data-en="An optional live wallpaper sits under your desktop icons, across all monitors.">Volitelná živá tapeta leží pod ikonami plochy, přes všechny monitory.</button></li>
+          <li><span class="plain" data-en="Drop 30 programs and get 30 bubbles. Branches are shared as .bubble packages.">Přetáhneš 30 programů a vznikne 30 bublin. Větve se sdílejí jako balíčky .bubble.</span></li>
+        </ul>
+      </div>
+      <div class="demo reveal" style="--i: 1">
+        <svg class="okguy guy-stretch" viewBox="0 0 100 120" aria-hidden="true" data-guy data-tap></svg>
+        <div class="scene">
+          <div class="scene-bar"><span class="logo" aria-hidden="true"></span><b>BubbleVerse</b><span class="scene-stage"></span><span class="scene-segs"><button type="button"></button><button type="button"></button><button type="button"></button><button type="button"></button><button type="button"></button><button type="button"></button></span><span class="scene-no"></span></div>
+          <canvas role="img" aria-label=""></canvas>
+          <div class="scene-log"><p class="scene-prev" aria-hidden="true"></p><p><span aria-hidden="true">&gt;</span><span><span class="scene-text"></span><span class="scene-cur" aria-hidden="true"></span></span></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshoty: do složky screenshots/ dej soubory s těmito názvy a samy se zobrazí. -->
+  <section class="sec wrap" id="screenshoty">
+    <div class="sec-head reveal">
+      <h2 data-en="Screenshots">Screenshoty</h2>
+    </div>
+    <div class="shots">
+      <figure class="shot big reveal">
+        <div class="window">
+          <div class="window-bar"><span class="logo" aria-hidden="true"></span>BubbleVerse<span aria-hidden="true">– □ ×</span></div>
+          <div class="slot"><div class="slot-ph"><b data-en="Screenshot goes here">Sem patří screenshot</b><code>screenshots/svet.png</code></div><img src="screenshots/svet.png" alt="BubbleVerse: svět bublin v okně aplikace" data-en-alt="BubbleVerse: the bubble world in the app window" loading="lazy" onerror="this.remove()"></div>
+        </div>
+        <figcaption class="caption" data-en="The bubble world in the app window.">Svět bublin v okně aplikace.</figcaption>
+      </figure>
+      <figure class="shot reveal" style="--i: 1">
+        <div class="window">
+          <div class="window-bar"><span class="logo" aria-hidden="true"></span>BubbleVerse<span aria-hidden="true">– □ ×</span></div>
+          <div class="slot"><div class="slot-ph"><b data-en="Screenshot goes here">Sem patří screenshot</b><code>screenshots/edit.png</code></div><img src="screenshots/edit.png" alt="BubbleVerse: edit mód se stromem a inspektorem" data-en-alt="BubbleVerse: edit mode with the tree and the inspector" loading="lazy" onerror="this.remove()"></div>
+        </div>
+        <figcaption class="caption" data-en="Edit mode: tree, canvas and inspector.">Edit mód: strom, plátno a inspektor.</figcaption>
+      </figure>
+      <figure class="shot reveal" style="--i: 2">
+        <div class="window">
+          <div class="window-bar"><span class="logo" aria-hidden="true"></span>BubbleVerse<span aria-hidden="true">– □ ×</span></div>
+          <div class="slot"><div class="slot-ph"><b data-en="Screenshot goes here">Sem patří screenshot</b><code>screenshots/hledani.png</code></div><img src="screenshots/hledani.png" alt="BubbleVerse: vyhledávání bubliny z klávesnice" data-en-alt="BubbleVerse: finding a bubble from the keyboard" loading="lazy" onerror="this.remove()"></div>
+        </div>
+        <figcaption class="caption" data-en="Search from the keyboard.">Vyhledávání z klávesnice.</figcaption>
+      </figure>
+      <figure class="shot reveal" style="--i: 3">
+        <div class="window">
+          <div class="window-bar"><span class="logo" aria-hidden="true"></span>BubbleVerse<span aria-hidden="true">– □ ×</span></div>
+          <div class="slot"><div class="slot-ph"><b data-en="Screenshot goes here">Sem patří screenshot</b><code>screenshots/script.png</code></div><img src="screenshots/script.png" alt="BubbleVerse: editor bublinových scriptů z bloků" data-en-alt="BubbleVerse: the block-based bubble script editor" loading="lazy" onerror="this.remove()"></div>
+        </div>
+        <figcaption class="caption" data-en="The script editor.">Editor scriptů z bloků.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Stažení -->
+  <section class="sec wrap" id="stahnout">
+    <div class="reveal">
+      <h2 data-en="Download">Stáhnout</h2>
+      <p class="lede" style="margin-bottom: 36px" data-en="The installer for Windows 10 (22H2) and Windows 11. You'll find the latest version in the GitHub releases.">Instalátor pro Windows 10 (22H2) a Windows 11. Nejnovější verzi najdeš mezi vydáními na GitHubu.</p>
+      <div class="cta">
+        <div class="dl"><span class="peek-box" aria-hidden="true"><svg class="okguy guy-peek" viewBox="0 0 100 120" aria-hidden="true" data-guy></svg></span><a class="download" href="https://github.com/OpiKula2877/BubbleVerse/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          <span data-en="Download for Windows">Stáhnout pro Windows</span>
+        </a></div>
+        <a class="ghbtn" href="https://github.com/OpiKula2877/BubbleVerse">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+          <span data-en="Source code on GitHub">Zdrojový kód na GitHubu</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="install reveal">
+      <button class="install-toggle" type="button" aria-expanded="false" aria-controls="install-body">
+        <span class="install-title" data-en="How to install">Jak nainstalovat</span>
+        <span class="install-sub" data-en="What you need and the steps">Co potřebuješ a postup krok za krokem</span>
+        <span class="chev" aria-hidden="true"></span>
+      </button>
+      <div class="install-body" id="install-body" inert>
+        <div class="install-inner">
+          <div class="install-grid">
+            <div>
+              <h3 data-en="What you need">Co potřebuješ</h3>
+              <ul class="needs">
+                <li data-en="Windows 10 (22H2) or Windows 11">Windows 10 (22H2) nebo Windows 11</li>
+                <li data-en="The app itself runs without administrator rights">Aplikace sama běží bez práv správce</li>
+              </ul>
+            </div>
+            <div>
+              <h3 data-en="Installation">Instalace</h3>
+              <ol class="steps">
+                <li><p data-en="Download the installer from the latest release on GitHub.">Stáhni instalátor z nejnovějšího vydání na GitHubu.</p></li>
+                <li><p data-en="Run it. If Windows shows a SmartScreen warning, click More info and then Run anyway. The installer is not signed with a publisher certificate.">Spusť ho. Když Windows zobrazí upozornění SmartScreen, klikni na Další informace a pak na Přesto spustit. Instalátor není podepsaný certifikátem vydavatele.</p></li>
+                <li><p data-en="BubbleVerse starts and also appears in the Start menu. Open it again with <kbd>Ctrl+Alt+B</kbd> or from the tray icon.">BubbleVerse se spustí a najdeš ho i v nabídce Start. Znovu ho otevřeš zkratkou <kbd>Ctrl+Alt+B</kbd> nebo z ikony v tray.</p></li>
+              </ol>
+              <div class="note">
+                <p data-en="Every release lists a SHA-256 checksum of the files, so you can verify your download.">U každého vydání je SHA-256 otisk souborů, takže si stažený soubor můžeš ověřit.</p>
+                <p data-en="An antivirus may raise a false alarm because of global shortcuts and macros. The source code is public, so you can read it yourself.">Antivirus může kvůli globálním zkratkám a makrům ohlásit planý poplach. Zdrojový kód je veřejný, můžeš si ho projít.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="https://github.com/OpiKula2877/BubbleVerse" data-en="Source code on GitHub">Zdrojový kód na GitHubu</a>
+    <span data-en="Open source">Otevřený zdrojový kód</span>
+    <span data-en="For Windows 10 and 11">Pro Windows 10 a 11</span>
+    <div class="foot-guy" aria-hidden="true"><span class="say" data-en="Bye!">Čau!</span><svg class="okguy guy-dancer" viewBox="0 0 100 120" aria-hidden="true" data-guy data-tap></svg></div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  'use strict'
+  const RED = matchMedia('(prefers-reduced-motion: reduce)')
+  const FONT = '"Cascadia Code","Cascadia Mono",ui-monospace,Consolas,monospace'
+  let lang = 'cs'
+  const hooks = []
+
+  /* ---- Panáčci: jedna kostra, vložená do všech SVG s data-guy ---- */
+  const GUY = '<g class="okguy-body"><g class="okguy-legs"><path class="okguy-leg okguy-leg-l" d="M50 58 28 98"/><path class="okguy-leg okguy-leg-r" d="M50 58 72 98"/></g><path class="okguy-torso" d="M36 56H64"/><path class="okguy-arm okguy-arm-l" d="M36 56H18"/><path class="okguy-arm okguy-arm-r" d="M64 56H82"/><circle class="okguy-head" cx="50" cy="28" r="20"/><g class="okguy-face"><ellipse cx="44" cy="25" rx="2.4" ry="3.2"/><ellipse cx="56" cy="25" rx="2.4" ry="3.2"/><path class="okguy-mouth" d="M44 33q6 5 12 0"/></g></g>'
+  document.querySelectorAll('svg[data-guy]').forEach((s) => { s.innerHTML = GUY })
+  document.querySelectorAll('.okguy[data-tap]').forEach((s) => {
+    s.addEventListener('click', () => { s.classList.remove('flip'); void s.getBoundingClientRect(); s.classList.add('flip') })
+    s.addEventListener('animationend', (e) => { if (e.animationName === 'flip') s.classList.remove('flip') })
+  })
+
+  /* ---- Jazyk CZ / EN ---- */
+  const tr = [...document.querySelectorAll('[data-en]')]
+  tr.forEach((el) => { el.dataset.cs = el.innerHTML })
+  const trAria = [...document.querySelectorAll('[data-en-aria]')]
+  trAria.forEach((el) => { el.dataset.csAria = el.getAttribute('aria-label') })
+  const trAlt = [...document.querySelectorAll('[data-en-alt]')]
+  trAlt.forEach((el) => { el.dataset.csAlt = el.getAttribute('alt') })
+  const TITLE = { cs: document.title, en: 'BubbleVerse – a bubble-world launcher for Windows' }
+  const metaDesc = document.querySelector('meta[name="description"]')
+  const DESC = { cs: metaDesc.content, en: 'BubbleVerse is a launcher and automation tool for Windows, built as a living world of bubbles. Installer for Windows 10 and 11, open source on GitHub.' }
+  const setLang = (l) => {
+    lang = l
+    document.documentElement.lang = l
+    tr.forEach((el) => { el.innerHTML = l === 'en' ? el.dataset.en : el.dataset.cs })
+    trAria.forEach((el) => el.setAttribute('aria-label', l === 'en' ? el.dataset.enAria : el.dataset.csAria))
+    trAlt.forEach((el) => el.setAttribute('alt', l === 'en' ? el.dataset.enAlt : el.dataset.csAlt))
+    document.title = TITLE[l]
+    metaDesc.content = DESC[l]
+    document.querySelectorAll('.lang button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === l)))
+    try { localStorage.setItem('bv-lang', l) } catch (e) { /* nic */ }
+    hooks.forEach((h) => h())
+  }
+  document.querySelectorAll('.lang button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)))
+
+  /* ---- Postupné zobrazení při scrollu ---- */
+  const reveals = document.querySelectorAll('.reveal')
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }), { threshold: 0.12 })
+    reveals.forEach((r) => io.observe(r))
+  } else reveals.forEach((r) => r.classList.add('in'))
+
+  /* ---- Rozbalení návodu k instalaci ---- */
+  const inst = document.querySelector('.install')
+  const instBtn = inst.querySelector('.install-toggle')
+  const instBody = inst.querySelector('.install-body')
+  instBtn.addEventListener('click', () => {
+    const open = !inst.classList.contains('open')
+    inst.classList.toggle('open', open)
+    instBtn.setAttribute('aria-expanded', String(open))
+    instBody.inert = !open
+  })
+
+  /* ---- Nadpis se "rozšifruje" ---- */
+  const h1 = document.querySelector('.hero h1')
+  const real = h1.querySelector('span')
+  const G = '0123456789ABCDEF'
+  const decode = () => {
+    if (RED.matches) return
+    const text = real.textContent
+    real.classList.add('ghost')
+    const ov = document.createElement('span')
+    ov.className = 'scramble'
+    ov.setAttribute('aria-hidden', 'true')
+    const cells = [...text].map(() => ov.appendChild(document.createElement('span')))
+    h1.appendChild(ov)
+    const t0 = performance.now()
+    const tick = () => {
+      const e = performance.now() - t0
+      let done = true
+      cells.forEach((c, i) => {
+        if (e >= 350 + i * 60 + (i * 37 % 90)) { c.textContent = text[i]; c.className = '' }
+        else { done = false; c.textContent = G[Math.floor(Math.random() * G.length)]; c.className = 'u' }
+      })
+      if (done) { ov.remove(); real.classList.remove('ghost') } else setTimeout(tick, 45)
+    }
+    tick()
+  }
+  decode()
+
+  /* ---- Pozadí: mřížka teček, občas se některá rozsvítí, u myši se zahřejí ---- */
+  const startBackground = (cv) => {
+    const ctx = cv.getContext('2d')
+    const S = 24
+    const tile = document.createElement('canvas')
+    tile.width = tile.height = S
+    const tctx = tile.getContext('2d')
+    tctx.fillStyle = '#2A1316'
+    tctx.fillRect(0, 0, 2, 2)
+    const flips = []
+    let w = 0, h = 0, dpr = 1, ox = 0, pattern = null, last = 0
+    let mx = -1e4, my = -1e4, lx = -1e4, ly = -1e4
+    const draw = (now, dt) => {
+      const still = RED.matches
+      const off = still ? 0 : scrollY * 0.25
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, w, h)
+      ctx.save()
+      ctx.translate(ox, -(off % S))
+      ctx.fillStyle = pattern
+      ctx.fillRect(-S, -S, w + 2 * S, h + 2 * S)
+      ctx.restore()
+      if (still) return
+      const cols = Math.ceil(w / S), r0 = Math.floor(off / S), r1 = Math.ceil((off + h) / S)
+      const X = (c) => ox + c * S
+      const Y = (r) => r * S - off
+      if (mx > -1e3) {
+        if (lx < -1e3) { lx = mx; ly = my }
+        lx += (mx - lx) * 0.2
+        ly += (my - ly) * 0.2
+        const R = 150
+        for (let r = Math.floor((ly + off - R) / S); r <= Math.ceil((ly + off + R) / S); r++) {
+          for (let c = Math.floor((lx - ox - R) / S); c <= Math.ceil((lx - ox + R) / S); c++) {
+            const d = Math.hypot(X(c) - lx, Y(r) - ly)
+            if (d >= R) continue
+            ctx.fillStyle = 'rgba(200,16,46,' + ((1 - d / R) ** 2 * 0.55).toFixed(3) + ')'
+            ctx.fillRect(X(c), Y(r), 2, 2)
+          }
+        }
+      } else lx = ly = -1e4
+      const area = (w * h) / (1920 * 1080)
+      if (Math.random() < (6 * area * dt) / 1000) flips.push({ c: Math.floor(Math.random() * cols), r: r0 + Math.floor(Math.random() * (r1 - r0)), t0: now, d: 900 + Math.random() * 900 })
+      for (let i = flips.length - 1; i >= 0; i--) {
+        const f = flips[i], p = (now - f.t0) / f.d
+        if (p >= 1) { flips.splice(i, 1); continue }
+        ctx.fillStyle = 'rgba(222,26,58,' + (Math.sin(Math.PI * p) * 0.85).toFixed(3) + ')'
+        ctx.fillRect(X(f.c), Y(f.r), 2, 2)
+      }
+    }
+    const resize = () => {
+      w = innerWidth
+      h = innerHeight
+      dpr = Math.min(2, devicePixelRatio || 1)
+      if (w * h * dpr * dpr > 9e6) dpr = 1
+      cv.width = Math.round(w * dpr)
+      cv.height = Math.round(h * dpr)
+      ox = Math.floor((w % S) / 2)
+      pattern = ctx.createPattern(tile, 'repeat')
+      draw(performance.now(), 0)
+    }
+    const tick = (now) => {
+      requestAnimationFrame(tick)
+      if (RED.matches || document.hidden || now - last < 33) return
+      draw(now, Math.min(100, now - last))
+      last = now
+    }
+    addEventListener('resize', resize)
+    addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') { mx = e.clientX; my = e.clientY } }, { passive: true })
+    document.documentElement.addEventListener('mouseleave', () => { mx = my = -1e4 })
+    resize()
+    requestAnimationFrame(tick)
+  }
+  const bg = document.querySelector('canvas.bg')
+  if (bg) startBackground(bg)
+
+  /* ---- Animace "co to je": šest fází, řádky vlevo se rozsvěcují podle toho, co se zrovna ukazuje ---- */
+  const scene = (() => {
+    const root = document.querySelector('.scene')
+    const cv = root.querySelector('canvas')
+    const ctx = cv.getContext('2d')
+    const stageEl = root.querySelector('.scene-stage')
+    const noEl = root.querySelector('.scene-no')
+    const segs = [...root.querySelectorAll('.scene-segs button')]
+    const prevEl = root.querySelector('.scene-prev')
+    const textEl = root.querySelector('.scene-text')
+    const rows = [...document.querySelectorAll('.features .feat')]
+    const W = 640, H = 360, CX = 320, CY = 180
+    const STAGE = 5.4, N = 6
+    const STATIC_S = [3.0, 3.4, 3.2, 2.4, 4.4, 3.8]
+    const TXT = {
+      cs: {
+        stage: ['Svět bublin', 'Složky', 'Hledání', 'Spuštění', 'Scripty', 'Tapeta'],
+        log: [
+          'Bubliny obíhají a plují po svých drahách.',
+          'Klik na složku Games a její bubliny vyletí ven.',
+          'Ctrl+F: svět zešedne a kamera přiblíží nalezenou bublinu.',
+          'Enter: puls proběhne spojením a bublina CS2 se spustí.',
+          'Spuštění je script poskládaný z bloků jako ve Scratchi.',
+          'Tapeta běží pod ikonami a Ctrl+F funguje i na ploše.'
+        ],
+        blocks: [['Po aktivaci', ''], ['Spustit soubor', 'cs2.exe'], ['Čekej', '2 s'], ['Otevřít URL', 'steamcommunity.com']],
+        cats: ['Události', 'Ovládání', 'Systém', 'Soubory'],
+        title: 'Bublinový script – Games | CS2',
+        search: 'Hledat…',
+        desk: ['Tento počítač', 'Koš', 'Dokumenty'],
+        aria: 'Animace: bubliny obíhají po drahách, složka Games se rozbalí, Ctrl+F najde bublinu CS2 a Enter ji spustí. Pak se ukáže script z bloků a tapeta pod ikonami plochy.'
+      },
+      en: {
+        stage: ['Bubble world', 'Folders', 'Search', 'Launch', 'Scripts', 'Wallpaper'],
+        log: [
+          'Bubbles orbit and float along their paths.',
+          'Click the Games folder and its bubbles fly out.',
+          'Ctrl+F: the world greys out and the camera zooms to the match.',
+          'Enter: a pulse runs along the link and the CS2 bubble launches.',
+          'A launch is a script built from blocks, Scratch style.',
+          'The wallpaper runs under the icons and Ctrl+F works on the desktop too.'
+        ],
+        blocks: [['On activation', ''], ['Run file', 'cs2.exe'], ['Wait', '2 s'], ['Open URL', 'steamcommunity.com']],
+        cats: ['Events', 'Control', 'System', 'Files'],
+        title: 'Bubble script – Games | CS2',
+        search: 'Search…',
+        desk: ['This PC', 'Recycle Bin', 'Documents'],
+        aria: 'Animation: bubbles orbit along paths, the Games folder expands, Ctrl+F finds the CS2 bubble and Enter launches it. Then a block script appears, followed by the wallpaper under the desktop icons.'
+      }
+    }
+
+    const ease = (x) => { x = x < 0 ? 0 : x > 1 ? 1 : x; return x * x * (3 - 2 * x) }
+    const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x)
+    const back = (x) => { x = clamp01(x); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2) }
+
+    const MAINS = [
+      { n: 'Apps', c: '#4F86C6', rx: 92, ry: 52, tilt: -0.35, w: 0.5, ph: 0.9, r: 17, kids: 3 },
+      { n: 'Games', c: '#C8102E', rx: 205, ry: 104, tilt: 0.12, w: 0.3, ph: 3.4, r: 21, kids: ['CS2', 'Minecraft', 'Steam'] },
+      { n: 'Work', c: '#D9A13B', rx: 150, ry: 78, tilt: 0.55, w: -0.38, ph: 5.2, r: 17, kids: 3 },
+      { n: 'Weby', c: '#4CC77A', rx: 128, ry: 64, tilt: -0.9, w: 0.42, ph: 2.0, r: 15, kids: 4 }
+    ]
+    const GAMES = MAINS[1]
+    const GK = [-1.0, 0.35, 1.7]
+    const mpos = (m, T) => {
+      const a = m.ph + m.w * T, x = m.rx * Math.cos(a), y = m.ry * Math.sin(a), c = Math.cos(m.tilt), s = Math.sin(m.tilt)
+      return { x: CX + x * c - y * s, y: CY + x * s + y * c + Math.sin(T * 1.6 + m.ph * 3) * 2.2 }
+    }
+    const kidPos = (T, i, ex) => {
+      const p = mpos(GAMES, T), a = GK[i] + T * 0.12, d = 52 * ex
+      return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }
+    }
+
+    let k = 1
+    const rr = (x, y, w, h, r) => {
+      ctx.beginPath()
+      ctx.moveTo(x + r, y)
+      ctx.arcTo(x + w, y, x + w, y + h, r)
+      ctx.arcTo(x + w, y + h, x, y + h, r)
+      ctx.arcTo(x, y + h, x, y, r)
+      ctx.arcTo(x, y, x + w, y, r)
+      ctx.closePath()
+    }
+    const txt = (s, x, y, col, size, align, weight) => {
+      ctx.font = (weight || 400) + ' ' + (size || 11) + 'px ' + FONT
+      ctx.textAlign = align || 'left'
+      ctx.fillStyle = col
+      ctx.fillText(s, x, y)
+    }
+
+    const bub = (x, y, r, col, a, o) => {
+      o = o || {}
+      if (a <= 0.01) return
+      ctx.save()
+      ctx.globalAlpha = a
+      if (o.glow > 0.01) { ctx.shadowColor = '#FF5468'; ctx.shadowBlur = 10 + 26 * o.glow }
+      else if (o.lit) { ctx.shadowColor = '#FF5468'; ctx.shadowBlur = 16 }
+      ctx.beginPath()
+      ctx.arc(x, y, r, 0, 6.2832)
+      ctx.fillStyle = col
+      ctx.fill()
+      ctx.shadowBlur = 0
+      const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.05, x, y, r)
+      g.addColorStop(0, 'rgba(255,255,255,0.4)')
+      g.addColorStop(0.5, 'rgba(255,255,255,0.05)')
+      g.addColorStop(1, 'rgba(0,0,0,0.28)')
+      ctx.fillStyle = g
+      ctx.fill()
+      ctx.lineWidth = 1.2
+      ctx.strokeStyle = 'rgba(255,255,255,0.28)'
+      ctx.stroke()
+      if (o.label) txt(o.label, x, y + r + (o.fs || 11) + 3, 'rgba(242,230,230,0.82)', o.fs || 11, 'center')
+      if (o.badge && o.badgeA > 0.01) {
+        ctx.globalAlpha = a * o.badgeA
+        ctx.beginPath()
+        ctx.arc(x + r * 0.78, y - r * 0.78, 7, 0, 6.2832)
+        ctx.fillStyle = '#1F0508'
+        ctx.fill()
+        ctx.lineWidth = 1
+        ctx.strokeStyle = '#4A1218'
+        ctx.stroke()
+        txt(String(o.badge), x + r * 0.78, y - r * 0.78 + 3.3, '#F2E6E6', 9, 'center', 700)
+      }
+      ctx.restore()
+    }
+
+    const sun = (a, T) => {
+      const x = CX, y = CY + Math.sin(T * 1.3) * 1.5
+      bub(x, y, 15, '#161111', a)
+      ctx.save()
+      ctx.globalAlpha = a
+      ctx.lineWidth = 1.6
+      ctx.strokeStyle = '#F2E6E6'
+      ctx.beginPath()
+      ctx.arc(x, y, 15, 0, 6.2832)
+      ctx.stroke()
+      txt('OK', x, y + 3.6, '#F2E6E6', 10, 'center', 700)
+      ctx.restore()
+    }
+
+    const world = (T, o) => {
+      const ex = o.exp || 0, dim = o.dim || 0, A = 1 - 0.72 * dim
+      ctx.save()
+      ctx.lineWidth = 1
+      ctx.setLineDash([3, 7])
+      ctx.strokeStyle = 'rgba(168,138,140,' + (0.14 * A).toFixed(3) + ')'
+      for (const m of MAINS) { ctx.beginPath(); ctx.ellipse(CX, CY, m.rx, m.ry, m.tilt, 0, 6.2832); ctx.stroke() }
+      ctx.restore()
+      sun(A, T)
+      for (const m of MAINS) {
+        const p = mpos(m, T), isG = m === GAMES
+        const main = (o.hl && isG) || o.hlName === m.n
+        const aM = main ? 1 : A
+        if (isG && ex > 0.01) {
+          GAMES.kids.forEach((nm, i) => {
+            const kp = kidPos(T, i, ex), on = o.hl && i === 0, a = on ? 1 : A
+            ctx.save()
+            ctx.globalAlpha = a * Math.min(1, ex * 1.5)
+            ctx.lineWidth = on ? 2 : 1.2
+            ctx.strokeStyle = on ? '#FF5468' : 'rgba(200,16,46,0.55)'
+            if (on) { ctx.shadowColor = '#C8102E'; ctx.shadowBlur = 10 }
+            ctx.beginPath()
+            ctx.moveTo(p.x, p.y)
+            ctx.lineTo(kp.x, kp.y)
+            ctx.stroke()
+            ctx.restore()
+            if (on && o.pulse > 0 && o.pulse < 1) {
+              const q = ease(o.pulse), px = p.x + (kp.x - p.x) * q, py = p.y + (kp.y - p.y) * q
+              const tq = ease(Math.max(0, o.pulse - 0.22)), tx = p.x + (kp.x - p.x) * tq, ty = p.y + (kp.y - p.y) * tq
+              const gr = ctx.createLinearGradient(tx, ty, px, py)
+              gr.addColorStop(0, 'rgba(255,84,104,0)')
+              gr.addColorStop(1, 'rgba(255,84,104,0.95)')
+              ctx.save()
+              ctx.strokeStyle = gr
+              ctx.lineWidth = 3
+              ctx.shadowColor = '#FF5468'
+              ctx.shadowBlur = 14
+              ctx.beginPath()
+              ctx.moveTo(tx, ty)
+              ctx.lineTo(px, py)
+              ctx.stroke()
+              ctx.fillStyle = '#fff'
+              ctx.beginPath()
+              ctx.arc(px, py, 3, 0, 6.2832)
+              ctx.fill()
+              ctx.restore()
+            }
+            bub(kp.x, kp.y, 10, m.c, a * Math.min(1, ex * 2), { label: nm, fs: 10, glow: on ? o.glow : 0 })
+            if (on && o.ring > 0 && o.ring < 1) {
+              ctx.save()
+              ctx.strokeStyle = 'rgba(255,84,104,' + (0.8 * (1 - o.ring)).toFixed(3) + ')'
+              ctx.lineWidth = 2
+              ctx.beginPath()
+              ctx.arc(kp.x, kp.y, 12 + o.ring * 36, 0, 6.2832)
+              ctx.stroke()
+              ctx.restore()
+            }
+          })
+        }
+        const cnt = typeof m.kids === 'number' ? m.kids : m.kids.length
+        bub(p.x, p.y, m.r, m.c, aM, { label: m.n, badge: cnt, badgeA: isG ? 1 - clamp01(ex * 2) : 1, lit: isG && o.pulse > 0 && o.pulse < 1 })
+      }
+    }
+
+    const camera = (e, fx, fy) => {
+      const z = 1 + 0.9 * e, cx = CX + (fx - CX) * e, cy = CY + (fy - CY) * e
+      ctx.translate(CX, CY)
+      ctx.scale(z, z)
+      ctx.translate(-cx, -cy)
+    }
+
+    const cursor = (x, y, a, press) => {
+      if (a <= 0.01) return
+      ctx.save()
+      ctx.globalAlpha = a
+      ctx.translate(x, y)
+      if (press) ctx.scale(0.88, 0.88)
+      ctx.beginPath()
+      ctx.moveTo(0, 0); ctx.lineTo(0, 15); ctx.lineTo(4, 11.5); ctx.lineTo(7, 18); ctx.lineTo(9.6, 16.8); ctx.lineTo(6.6, 10.6); ctx.lineTo(11.5, 10.4)
+      ctx.closePath()
+      ctx.fillStyle = '#fff'
+      ctx.fill()
+      ctx.lineWidth = 1
+      ctx.strokeStyle = '#0E0A0A'
+      ctx.stroke()
+      ctx.restore()
+    }
+
+    const keyRow = (parts, cx, y, on, a) => {
+      if (a <= 0.01) return
+      ctx.save()
+      ctx.globalAlpha = a
+      ctx.font = '700 11px ' + FONT
+      const ws = parts.map((p) => Math.max(24, ctx.measureText(p).width + 16))
+      const total = ws.reduce((s, w) => s + w, 0) + (parts.length - 1) * 16
+      let x = cx - total / 2
+      parts.forEach((p, i) => {
+        const dy = on ? 2 : 0
+        rr(x, y + dy, ws[i], 22, 5)
+        ctx.fillStyle = on ? '#C8102E' : '#1E1112'
+        ctx.fill()
+        ctx.lineWidth = 1
+        ctx.strokeStyle = on ? '#FF5468' : '#4A1218'
+        ctx.stroke()
+        txt(p, x + ws[i] / 2, y + 15 + dy, on ? '#fff' : '#F2E6E6', 11, 'center', 700)
+        x += ws[i]
+        if (i < parts.length - 1) { txt('+', x + 8, y + 15, '#A88A8C', 11, 'center'); x += 16 }
+      })
+      ctx.restore()
+    }
+
+    const sbar = (a, typed, path, y, s) => {
+      if (a <= 0.01) return
+      const x = 150, w = 340, h = 34
+      ctx.save()
+      ctx.globalAlpha = a
+      if (typed) {
+        rr(x, y - 36, w, 28, 6)
+        ctx.fillStyle = '#170D0E'
+        ctx.fill()
+        ctx.lineWidth = 1
+        ctx.strokeStyle = '#4A1218'
+        ctx.stroke()
+        let px = x + 14
+        path.forEach((seg, i) => {
+          const last = i === path.length - 1
+          ctx.font = (last ? '700 ' : '') + '12px ' + FONT
+          txt(seg, px, y - 18, last ? '#F2E6E6' : '#A88A8C', 12, 'left', last ? 700 : 400)
+          px += ctx.measureText(seg).width + 8
+          if (!last) { txt('›', px, y - 18, '#C8102E', 12, 'left', 700); px += 18 }
+        })
+      }
+      rr(x, y, w, h, 6)
+      ctx.fillStyle = '#1E1112'
+      ctx.fill()
+      ctx.lineWidth = 1
+      ctx.strokeStyle = typed ? '#C8102E' : '#4A1218'
+      ctx.stroke()
+      ctx.strokeStyle = '#A88A8C'
+      ctx.lineWidth = 1.6
+      ctx.beginPath(); ctx.arc(x + 17, y + 16, 5, 0, 6.2832); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(x + 20.5, y + 19.5); ctx.lineTo(x + 24, y + 23); ctx.stroke()
+      if (typed) {
+        txt(typed, x + 36, y + 22, '#F2E6E6', 13)
+        ctx.font = '13px ' + FONT
+        if (Math.floor(s * 2.2) % 2 === 0) { ctx.fillStyle = '#C8102E'; ctx.fillRect(x + 38 + ctx.measureText(typed).width, y + 10, 2, 15) }
+      } else txt(TXT[lang].search, x + 36, y + 22, '#7D6668', 13)
+      ctx.restore()
+    }
+
+    const block = (col, dark, label, arg, x, y, w, h, a, hat, tab, hl) => {
+      if (a <= 0.01) return
+      ctx.save()
+      ctx.globalAlpha = a
+      ctx.fillStyle = col
+      if (hat) { ctx.beginPath(); ctx.ellipse(x + 44, y + 1, 46, 13, 0, Math.PI, 2 * Math.PI); ctx.fill() }
+      rr(x, y, w, h, 5)
+      ctx.fill()
+      if (tab) ctx.fillRect(x + 16, y + h - 1, 24, 4)
+      if (hl) {
+        ctx.lineWidth = 2
+        ctx.strokeStyle = '#fff'
+        ctx.shadowColor = col
+        ctx.shadowBlur = 14
+        rr(x, y, w, h, 5)
+        ctx.stroke()
+        ctx.shadowBlur = 0
+      }
+      txt(label, x + 12, y + h / 2 + 4, dark ? '#1A1008' : '#fff', 12, 'left', 700)
+      if (arg) {
+        ctx.font = '12px ' + FONT
+        const tw = ctx.measureText(arg).width
+        rr(x + w - tw - 26, y + 6, tw + 16, h - 12, 4)
+        ctx.fillStyle = 'rgba(255,255,255,0.9)'
+        ctx.fill()
+        txt(arg, x + w - 18, y + h / 2 + 4, '#1A1008', 12, 'right')
+      }
+      ctx.restore()
+    }
+
+    const editor = (s) => {
+      const t = TXT[lang]
+      const X = 36, Y = 22, Wd = 568, Hd = 316
+      rr(X, Y, Wd, Hd, 8)
+      ctx.fillStyle = '#170D0E'
+      ctx.fill()
+      ctx.lineWidth = 1
+      ctx.strokeStyle = '#4A1218'
+      ctx.stroke()
+      ctx.save()
+      rr(X, Y, Wd, Hd, 8)
+      ctx.clip()
+      ctx.fillStyle = '#1F0508'
+      ctx.fillRect(X, Y, Wd, 28)
+      ctx.fillStyle = '#4A1218'
+      ctx.fillRect(X, Y + 28, Wd, 1)
+      ctx.fillRect(X + 118, Y + 29, 1, Hd - 29)
+      ctx.fillStyle = '#0E0A0A'
+      ctx.fillRect(X + 119, Y + Hd - 58, Wd - 119, 58)
+      ctx.fillStyle = '#4A1218'
+      ctx.fillRect(X + 119, Y + Hd - 58, Wd - 119, 1)
+      ctx.restore()
+      txt(t.title, X + 12, Y + 18, '#A88A8C', 11)
+      const testOn = s > 3.1
+      rr(X + Wd - 74, Y + 5, 62, 18, 4)
+      ctx.fillStyle = testOn ? '#4CC77A' : '#2A3A2F'
+      ctx.fill()
+      txt('▶ Test', X + Wd - 43, Y + 18, testOn ? '#0E0A0A' : '#8FB89C', 11, 'center', 700)
+      const cc = ['#FFBF00', '#FFAB19', '#4C97FF', '#0FBD8C']
+      t.cats.forEach((c, i) => {
+        ctx.beginPath()
+        ctx.arc(X + 18, Y + 52 + i * 26, 5, 0, 6.2832)
+        ctx.fillStyle = cc[i]
+        ctx.fill()
+        txt(c, X + 30, Y + 56 + i * 26, '#A88A8C', 11)
+      })
+      const bx = X + 160, bw = 300, bh = 32, y0 = Y + 62
+      const cols = ['#FFBF00', '#4C97FF', '#FFAB19', '#0FBD8C']
+      const dark = [true, false, true, true]
+      const run = s >= 3.2 ? Math.floor((s - 3.2) / 0.42) : -1
+      t.blocks.forEach((b, i) => {
+        const tb = 0.5 + 0.65 * i, a = clamp01((s - tb) / 0.2), kk = back((s - tb) / 0.45)
+        block(cols[i], dark[i], b[0], b[1], bx + (1 - kk) * 140, y0 + 12 + i * 35, bw, bh, a, i === 0, i < 3, run === i)
+      })
+      txt('Debug', X + 131, Y + Hd - 42, '#7D6668', 10, 'left', 700)
+      const lines = []
+      for (let i = 0; i <= Math.min(run, 3); i++) lines.push(t.blocks[i][0] + (t.blocks[i][1] ? ' ' + t.blocks[i][1] : ''))
+      lines.slice(-2).forEach((l, i, arr) => txt('› ' + l, X + 131, Y + Hd - 24 + i * 15 - (arr.length === 1 ? 7 : 0), i === arr.length - 1 ? '#F2E6E6' : '#7D6668', 11))
+    }
+
+    const desktop = (s, T) => {
+      const t = TXT[lang]
+      const g = ctx.createLinearGradient(0, 0, 0, H)
+      g.addColorStop(0, '#2A0A10')
+      g.addColorStop(1, '#0E0A0A')
+      ctx.fillStyle = g
+      ctx.fillRect(0, 0, W, H)
+      const e = ease((s - 2.4) / 1.3)
+      const ap = mpos(MAINS[0], T)
+      ctx.save()
+      camera(e, ap.x, ap.y + 30 * e)
+      world(T, { dim: e * 0.9, hlName: 'Apps' })
+      ctx.restore()
+      ctx.save()
+      ctx.globalAlpha = 1 - 0.45 * e
+      t.desk.forEach((n, i) => {
+        const x = 34, y = 24 + i * 72
+        rr(x, y, 30, 30, 6)
+        ctx.fillStyle = '#3A2A2C'
+        ctx.fill()
+        ctx.fillStyle = '#6B5557'
+        if (i === 0) { rr(x + 6, y + 7, 18, 12, 2); ctx.fill(); ctx.fillRect(x + 10, y + 21, 10, 2) }
+        else if (i === 1) { rr(x + 8, y + 9, 14, 15, 2); ctx.fill(); ctx.fillRect(x + 6, y + 7, 18, 2) }
+        else { rr(x + 8, y + 6, 14, 18, 2); ctx.fill(); ctx.fillStyle = '#3A2A2C'; ctx.fillRect(x + 11, y + 12, 8, 1.5); ctx.fillRect(x + 11, y + 16, 8, 1.5) }
+        txt(n, x + 15, y + 44, '#D8C6C7', 10, 'center')
+      })
+      ctx.restore()
+      ctx.fillStyle = 'rgba(10,6,6,0.92)'
+      ctx.fillRect(0, H - 30, W, 30)
+      ctx.fillStyle = '#4A1218'
+      ctx.fillRect(0, H - 30, W, 1)
+      ctx.fillStyle = '#4C97FF'
+      ;[[0, 0], [8, 0], [0, 8], [8, 8]].forEach((q) => ctx.fillRect(CX - 8 + q[0], H - 22 + q[1], 7, 7))
+      txt('21:04', W - 14, H - 11, '#A88A8C', 11, 'right')
+      keyRow(['Ctrl', 'F'], CX, 16, s > 1.45 && s < 1.9, ease((s - 1.0) / 0.2) * (1 - ease((s - 2.0) / 0.35)))
+      const typed = s >= 2.0 ? 'ap' : s >= 1.7 ? 'a' : ''
+      sbar(ease((s - 1.2) / 0.4), typed, ['Apps'], H - 84, s)
+    }
+
+    const draw = (st, s, T) => {
+      ctx.setTransform(k, 0, 0, k, 0, 0)
+      ctx.globalAlpha = 1
+      ctx.fillStyle = '#140C0D'
+      ctx.fillRect(0, 0, W, H)
+      if (st === 0) world(T, {})
+      else if (st === 1) {
+        const ex = back((s - 1) / 1.1)
+        world(T, { exp: ex })
+        const gp = mpos(GAMES, T), ap = ease(s / 1), lv = ease((s - 3) / 1.2)
+        const sx = gp.x + 150, sy = gp.y + 110
+        cursor(sx + (gp.x + 5 - sx) * ap + lv * 130, sy + (gp.y + 5 - sy) * ap + lv * 90, 1 - lv, s > 0.95 && s < 1.2)
+        const rp = (s - 1) / 0.8
+        if (rp > 0 && rp < 1) {
+          ctx.save()
+          ctx.strokeStyle = 'rgba(242,230,230,' + (0.7 * (1 - rp)).toFixed(3) + ')'
+          ctx.lineWidth = 2
+          ctx.beginPath()
+          ctx.arc(gp.x, gp.y, GAMES.r + 4 + rp * 26, 0, 6.2832)
+          ctx.stroke()
+          ctx.restore()
+        }
+      } else if (st === 2 || st === 3) {
+        const e = st === 2 ? ease((s - 1.5) / 1.5) : 1 - ease((s - 3.4) / 1.5)
+        const kp = kidPos(T, 0, 1)
+        const glow = st === 3 ? ease((s - 1.7) / 0.4) * (1 - ease((s - 3.6) / 1.2)) : 0
+        ctx.save()
+        camera(e, kp.x, kp.y)
+        world(T, { exp: 1, dim: e, hl: true, pulse: st === 3 ? (s - 0.7) / 1 : 0, glow, ring: st === 3 ? (s - 1.7) / 1.2 : -1 })
+        ctx.restore()
+        const a = ease((s - 0.1) / 0.2) * (1 - ease((s - 1.0) / 0.35))
+        if (st === 2) keyRow(['Ctrl', 'F'], CX, 16, s > 0.35, a)
+        else keyRow(['Enter'], CX, 16, s > 0.35 && s < 0.9, a)
+        const typed = st === 2 ? (s >= 1.35 ? 'cs' : s >= 1.0 ? 'c' : '') : 'cs'
+        const ba = st === 2 ? ease((s - 0.5) / 0.35) : 1 - ease((s - 1.0) / 0.5)
+        sbar(ba, typed, ['Games', 'CS2'], H - 58, s)
+      } else if (st === 4) editor(s)
+      else desktop(s, T)
+      if (!RED.matches) {
+        const f = Math.max(1 - s / 0.35, (s - (STAGE - 0.4)) / 0.4, 0)
+        if (f > 0) { ctx.globalAlpha = Math.min(1, f); ctx.fillStyle = '#140C0D'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1 }
+      }
+    }
+
+    let tl = 0, T = 3, vis = false, lastSt = -1, lastKey = ''
+    const sync = (st, s) => {
+      const t = TXT[lang]
+      if (st !== lastSt) {
+        lastSt = st
+        lastKey = ''
+        stageEl.textContent = t.stage[st]
+        noEl.textContent = (st + 1) + '/' + N
+        segs.forEach((b, i) => { b.className = i < st ? 'done' : i === st ? 'now' : '' })
+        rows.forEach((r) => r.classList.toggle('on', (r.dataset.stages || '').split(' ').includes(String(st))))
+        prevEl.textContent = '> ' + t.log[(st + N - 1) % N]
+      }
+      const full = t.log[st]
+      const n = RED.matches ? full.length : Math.max(0, Math.min(full.length, Math.floor((s - 0.2) * 46)))
+      const key = lang + st + ':' + n
+      if (key !== lastKey) { lastKey = key; textEl.textContent = full.slice(0, n) }
+    }
+    const fit = () => {
+      const w = cv.clientWidth || W
+      const dpr = Math.min(2, devicePixelRatio || 1)
+      cv.width = Math.round(w * dpr)
+      cv.height = Math.round((w * dpr * H) / W)
+      k = cv.width / W
+    }
+    const render = () => {
+      const st = Math.floor(tl / STAGE) % N
+      const s = RED.matches ? STATIC_S[st] : tl - st * STAGE
+      draw(st, s, T)
+      sync(st, s)
+    }
+    const jump = (st) => { tl = st * STAGE + 0.001; lastSt = -1; render() }
+    segs.forEach((b, i) => b.addEventListener('click', () => jump(i)))
+    rows.forEach((r) => r.addEventListener('click', () => jump(Number((r.dataset.stages || '0').split(' ')[0]))))
+
+    const refresh = () => {
+      cv.setAttribute('aria-label', TXT[lang].aria)
+      segs.forEach((b, i) => b.setAttribute('aria-label', (i + 1) + '. ' + TXT[lang].stage[i]))
+      lastSt = -1
+      render()
+    }
+    let last = 0
+    const frame = (now) => {
+      requestAnimationFrame(frame)
+      const dt = Math.min(0.1, (now - last) / 1000 || 0)
+      last = now
+      if (!vis || document.hidden || RED.matches) return
+      tl = (tl + dt) % (N * STAGE)
+      T += dt
+      render()
+    }
+    if ('ResizeObserver' in window) new ResizeObserver(() => { fit(); render() }).observe(cv)
+    if ('IntersectionObserver' in window) new IntersectionObserver((es) => { vis = es[0].isIntersecting }, { threshold: 0.15 }).observe(root)
+    else vis = true
+    fit()
+    refresh()
+    requestAnimationFrame(frame)
+    return { refresh }
+  })()
+  hooks.push(scene.refresh)
+
+  try { const saved = localStorage.getItem('bv-lang'); if (saved === 'en') setLang('en') } catch (e) { /* nic */ }
+})()
+</script>
+</body>
+</html>

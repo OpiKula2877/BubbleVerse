@@ -1,0 +1,1229 @@
+# Block help for the script editor (the ? on a block): what each block does and what goes
+# into each of its inputs. `pnpm gen:blocks` checks that every block of catalog.yaml and every
+# input has a text in both languages, and generates src/generated/help.ts.
+
+ev_activate:
+  en: Starts the script when the bubble is activated – clicked in the app, or chosen with Enter in the search.
+  cs: Spustí script, když se bublina aktivuje – kliknutím v aplikaci nebo Enterem ve vyhledávání.
+ev_hotkey:
+  en: Starts the script when you press a keyboard shortcut.
+  cs: Spustí script, když stiskneš klávesovou zkratku.
+  inputs:
+    COMBO:
+      en: Click it, then press the keys. Anything works – "Ctrl+Alt+K", "Alt+Space", "Ctrl" alone, or keys held together like "T+L+P". Esc cancels.
+      cs: Klikni a stiskni klávesy. Jde cokoli – „Ctrl+Alt+K“, „Alt+Space“, samotný „Ctrl“ nebo klávesy držené spolu jako „T+L+P“. Esc zruší.
+    SCOPE:
+      en: '"everywhere": works in any app. "only in BubbleVerse": only while a BubbleVerse window is in front.'
+      cs: '„všude“: funguje v jakékoli aplikaci. „jen v BubbleVerse“: jen když je v popředí okno BubbleVerse.'
+ev_every:
+  en: Starts the script again and again at a fixed interval, as long as BubbleVerse runs.
+  cs: Spouští script pořád dokola v pevném intervalu, dokud BubbleVerse běží.
+  inputs:
+    N:
+      en: How many units to wait between runs, e.g. 10.
+      cs: Kolik jednotek čekat mezi spuštěními, např. 10.
+    UNIT:
+      en: Seconds, minutes or hours.
+      cs: Sekundy, minuty nebo hodiny.
+ev_at_time:
+  en: Starts the script at a time of day on the chosen days.
+  cs: Spustí script v daný čas na vybrané dny.
+  inputs:
+    TIME:
+      en: 24-hour time as HH:MM, e.g. "08:00" or "17:30".
+      cs: Čas ve 24hodinovém formátu HH:MM, např. „08:00“ nebo „17:30“.
+    DAYS:
+      en: Tick the days of the week (Monday to Sunday) on which it should run.
+      cs: Zaškrtni dny v týdnu (pondělí až neděle), kdy se má spustit.
+ev_startup:
+  en: Starts the script once when the PC or BubbleVerse starts.
+  cs: Spustí script jednou při startu počítače nebo BubbleVerse.
+  inputs:
+    WHAT:
+      en: '"PC": after Windows signs in (BubbleVerse starts with Windows). "app": every time BubbleVerse starts.'
+      cs: '„PC“: po přihlášení do Windows (BubbleVerse startuje s Windows). „aplikace“: pokaždé, když se BubbleVerse spustí.'
+ev_message:
+  en: Starts the script when any script broadcasts this message.
+  cs: Spustí script, když libovolný script rozešle tuto zprávu.
+  inputs:
+    MSG:
+      en: The message name, exactly as in the "broadcast" block, e.g. "message1".
+      cs: Název zprávy, přesně jako v bloku „rozešli“, např. „message1“.
+ev_proc_start:
+  en: Starts the script when a program starts.
+  cs: Spustí script, když se spustí program.
+  inputs:
+    NAME:
+      en: The program's file name as in Task Manager → Details, e.g. "notepad.exe" or "chrome.exe".
+      cs: Název souboru programu jako ve Správci úloh → Podrobnosti, např. „notepad.exe“ nebo „chrome.exe“.
+ev_proc_stop:
+  en: Starts the script when a program ends.
+  cs: Spustí script, když se program ukončí.
+  inputs:
+    NAME:
+      en: The program's file name as in Task Manager → Details, e.g. "notepad.exe".
+      cs: Název souboru programu jako ve Správci úloh → Podrobnosti, např. „notepad.exe“.
+ev_window_change:
+  en: Starts the script whenever another window comes to the front. Use "active window" to see which one.
+  cs: Spustí script pokaždé, když se do popředí dostane jiné okno. Které to je, zjistíš blokem „aktivní okno“.
+ev_clipboard:
+  en: Starts the script when something new is copied. Use "clipboard text" to read it.
+  cs: Spustí script, když se něco nového zkopíruje. Přečteš to blokem „text ve schránce“.
+ev_device:
+  en: Starts the script when a USB device or a disk is connected or removed.
+  cs: Spustí script, když se připojí nebo odpojí USB zařízení nebo disk.
+  inputs:
+    KIND:
+      en: A USB device of any kind, or a disk (USB stick, card, external drive).
+      cs: USB zařízení jakéhokoli druhu, nebo disk (flashka, karta, externí disk).
+    STATE:
+      en: Connected or removed.
+      cs: Připojeno nebo odpojeno.
+ev_unlock:
+  en: Starts the script when you unlock the PC.
+  cs: Spustí script, když odemkneš počítač.
+ev_wake:
+  en: Starts the script when the PC wakes from sleep.
+  cs: Spustí script, když se počítač probudí ze spánku.
+ev_internet:
+  en: Starts the script when the internet connection comes or goes.
+  cs: Spustí script, když se připojení k internetu objeví nebo zmizí.
+  inputs:
+    STATE:
+      en: Connected or disconnected.
+      cs: Připojeno nebo odpojeno.
+ev_broadcast:
+  en: Sends a message; every "when I receive" with the same name starts. This script goes on at once.
+  cs: Rozešle zprávu; spustí se každé „když dostanu“ se stejným názvem. Tento script pokračuje hned.
+  inputs:
+    MSG:
+      en: The message name, e.g. "message1". Text or any round block.
+      cs: Název zprávy, např. „message1“. Text nebo libovolný kulatý blok.
+ev_broadcast_wait:
+  en: Sends a message and waits until every script it started has finished.
+  cs: Rozešle zprávu a počká, až doběhnou všechny scripty, které spustila.
+  inputs:
+    MSG:
+      en: The message name, e.g. "message1".
+      cs: Název zprávy, např. „message1“.
+ctl_wait:
+  en: Pauses the script for a while.
+  cs: Pozastaví script na chvíli.
+  inputs:
+    N:
+      en: How long, e.g. 1 or 0.5.
+      cs: Jak dlouho, např. 1 nebo 0,5.
+    UNIT:
+      en: Seconds, milliseconds, minutes or hours.
+      cs: Sekundy, milisekundy, minuty nebo hodiny.
+ctl_repeat:
+  en: Runs the blocks inside a number of times.
+  cs: Provede bloky uvnitř několikrát.
+  inputs:
+    N:
+      en: How many times, e.g. 10.
+      cs: Kolikrát, např. 10.
+    DO:
+      en: The blocks to repeat.
+      cs: Bloky, které se opakují.
+ctl_forever:
+  en: Runs the blocks inside over and over until the script is stopped. Put a "wait" inside so it does not run flat out.
+  cs: Provádí bloky uvnitř pořád dokola, dokud se script nezastaví. Dej dovnitř „čekej“, ať neběží naplno.
+  inputs:
+    DO:
+      en: The blocks to repeat.
+      cs: Bloky, které se opakují.
+ctl_repeat_until:
+  en: Repeats the blocks inside until the condition becomes true.
+  cs: Opakuje bloky uvnitř, dokud podmínka nezačne platit.
+  inputs:
+    COND:
+      en: A condition – a pointed (yes/no) block, e.g. "process … running?".
+      cs: Podmínka – špičatý blok (ano/ne), např. „běží proces …?“.
+    DO:
+      en: The blocks to repeat.
+      cs: Bloky, které se opakují.
+ctl_for_each:
+  en: Runs the blocks inside once for every item of a list; the variable holds the current item.
+  cs: Provede bloky uvnitř pro každou položku seznamu; proměnná obsahuje aktuální položku.
+  inputs:
+    VAR:
+      en: The variable that gets each item in turn (script, bubble or global, and its name).
+      cs: Proměnná, do které se postupně dává každá položka (scriptu, bubliny nebo globální a její název).
+    LIST:
+      en: A list – e.g. a list variable, "split … by …", "files in …" or "running processes".
+      cs: Seznam – např. proměnná se seznamem, „rozděl … podle …“, „soubory v …“ nebo „běžící procesy“.
+    DO:
+      en: The blocks to run for each item.
+      cs: Bloky, které se provedou pro každou položku.
+ctl_if:
+  en: Runs the blocks inside only when the condition is true.
+  cs: Provede bloky uvnitř jen tehdy, když podmínka platí.
+  inputs:
+    COND:
+      en: A condition – a pointed (yes/no) block, e.g. "… = …" or "internet connected?".
+      cs: Podmínka – špičatý blok (ano/ne), např. „… = …“ nebo „připojeno k internetu?“.
+    DO:
+      en: The blocks to run when it is true.
+      cs: Bloky, které se provedou, když platí.
+ctl_if_else:
+  en: Runs the first blocks when the condition is true, the second ones when it is not.
+  cs: Když podmínka platí, provede první bloky, jinak druhé.
+  inputs:
+    COND:
+      en: A condition – a pointed (yes/no) block.
+      cs: Podmínka – špičatý blok (ano/ne).
+    DO:
+      en: The blocks to run when it is true.
+      cs: Bloky, které se provedou, když platí.
+    ELSE:
+      en: The blocks to run when it is not.
+      cs: Bloky, které se provedou, když neplatí.
+ctl_wait_until:
+  en: Waits until the condition becomes true, or until the time limit runs out; then the script goes on.
+  cs: Čeká, dokud podmínka nezačne platit nebo nevyprší limit; pak script pokračuje.
+  inputs:
+    COND:
+      en: A condition – a pointed (yes/no) block.
+      cs: Podmínka – špičatý blok (ano/ne).
+    T:
+      en: The longest wait in seconds; 0 waits for ever.
+      cs: Nejdelší čekání v sekundách; 0 = čekat neomezeně.
+ctl_try:
+  en: Runs the first blocks; if one of them fails, the script does not stop but runs the second blocks with the error message saved.
+  cs: Provede první bloky; když některý selže, script se nezastaví, ale provede druhé bloky a uloží zprávu o chybě.
+  inputs:
+    DO:
+      en: The blocks that might fail, e.g. a download or a file operation.
+      cs: Bloky, které můžou selhat, např. stahování nebo práce se soubory.
+    VAR:
+      en: The variable that receives the error message.
+      cs: Proměnná, do které se uloží zpráva o chybě.
+    CATCH:
+      en: The blocks to run when something failed.
+      cs: Bloky, které se provedou, když něco selhalo.
+ctl_stop:
+  en: Stops scripts.
+  cs: Zastaví scripty.
+  inputs:
+    WHAT:
+      en: '"this script", all scripts of this bubble, or all scripts everywhere.'
+      cs: „tento script“, všechny scripty této bubliny, nebo všechny scripty všude.
+ctl_log:
+  en: Writes a value to the debug console at the bottom of the editor – handy to see what a script does.
+  cs: Vypíše hodnotu do ladicí konzole dole v editoru – hodí se k tomu, abys viděl, co script dělá.
+  inputs:
+    VALUE:
+      en: Anything – text, a number, a list or any round block.
+      cs: Cokoli – text, číslo, seznam nebo libovolný kulatý blok.
+sen_key_pressed:
+  en: Yes while a key is held down right now.
+  cs: Ano, pokud je právě teď stisknutá klávesa.
+  inputs:
+    KEY:
+      en: A key name, e.g. "space", "A", "Shift", "F5", "Enter", "Left".
+      cs: Název klávesy, např. „space“, „A“, „Shift“, „F5“, „Enter“, „Left“.
+sen_mouse_x:
+  en: The mouse pointer's horizontal position on the screen in pixels (0 = left edge of the main monitor).
+  cs: Vodorovná poloha ukazatele myši na obrazovce v pixelech (0 = levý okraj hlavního monitoru).
+sen_mouse_y:
+  en: The mouse pointer's vertical position on the screen in pixels (0 = top edge).
+  cs: Svislá poloha ukazatele myši na obrazovce v pixelech (0 = horní okraj).
+sen_current:
+  en: A part of the current date or time as a number.
+  cs: Část aktuálního data nebo času jako číslo.
+  inputs:
+    PART:
+      en: Year, month (1–12), day of the month, weekday (1 = Monday … 7 = Sunday), hour, minute or second.
+      cs: Rok, měsíc (1–12), den v měsíci, den v týdnu (1 = pondělí … 7 = neděle), hodina, minuta nebo sekunda.
+sen_timestamp:
+  en: The current time as a number of seconds (Unix time) – for measuring or for "format date".
+  cs: Aktuální čas jako počet sekund (Unix time) – na měření nebo pro „formátuj datum“.
+sen_proc_running:
+  en: Yes if a program is running.
+  cs: Ano, pokud program běží.
+  inputs:
+    NAME:
+      en: The program's file name as in Task Manager → Details, e.g. "notepad.exe".
+      cs: Název souboru programu jako ve Správci úloh → Podrobnosti, např. „notepad.exe“.
+sen_active_window:
+  en: Information about the window in front.
+  cs: Údaje o okně v popředí.
+  inputs:
+    WHAT:
+      en: Its title (the text in the title bar) or its program, e.g. "chrome.exe".
+      cs: Jeho titulek (text v liště okna) nebo jeho program, např. „chrome.exe“.
+sen_exists:
+  en: Yes if a file or folder exists.
+  cs: Ano, pokud soubor nebo složka existuje.
+  inputs:
+    KIND:
+      en: Check for a file or for a folder.
+      cs: Hledat soubor, nebo složku.
+    PATH:
+      en: The full path, e.g. "C:\Users\Me\Desktop\notes.txt". %USERPROFILE% and similar work too.
+      cs: Celá cesta, např. „C:\Users\Já\Desktop\poznámky.txt“. Fungují i %USERPROFILE% a podobné.
+sen_internet:
+  en: Yes if the PC is connected to the internet.
+  cs: Ano, pokud je počítač připojený k internetu.
+sen_battery:
+  en: The battery charge in percent.
+  cs: Nabití baterie v procentech.
+sen_charging:
+  en: Yes while the notebook is plugged in.
+  cs: Ano, když je notebook připojený k nabíječce.
+sen_idle:
+  en: How many seconds since the last key press or mouse move.
+  cs: Kolik sekund uběhlo od posledního stisku klávesy nebo pohybu myši.
+sen_pixel:
+  en: The colour of a screen pixel as text like "#1E90FF".
+  cs: Barva bodu na obrazovce jako text, např. „#1E90FF“.
+  inputs:
+    X:
+      en: Horizontal position in pixels from the left edge.
+      cs: Vodorovná poloha v pixelech od levého okraje.
+    Y:
+      en: Vertical position in pixels from the top edge.
+      cs: Svislá poloha v pixelech od horního okraje.
+sen_monitors:
+  en: How many monitors are connected.
+  cs: Kolik monitorů je připojeno.
+sen_username:
+  en: The Windows user name.
+  cs: Uživatelské jméno ve Windows.
+sen_pcname:
+  en: The name of this PC.
+  cs: Název tohoto počítače.
+sen_answer:
+  en: The text typed into the last "ask … and wait" dialog.
+  cs: Text napsaný do posledního dialogu „zeptej se … a čekej“.
+sen_timer:
+  en: Seconds since the stopwatch was last reset (one stopwatch shared by all scripts; it starts with BubbleVerse).
+  cs: Sekundy od posledního vynulování stopek (jedny stopky pro všechny scripty; běží od startu BubbleVerse).
+sen_timer_reset:
+  en: Sets the stopwatch back to 0.
+  cs: Vynuluje stopky.
+op_add:
+  en: Adds two numbers.
+  cs: Sečte dvě čísla.
+  inputs:
+    A:
+      en: A number or a round block, e.g. 2.
+      cs: Číslo nebo kulatý blok, např. 2.
+    B:
+      en: A number or a round block, e.g. 3.
+      cs: Číslo nebo kulatý blok, např. 3.
+op_sub:
+  en: Subtracts the second number from the first.
+  cs: Odečte druhé číslo od prvního.
+  inputs:
+    A:
+      en: The number to subtract from.
+      cs: Číslo, od kterého se odčítá.
+    B:
+      en: The number to subtract.
+      cs: Číslo, které se odečte.
+op_mul:
+  en: Multiplies two numbers.
+  cs: Vynásobí dvě čísla.
+  inputs:
+    A:
+      en: A number or a round block.
+      cs: Číslo nebo kulatý blok.
+    B:
+      en: A number or a round block.
+      cs: Číslo nebo kulatý blok.
+op_div:
+  en: Divides the first number by the second.
+  cs: Vydělí první číslo druhým.
+  inputs:
+    A:
+      en: The number to divide.
+      cs: Dělenec.
+    B:
+      en: The number to divide by (not 0).
+      cs: Dělitel (ne 0).
+op_mod:
+  en: The remainder after dividing, e.g. 7 mod 3 = 1.
+  cs: Zbytek po dělení, např. 7 mod 3 = 1.
+  inputs:
+    A:
+      en: The number to divide.
+      cs: Dělenec.
+    B:
+      en: The number to divide by.
+      cs: Dělitel.
+op_round:
+  en: Rounds to the nearest whole number.
+  cs: Zaokrouhlí na celé číslo.
+  inputs:
+    A:
+      en: A number, e.g. 2.6.
+      cs: Číslo, např. 2,6.
+op_math:
+  en: A maths function of a number. Angles are in degrees.
+  cs: Matematická funkce čísla. Úhly jsou ve stupních.
+  inputs:
+    FN:
+      en: Absolute value, round down/up, square root, sin/cos/tan and their inverses, ln, log10, e^x or 10^x.
+      cs: Absolutní hodnota, zaokrouhlení dolů/nahoru, odmocnina, sin/cos/tan a jejich inverze, ln, log10, e^x nebo 10^x.
+    A:
+      en: The number.
+      cs: Číslo.
+op_random:
+  en: A random whole number between the two, both included.
+  cs: Náhodné celé číslo mezi oběma, včetně nich.
+  inputs:
+    A:
+      en: The smallest number.
+      cs: Nejmenší číslo.
+    B:
+      en: The largest number.
+      cs: Největší číslo.
+op_lt:
+  en: Yes if the first value is smaller. Numbers compare as numbers, text alphabetically.
+  cs: Ano, pokud je první hodnota menší. Čísla se porovnávají jako čísla, text abecedně.
+  inputs:
+    A:
+      en: A value or a round block.
+      cs: Hodnota nebo kulatý blok.
+    B:
+      en: The value to compare with.
+      cs: Hodnota, se kterou se porovnává.
+op_eq:
+  en: Yes if both values are equal (text ignores upper/lower case).
+  cs: Ano, pokud se obě hodnoty rovnají (u textu nezáleží na velikosti písmen).
+  inputs:
+    A:
+      en: A value or a round block.
+      cs: Hodnota nebo kulatý blok.
+    B:
+      en: The value to compare with.
+      cs: Hodnota, se kterou se porovnává.
+op_gt:
+  en: Yes if the first value is larger.
+  cs: Ano, pokud je první hodnota větší.
+  inputs:
+    A:
+      en: A value or a round block.
+      cs: Hodnota nebo kulatý blok.
+    B:
+      en: The value to compare with.
+      cs: Hodnota, se kterou se porovnává.
+op_le:
+  en: Yes if the first value is smaller or equal.
+  cs: Ano, pokud je první hodnota menší nebo rovna.
+  inputs:
+    A:
+      en: A value or a round block.
+      cs: Hodnota nebo kulatý blok.
+    B:
+      en: The value to compare with.
+      cs: Hodnota, se kterou se porovnává.
+op_ge:
+  en: Yes if the first value is larger or equal.
+  cs: Ano, pokud je první hodnota větší nebo rovna.
+  inputs:
+    A:
+      en: A value or a round block.
+      cs: Hodnota nebo kulatý blok.
+    B:
+      en: The value to compare with.
+      cs: Hodnota, se kterou se porovnává.
+op_ne:
+  en: Yes if the values are different.
+  cs: Ano, pokud se hodnoty liší.
+  inputs:
+    A:
+      en: A value or a round block.
+      cs: Hodnota nebo kulatý blok.
+    B:
+      en: The value to compare with.
+      cs: Hodnota, se kterou se porovnává.
+op_and:
+  en: Yes only if both conditions are true.
+  cs: Ano, jen když platí obě podmínky.
+  inputs:
+    A:
+      en: A pointed (yes/no) block.
+      cs: Špičatý blok (ano/ne).
+    B:
+      en: A pointed (yes/no) block.
+      cs: Špičatý blok (ano/ne).
+op_or:
+  en: Yes if at least one condition is true.
+  cs: Ano, když platí aspoň jedna podmínka.
+  inputs:
+    A:
+      en: A pointed (yes/no) block.
+      cs: Špičatý blok (ano/ne).
+    B:
+      en: A pointed (yes/no) block.
+      cs: Špičatý blok (ano/ne).
+op_not:
+  en: Turns yes into no and no into yes.
+  cs: Z ano udělá ne a z ne ano.
+  inputs:
+    A:
+      en: A pointed (yes/no) block.
+      cs: Špičatý blok (ano/ne).
+op_join:
+  en: Puts two texts together, e.g. "apple" + "banana" = "applebanana".
+  cs: Spojí dva texty, např. „jablko“ + „banán“ = „jablkobanán“.
+  inputs:
+    A:
+      en: The first text.
+      cs: První text.
+    B:
+      en: The text to add after it.
+      cs: Text, který se přidá za něj.
+op_letter:
+  en: One letter of a text.
+  cs: Jedno písmeno textu.
+  inputs:
+    N:
+      en: Which letter, counting from 1.
+      cs: Kolikáté písmeno, počítá se od 1.
+    S:
+      en: The text.
+      cs: Text.
+op_length:
+  en: How many characters a text has.
+  cs: Kolik znaků má text.
+  inputs:
+    S:
+      en: The text.
+      cs: Text.
+op_contains:
+  en: Yes if the text contains the other text (upper/lower case does not matter).
+  cs: Ano, pokud text obsahuje jiný text (na velikosti písmen nezáleží).
+  inputs:
+    S:
+      en: The text to search in.
+      cs: Text, ve kterém se hledá.
+    T:
+      en: The text to look for.
+      cs: Hledaný text.
+op_replace:
+  en: Replaces every occurrence of one text with another.
+  cs: Nahradí každý výskyt jednoho textu jiným.
+  inputs:
+    A:
+      en: What to replace.
+      cs: Co nahradit.
+    B:
+      en: What to put instead (may be empty).
+      cs: Čím to nahradit (může být prázdné).
+    S:
+      en: The text to change.
+      cs: Text, ve kterém se nahrazuje.
+op_split:
+  en: Cuts a text into a list, e.g. "a,b,c" by "," gives a, b, c.
+  cs: Rozdělí text na seznam, např. „a,b,c“ podle „,“ dá a, b, c.
+  inputs:
+    S:
+      en: The text to cut.
+      cs: Text, který se rozdělí.
+    SEP:
+      en: The separator, e.g. "," or " ". Empty splits into single letters.
+      cs: Oddělovač, např. „,“ nebo „ “. Prázdný rozdělí na jednotlivá písmena.
+op_case:
+  en: The text in UPPER or lower case.
+  cs: Text VELKÝMI nebo malými písmeny.
+  inputs:
+    CASE:
+      en: Upper or lower case.
+      cs: Velká nebo malá písmena.
+    S:
+      en: The text.
+      cs: Text.
+op_trim:
+  en: Removes spaces at the start and the end of a text.
+  cs: Odstraní mezery na začátku a na konci textu.
+  inputs:
+    S:
+      en: The text.
+      cs: Text.
+op_regex:
+  en: Yes if the text matches a regular expression (for advanced text checks).
+  cs: Ano, pokud text odpovídá regulárnímu výrazu (pro pokročilé kontroly textu).
+  inputs:
+    S:
+      en: The text to check.
+      cs: Text ke kontrole.
+    R:
+      en: The regular expression, e.g. "\d+" (contains a digit) or "^[A-Z]" (starts with a capital).
+      cs: Regulární výraz, např. „\d+“ (obsahuje číslici) nebo „^[A-Z]“ (začíná velkým písmenem).
+op_to_number:
+  en: Turns text like "42" or "3.5" into a number (0 when it is not a number).
+  cs: Převede text jako „42“ nebo „3.5“ na číslo (0, když to číslo není).
+  inputs:
+    S:
+      en: The text.
+      cs: Text.
+op_to_text:
+  en: Turns any value into text (lists and objects become JSON).
+  cs: Převede jakoukoli hodnotu na text (seznamy a objekty jako JSON).
+  inputs:
+    A:
+      en: Any value.
+      cs: Jakákoli hodnota.
+op_format_date:
+  en: Writes a time as text in your format.
+  cs: Zapíše čas jako text v tvém formátu.
+  inputs:
+    TS:
+      en: A time in seconds from "timestamp"; 0 = now.
+      cs: Čas v sekundách z bloku „časové razítko“; 0 = teď.
+    FMT:
+      en: 'The format: YYYY year, MM month, DD day, HH hour, mm minute, ss second, e.g. "DD.MM.YYYY HH:mm".'
+      cs: 'Formát: YYYY rok, MM měsíc, DD den, HH hodina, mm minuta, ss sekunda, např. „DD.MM.YYYY HH:mm“.'
+var_set:
+  en: Stores a value in a variable. Script variables live while the script runs, bubble variables stay with the bubble, global ones are shared by all scripts and kept.
+  cs: Uloží hodnotu do proměnné. Proměnné scriptu žijí, dokud script běží, proměnné bubliny zůstávají u bubliny a globální sdílí všechny scripty a pamatují se.
+  inputs:
+    VAR:
+      en: Choose the kind (script, bubble, global) and type the variable's name.
+      cs: Vyber druh (script, bublina, globální) a napiš název proměnné.
+    VALUE:
+      en: The value – text, a number or any round block.
+      cs: Hodnota – text, číslo nebo libovolný kulatý blok.
+var_change:
+  en: Adds a number to a variable (a negative number subtracts).
+  cs: Přičte k proměnné číslo (záporné číslo odečte).
+  inputs:
+    VAR:
+      en: The variable (kind and name).
+      cs: Proměnná (druh a název).
+    N:
+      en: How much to add, e.g. 1 or -1.
+      cs: Kolik přičíst, např. 1 nebo -1.
+var_get:
+  en: The value stored in a variable.
+  cs: Hodnota uložená v proměnné.
+  inputs:
+    VAR:
+      en: The variable (kind and name).
+      cs: Proměnná (druh a název).
+obj_get:
+  en: A value from an object (like JSON from a web service), by its key.
+  cs: Hodnota z objektu (např. JSON z webové služby) podle klíče.
+  inputs:
+    KEY:
+      en: 'The key, e.g. "name". For a list: a position from 1.'
+      cs: 'Klíč, např. „name“. U seznamu: pozice od 1.'
+    OBJ:
+      en: An object, e.g. from "JSON text … to object" or a variable.
+      cs: Objekt, např. z bloku „JSON text … na objekt“ nebo z proměnné.
+obj_set:
+  en: Sets a key of an object stored in a variable.
+  cs: Nastaví klíč objektu uloženého v proměnné.
+  inputs:
+    KEY:
+      en: The key, e.g. "name".
+      cs: Klíč, např. „name“.
+    VAR:
+      en: The variable with the object (it becomes an object if it was not one).
+      cs: Proměnná s objektem (když objekt nebyl, stane se jím).
+    VALUE:
+      en: The value to store.
+      cs: Hodnota, která se uloží.
+list_add:
+  en: Adds an item at the end of a list variable.
+  cs: Přidá položku na konec seznamu v proměnné.
+  inputs:
+    ITEM:
+      en: The item – text, a number or any round block.
+      cs: Položka – text, číslo nebo libovolný kulatý blok.
+    LIST:
+      en: The variable with the list (kind and name).
+      cs: Proměnná se seznamem (druh a název).
+list_insert:
+  en: Inserts an item at a position of a list variable.
+  cs: Vloží položku na dané místo seznamu v proměnné.
+  inputs:
+    ITEM:
+      en: The item.
+      cs: Položka.
+    N:
+      en: The position, counting from 1.
+      cs: Pozice, počítá se od 1.
+    LIST:
+      en: The variable with the list.
+      cs: Proměnná se seznamem.
+list_delete:
+  en: Removes one item of a list variable.
+  cs: Odstraní jednu položku ze seznamu v proměnné.
+  inputs:
+    N:
+      en: The position, counting from 1.
+      cs: Pozice, počítá se od 1.
+    LIST:
+      en: The variable with the list.
+      cs: Proměnná se seznamem.
+list_clear:
+  en: Empties a list variable.
+  cs: Vyprázdní seznam v proměnné.
+  inputs:
+    LIST:
+      en: The variable with the list.
+      cs: Proměnná se seznamem.
+list_item:
+  en: One item of a list.
+  cs: Jedna položka seznamu.
+  inputs:
+    N:
+      en: The position counting from 1, or "last" or "random".
+      cs: Pozice od 1, nebo „last“ (poslední) či „random“ (náhodná).
+    LIST:
+      en: A list – a variable, "split …", "files in …" and so on.
+      cs: Seznam – proměnná, „rozděl …“, „soubory v …“ a podobně.
+list_length:
+  en: How many items a list has.
+  cs: Kolik položek má seznam.
+  inputs:
+    LIST:
+      en: A list.
+      cs: Seznam.
+list_contains:
+  en: Yes if the list has the item.
+  cs: Ano, pokud seznam obsahuje položku.
+  inputs:
+    LIST:
+      en: A list.
+      cs: Seznam.
+    ITEM:
+      en: The item to look for.
+      cs: Hledaná položka.
+list_index:
+  en: The position of an item in a list (0 when it is not there).
+  cs: Pozice položky v seznamu (0, když tam není).
+  inputs:
+    ITEM:
+      en: The item to look for.
+      cs: Hledaná položka.
+    LIST:
+      en: A list.
+      cs: Seznam.
+sys_run_file:
+  en: Starts a program, a script or opens any file with its usual app.
+  cs: Spustí program nebo script, případně otevře jakýkoli soubor v jeho obvyklé aplikaci.
+  inputs:
+    PATH:
+      en: The full path, e.g. "C:\Windows\notepad.exe" or "C:\Users\Me\Desktop\report.pdf".
+      cs: Celá cesta, např. „C:\Windows\notepad.exe“ nebo „C:\Users\Já\Desktop\zpráva.pdf“.
+    ARGS:
+      en: Command-line arguments for the program, e.g. "C:\notes.txt". Usually empty.
+      cs: Argumenty příkazové řádky pro program, např. „C:\poznámky.txt“. Obvykle prázdné.
+    ADMIN:
+      en: Tick to run as administrator (Windows asks for permission).
+      cs: Zaškrtni pro spuštění jako správce (Windows se zeptá na povolení).
+    WAIT:
+      en: Tick to wait until the program closes before the script goes on.
+      cs: Zaškrtni, aby script čekal, až se program zavře.
+    HIDDEN:
+      en: Tick to start it without a window (for console tools).
+      cs: Zaškrtni pro spuštění bez okna (pro konzolové nástroje).
+sys_open_url:
+  en: Opens a web page.
+  cs: Otevře webovou stránku.
+  inputs:
+    URL:
+      en: The web address, e.g. "https://example.com".
+      cs: Adresa webu, např. „https://example.com“.
+    BROWSER:
+      en: Leave empty for your default browser. Or the path to a browser, e.g. "C:\Program Files\Mozilla Firefox\firefox.exe".
+      cs: Nech prázdné pro výchozí prohlížeč. Nebo cesta k prohlížeči, např. „C:\Program Files\Mozilla Firefox\firefox.exe“.
+sys_open_folder:
+  en: Opens a folder in File Explorer.
+  cs: Otevře složku v Průzkumníkovi.
+  inputs:
+    PATH:
+      en: The folder, e.g. "C:\" or "%USERPROFILE%\Downloads".
+      cs: Složka, např. „C:\“ nebo „%USERPROFILE%\Downloads“.
+sys_cmd:
+  en: Runs a command in the Command Prompt (cmd.exe) and can keep what it printed.
+  cs: Spustí příkaz v příkazovém řádku (cmd.exe) a může si uložit, co vypsal.
+  inputs:
+    CMD:
+      en: The command, e.g. "ipconfig" or "echo hello".
+      cs: Příkaz, např. „ipconfig“ nebo „echo ahoj“.
+    WIN:
+      en: Hidden runs it in the background; visible shows the console window.
+      cs: Skryté spustí příkaz na pozadí; viditelné ukáže okno konzole.
+    VAR:
+      en: The variable that receives the printed output.
+      cs: Proměnná, do které se uloží vypsaný výstup.
+sys_powershell:
+  en: Runs a PowerShell command and can keep what it printed.
+  cs: Spustí příkaz PowerShellu a může si uložit, co vypsal.
+  inputs:
+    CMD:
+      en: The command, e.g. "Get-Date" or "Get-Process | Select -First 5".
+      cs: Příkaz, např. „Get-Date“ nebo „Get-Process | Select -First 5“.
+    WIN:
+      en: Hidden runs it in the background; visible shows the window.
+      cs: Skryté spustí příkaz na pozadí; viditelné ukáže okno.
+    VAR:
+      en: The variable that receives the printed output.
+      cs: Proměnná, do které se uloží vypsaný výstup.
+sys_lock:
+  en: Locks the PC (like Win+L).
+  cs: Zamkne počítač (jako Win+L).
+sys_power:
+  en: Puts the PC to sleep, restarts or shuts it down after a countdown that can be cancelled.
+  cs: Uspí, restartuje nebo vypne počítač po odpočtu, který jde zrušit.
+  inputs:
+    ACTION:
+      en: Sleep, restart or shut down.
+      cs: Uspat, restartovat nebo vypnout.
+    N:
+      en: The countdown in seconds.
+      cs: Odpočet v sekundách.
+sys_volume_set:
+  en: Sets the system volume.
+  cs: Nastaví hlasitost systému.
+  inputs:
+    N:
+      en: The volume from 0 to 100.
+      cs: Hlasitost od 0 do 100.
+sys_volume_mute:
+  en: Mutes or unmutes the sound.
+  cs: Ztlumí nebo zapne zvuk.
+  inputs:
+    MUTE:
+      en: Mute, unmute or switch.
+      cs: Ztlumit, zapnout nebo přepnout.
+sys_media:
+  en: Presses a media key – controls the music or video that plays.
+  cs: Stiskne mediální klávesu – ovládá hudbu nebo video, které hraje.
+  inputs:
+    KEY:
+      en: Play/pause, next or previous track.
+      cs: Přehrát/pozastavit, další nebo předchozí skladba.
+win_kill:
+  en: Ends a program right away (unsaved work in it is lost).
+  cs: Okamžitě ukončí program (neuložená práce v něm se ztratí).
+  inputs:
+    NAME:
+      en: The program's file name, e.g. "notepad.exe".
+      cs: Název souboru programu, např. „notepad.exe“.
+win_focus:
+  en: Brings a window to the front.
+  cs: Přenese okno do popředí.
+  inputs:
+    TITLE:
+      en: A part of the window title, e.g. "Notepad" (upper/lower case does not matter).
+      cs: Část titulku okna, např. „Poznámkový blok“ (na velikosti písmen nezáleží).
+win_state:
+  en: Minimizes, maximizes, restores or closes a window.
+  cs: Minimalizuje, maximalizuje, obnoví nebo zavře okno.
+  inputs:
+    ACTION:
+      en: What to do with the window.
+      cs: Co s oknem udělat.
+    TITLE:
+      en: A part of the window title.
+      cs: Část titulku okna.
+win_move_monitor:
+  en: Moves a window to another monitor.
+  cs: Přesune okno na jiný monitor.
+  inputs:
+    TITLE:
+      en: A part of the window title.
+      cs: Část titulku okna.
+    N:
+      en: The monitor number, counting from 1.
+      cs: Číslo monitoru, počítá se od 1.
+win_move:
+  en: Moves a window to a screen position.
+  cs: Přesune okno na místo na obrazovce.
+  inputs:
+    TITLE:
+      en: A part of the window title.
+      cs: Část titulku okna.
+    X:
+      en: Left edge in pixels.
+      cs: Levý okraj v pixelech.
+    Y:
+      en: Top edge in pixels.
+      cs: Horní okraj v pixelech.
+win_resize:
+  en: Changes the size of a window.
+  cs: Změní velikost okna.
+  inputs:
+    TITLE:
+      en: A part of the window title.
+      cs: Část titulku okna.
+    W:
+      en: Width in pixels.
+      cs: Šířka v pixelech.
+    H:
+      en: Height in pixels.
+      cs: Výška v pixelech.
+win_topmost:
+  en: Keeps a window above all others, or stops it.
+  cs: Drží okno nad všemi ostatními, nebo to zruší.
+  inputs:
+    TITLE:
+      en: A part of the window title.
+      cs: Část titulku okna.
+    ON:
+      en: On or off.
+      cs: Zapnout nebo vypnout.
+win_wait:
+  en: Waits until a window with that title appears (or the timeout runs out).
+  cs: Čeká, dokud se neobjeví okno s tímto titulkem (nebo nevyprší limit).
+  inputs:
+    TITLE:
+      en: A part of the window title.
+      cs: Část titulku okna.
+    T:
+      en: The longest wait in seconds; 0 waits for ever.
+      cs: Nejdelší čekání v sekundách; 0 = čekat neomezeně.
+win_processes:
+  en: A list of the names of all running programs, e.g. "chrome.exe".
+  cs: Seznam názvů všech běžících programů, např. „chrome.exe“.
+in_press:
+  en: Presses keys as if you typed them – into the window in front.
+  cs: Stiskne klávesy, jako bys je zmáčkl ty – do okna v popředí.
+  inputs:
+    COMBO:
+      en: The keys, e.g. "Ctrl+C", "Alt+Tab", "Enter" or "Ctrl+Shift+Esc".
+      cs: Klávesy, např. „Ctrl+C“, „Alt+Tab“, „Enter“ nebo „Ctrl+Shift+Esc“.
+in_hold:
+  en: Holds a key down, or releases it again.
+  cs: Podrží klávesu stisknutou, nebo ji zase pustí.
+  inputs:
+    ACTION:
+      en: Hold or release.
+      cs: Podržet nebo pustit.
+    KEY:
+      en: The key, e.g. "Shift", "Ctrl" or "A".
+      cs: Klávesa, např. „Shift“, „Ctrl“ nebo „A“.
+in_type:
+  en: Types text into the window in front, letter by letter.
+  cs: Napíše text do okna v popředí, písmeno po písmenu.
+  inputs:
+    TEXT:
+      en: The text to type (any characters).
+      cs: Text k napsání (jakékoli znaky).
+    CPS:
+      en: Typing speed in characters per second, e.g. 30.
+      cs: Rychlost psaní ve znacích za sekundu, např. 30.
+in_click:
+  en: Clicks a mouse button at a screen position.
+  cs: Klikne tlačítkem myši na místo na obrazovce.
+  inputs:
+    BUTTON:
+      en: Left, right or middle button.
+      cs: Levé, pravé nebo prostřední tlačítko.
+    X:
+      en: Horizontal position in pixels from the left edge.
+      cs: Vodorovná poloha v pixelech od levého okraje.
+    Y:
+      en: Vertical position in pixels from the top edge.
+      cs: Svislá poloha v pixelech od horního okraje.
+in_dblclick:
+  en: Double-clicks at a screen position.
+  cs: Dvakrát klikne na místo na obrazovce.
+  inputs:
+    X:
+      en: Horizontal position in pixels.
+      cs: Vodorovná poloha v pixelech.
+    Y:
+      en: Vertical position in pixels.
+      cs: Svislá poloha v pixelech.
+in_move:
+  en: Moves the mouse pointer.
+  cs: Přesune ukazatel myši.
+  inputs:
+    X:
+      en: Horizontal position in pixels.
+      cs: Vodorovná poloha v pixelech.
+    Y:
+      en: Vertical position in pixels.
+      cs: Svislá poloha v pixelech.
+    MS:
+      en: How long the move takes in milliseconds; 0 jumps there at once.
+      cs: Jak dlouho pohyb trvá v milisekundách; 0 = skočí tam hned.
+in_wheel:
+  en: Turns the mouse wheel.
+  cs: Otočí kolečkem myši.
+  inputs:
+    N:
+      en: 'Notches: negative scrolls down, positive up, e.g. -3.'
+      cs: 'Počet zoubků: záporné roluje dolů, kladné nahoru, např. -3.'
+fs_read:
+  en: The whole text of a file.
+  cs: Celý text souboru.
+  inputs:
+    PATH:
+      en: The file, e.g. "C:\notes.txt".
+      cs: Soubor, např. „C:\poznámky.txt“.
+fs_write:
+  en: Writes text to a file – replacing what was there, or adding at the end.
+  cs: Zapíše text do souboru – přepíše, co tam bylo, nebo přidá na konec.
+  inputs:
+    MODE:
+      en: Write (replace) or append (add at the end).
+      cs: Zapsat (přepsat) nebo připojit (přidat na konec).
+    TEXT:
+      en: The text.
+      cs: Text.
+    PATH:
+      en: The file (created when it does not exist).
+      cs: Soubor (vytvoří se, když neexistuje).
+fs_copy:
+  en: Copies or moves a file or folder.
+  cs: Zkopíruje nebo přesune soubor či složku.
+  inputs:
+    OP:
+      en: Copy or move.
+      cs: Kopírovat nebo přesunout.
+    FROM:
+      en: What – the full path.
+      cs: Co – celá cesta.
+    TO:
+      en: Where to – the full new path including the name.
+      cs: Kam – celá nová cesta včetně názvu.
+fs_rename:
+  en: Renames a file or folder in its place.
+  cs: Přejmenuje soubor nebo složku na místě.
+  inputs:
+    PATH:
+      en: The file or folder – the full path.
+      cs: Soubor nebo složka – celá cesta.
+    NAME:
+      en: Only the new name, e.g. "b.txt".
+      cs: Jen nový název, např. „b.txt“.
+fs_delete:
+  en: Moves a file or folder to the Recycle Bin (you can still get it back from there).
+  cs: Přesune soubor nebo složku do koše (odtud jde ještě vrátit).
+  inputs:
+    PATH:
+      en: The file or folder – the full path.
+      cs: Soubor nebo složka – celá cesta.
+fs_mkdir:
+  en: Creates a folder (with all missing folders above it).
+  cs: Vytvoří složku (i se všemi chybějícími nadřazenými).
+  inputs:
+    PATH:
+      en: The new folder, e.g. "C:\New folder".
+      cs: Nová složka, např. „C:\Nová složka“.
+fs_list:
+  en: A list of files in a folder.
+  cs: Seznam souborů ve složce.
+  inputs:
+    PATH:
+      en: The folder.
+      cs: Složka.
+    FILTER:
+      en: 'Which files: "*.*" all, "*.txt" text files, "photo*" names starting with photo.'
+      cs: 'Které soubory: „*.*“ všechny, „*.txt“ textové, „foto*“ začínající na foto.'
+    REC:
+      en: Tick to include files in subfolders too.
+      cs: Zaškrtni, aby se zahrnuly i soubory v podsložkách.
+fs_unzip:
+  en: Extracts a ZIP archive into a folder.
+  cs: Rozbalí ZIP archiv do složky.
+  inputs:
+    ZIP:
+      en: The ZIP file.
+      cs: Soubor ZIP.
+    DEST:
+      en: The folder to extract into (created when needed).
+      cs: Složka, kam se rozbalí (vytvoří se, když je potřeba).
+fs_zip:
+  en: Packs a file or folder into a ZIP archive.
+  cs: Zabalí soubor nebo složku do ZIP archivu.
+  inputs:
+    SRC:
+      en: The file or folder to pack.
+      cs: Soubor nebo složka k zabalení.
+    ZIP:
+      en: The new ZIP file, e.g. "C:\backup.zip".
+      cs: Nový soubor ZIP, např. „C:\záloha.zip“.
+clip_get:
+  en: The text in the clipboard (what was last copied).
+  cs: Text ve schránce (co bylo naposledy zkopírováno).
+clip_set:
+  en: Puts text into the clipboard, ready to paste.
+  cs: Vloží text do schránky, připravený k vložení.
+  inputs:
+    TEXT:
+      en: The text.
+      cs: Text.
+http_request:
+  en: Asks a web service and gives back its answer as text (use "JSON text … to object" to read JSON).
+  cs: Zeptá se webové služby a vrátí její odpověď jako text (JSON přečteš blokem „JSON text … na objekt“).
+  inputs:
+    METHOD:
+      en: GET reads; POST, PUT and DELETE send or change data.
+      cs: GET čte; POST, PUT a DELETE posílají nebo mění data.
+    URL:
+      en: The address, e.g. "https://api.example.com/items".
+      cs: Adresa, např. „https://api.example.com/items“.
+    BODY:
+      en: Data to send (usually JSON text); empty for GET.
+      cs: Data k odeslání (obvykle JSON text); pro GET prázdné.
+    HEADERS:
+      en: 'Extra headers: lines like "Authorization: Bearer abc", JSON text, or an object. May be empty.'
+      cs: 'Další hlavičky: řádky jako „Authorization: Bearer abc“, JSON text nebo objekt. Může být prázdné.'
+http_download:
+  en: Downloads a file from the internet.
+  cs: Stáhne soubor z internetu.
+  inputs:
+    URL:
+      en: The address of the file.
+      cs: Adresa souboru.
+    PATH:
+      en: Where to save it, including the name, e.g. "C:\Downloads\file.zip".
+      cs: Kam ho uložit i s názvem, např. „C:\Downloads\soubor.zip“.
+json_parse:
+  en: Turns JSON text into an object or list you can read with "get … from …" or "item … of …".
+  cs: Převede JSON text na objekt nebo seznam, který přečteš blokem „vezmi … z …“ nebo „položka … z …“.
+  inputs:
+    TEXT:
+      en: JSON text, e.g. from an HTTP request.
+      cs: JSON text, např. z HTTP požadavku.
+json_stringify:
+  en: Turns an object or list into JSON text.
+  cs: Převede objekt nebo seznam na JSON text.
+  inputs:
+    OBJ:
+      en: An object or list.
+      cs: Objekt nebo seznam.
+bub_glow:
+  en: Makes a bubble light up for a moment.
+  cs: Bublina se na chvíli rozsvítí.
+  inputs:
+    TARGET:
+      en: Empty = this bubble. Or the path of another one with " | " between levels, e.g. "Apps | Editor".
+      cs: Prázdné = tato bublina. Nebo cesta k jiné s „ | “ mezi úrovněmi, např. „Aplikace | Editor“.
+bub_change:
+  en: Changes how a bubble looks until BubbleVerse restarts (the saved world stays as it is).
+  cs: Změní vzhled bubliny až do restartu BubbleVerse (uložený svět zůstane, jak je).
+  inputs:
+    PROP:
+      en: Colour, skin or size.
+      cs: Barva, skin nebo velikost.
+    TARGET:
+      en: Empty = this bubble. Or a bubble path like "Apps | Editor".
+      cs: Prázdné = tato bublina. Nebo cesta k bublině jako „Aplikace | Editor“.
+    VALUE:
+      en: 'Colour: like "#FF0000". Size: a number in pixels, e.g. 80. Skin: the path of the bubble whose look to take.'
+      cs: 'Barva: např. „#FF0000“. Velikost: číslo v pixelech, např. 80. Skin: cesta k bublině, jejíž vzhled převzít.'
+bub_visibility:
+  en: Hides a bubble or shows it again until BubbleVerse restarts.
+  cs: Skryje bublinu nebo ji znovu ukáže, do restartu BubbleVerse.
+  inputs:
+    ACTION:
+      en: Show or hide.
+      cs: Ukázat nebo skrýt.
+    TARGET:
+      en: Empty = this bubble. Or a bubble path like "Apps | Editor".
+      cs: Prázdné = tato bublina. Nebo cesta k bublině jako „Aplikace | Editor“.
+bub_move:
+  en: Moves a bubble to a place in the world until BubbleVerse restarts.
+  cs: Přesune bublinu na místo ve světě, do restartu BubbleVerse.
+  inputs:
+    TARGET:
+      en: Empty = this bubble. Or a bubble path like "Apps | Editor".
+      cs: Prázdné = tato bublina. Nebo cesta k bublině jako „Aplikace | Editor“.
+    X:
+      en: World position from left to right (0 = the middle of the world).
+      cs: Poloha ve světě zleva doprava (0 = střed světa).
+    Y:
+      en: World position from top to bottom (0 = the middle of the world).
+      cs: Poloha ve světě shora dolů (0 = střed světa).
+bub_say:
+  en: Shows a speech bubble above this bubble.
+  cs: Ukáže nad touto bublinou bublinu s textem.
+  inputs:
+    TEXT:
+      en: The text.
+      cs: Text.
+    N:
+      en: How many seconds it stays.
+      cs: Kolik sekund zůstane.
+bub_activate:
+  en: Activates another bubble as if it were clicked – its scripts start.
+  cs: Aktivuje jinou bublinu, jako by se na ni kliklo – spustí se její scripty.
+  inputs:
+    TARGET:
+      en: The bubble path with " | " between levels, e.g. "Apps | Editor".
+      cs: Cesta k bublině s „ | “ mezi úrovněmi, např. „Aplikace | Editor“.
+ui_notify:
+  en: Shows a Windows notification in the corner of the screen.
+  cs: Ukáže oznámení Windows v rohu obrazovky.
+  inputs:
+    TITLE:
+      en: The title.
+      cs: Nadpis.
+    TEXT:
+      en: The message.
+      cs: Zpráva.
+ui_ask:
+  en: Shows a dialog with a text field and waits; the typed text is in "answer".
+  cs: Ukáže dialog s textovým polem a čeká; napsaný text je v bloku „odpověď“.
+  inputs:
+    QUESTION:
+      en: The question.
+      cs: Otázka.
+ui_confirm:
+  en: Shows a Yes/No dialog and gives yes when Yes was chosen.
+  cs: Ukáže dialog Ano/Ne a vrátí ano, když se zvolí Ano.
+  inputs:
+    QUESTION:
+      en: The question.
+      cs: Otázka.
+ui_pick:
+  en: Lets you choose a file or folder in a dialog and gives its path (empty when cancelled).
+  cs: Nechá tě vybrat soubor nebo složku v dialogu a vrátí jeho cestu (prázdnou, když se zruší).
+  inputs:
+    KIND:
+      en: A file or a folder.
+      cs: Soubor nebo složka.
+ui_sound:
+  en: Plays a sound file.
+  cs: Přehraje zvukový soubor.
+  inputs:
+    PATH:
+      en: A .wav or .mp3 file, e.g. "C:\Windows\Media\chimes.wav".
+      cs: Soubor .wav nebo .mp3, např. „C:\Windows\Media\chimes.wav“.
+ui_speak:
+  en: Reads text aloud with the Windows voice.
+  cs: Přečte text nahlas hlasem Windows.
+  inputs:
+    TEXT:
+      en: The text to read.
+      cs: Text k přečtení.
+cb_define:
+  en: The start of your own block – the blocks below are what it does.
+  cs: Začátek tvého vlastního bloku – bloky pod ním jsou to, co dělá.
+  inputs:
+    NAME:
+      en: The block's name.
+      cs: Název bloku.
+cb_call:
+  en: Runs one of your own blocks.
+  cs: Spustí jeden z tvých vlastních bloků.
+  inputs:
+    ID:
+      en: Which block (filled in by the editor).
+      cs: Který blok (doplní editor).
+cb_arg:
+  en: The value given to your block for this input; only inside the block's definition.
+  cs: Hodnota předaná tvému bloku pro tento vstup; jen uvnitř definice bloku.
+  inputs:
+    NAME:
+      en: The input's name.
+      cs: Název vstupu.
+cb_param:
+  en: A parameter of a shared script – each bubble using the script can give it its own value.
+  cs: Parametr sdíleného scriptu – každá bublina, která script používá, mu může dát vlastní hodnotu.
+  inputs:
+    NAME:
+      en: The parameter's name, e.g. "path".
+      cs: Název parametru, např. „path“.

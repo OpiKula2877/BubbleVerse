@@ -1,0 +1,13 @@
+{
+  "name": "@bv/blocks",
+  "private": true,
+  "version": "0.2.0-beta",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@bv/world": "workspace:*",
+    "blockly": "^13.3.0"
+  }
+}

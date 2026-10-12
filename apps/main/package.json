@@ -1,0 +1,17 @@
+{
+  "name": "@bv/app-main",
+  "private": true,
+  "version": "0.2.0-beta",
+  "type": "module",
+  "dependencies": {
+    "@bv/blocks": "workspace:*",
+    "@bv/search": "workspace:*",
+    "@bv/ui": "workspace:*",
+    "@bv/world": "workspace:*",
+    "@tauri-apps/api": "^2.12.1",
+    "@tauri-apps/plugin-process": "^2.4.0",
+    "@tauri-apps/plugin-updater": "^2.13.2",
+    "pixi.js": "^8.22.0",
+    "svelte": "^5.57.1"
+  }
+}
