@@ -19,7 +19,11 @@ class SearchController {
   private opened = new Set<BubbleId>();
 
   async start(global = false): Promise<void> {
-    if (this.open) return;
+    if (this.open) {
+      // Already searching (in a window that was hidden or covered): it ends like a global one.
+      if (global) this.global = true;
+      return;
+    }
     this.global = global;
     const world = store.world;
     const [history, usage] = await Promise.all([
@@ -114,7 +118,10 @@ class SearchController {
       this.aim(id);
       return;
     }
+    // Run it, and the search and the bubbles go away (also when searched inside the window).
+    const global = this.global;
     this.close();
+    if (!global) void leaveUniverse();
     try {
       await store.core.pushHistory(path);
       await store.core.activate(id);

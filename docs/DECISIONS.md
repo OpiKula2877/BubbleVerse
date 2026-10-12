@@ -185,3 +185,7 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 - **Rozhodnutí:** „Všechny orbity“ v editoru orbitu ukáže čárkovaně dráhy všech ostatních orbitů a na každé bublinu, která po ní obíhá, se jménem – v místě, kde začíná (při ▶ tam, kde právě je). Upravovaná bublina je vidět na své dráze taky.
 - **Rozhodnutí:** Ctrl při tažení úchytu orbitu přichytí směr od středu po 45° (natočení 0°, 45°, 90°…); délka zůstane. Funguje i stisk nebo puštění Ctrl během tažení.
 - **Důvod:** požadavky uživatele po testu (bubliny na orbitu utíkaly z obrazu, chtěl vidět všechny orbity a přesné úhly).
+
+### 2026-10-12 · Hledání zkratkou zvenku a spuštění z hledání
+- **Příčina chyb:** akce „Hledat“ (hledání v okně aplikace) nastavená jako globální zkratka otevírala hledání i v okně, které bylo schované nebo zakryté jiným programem. Uživatel nic neviděl, hledání zůstalo otevřené a další stisk už nic neudělal. Po Enteru na akci se zavřelo jen hledání, okno s bublinami zůstalo.
+- **Rozhodnutí:** „Hledat“ ze zkratky, když okno aplikace není vepředu, je globální hledání (vesmír nebo lišta podle nastavení). Spuštění akce z hledání schová hledání i okno aplikace vždy, i při hledání uvnitř okna (v režimu úprav se akce jen vybere jako dřív).

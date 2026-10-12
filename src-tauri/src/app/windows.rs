@@ -99,6 +99,16 @@ fn present_now(app: &AppHandle) {
     super::wallpaper::sync_sleep(app);
 }
 
+/// Whether the app window is the window in front (shown, not minimized, has the keyboard).
+pub fn main_in_front(app: &AppHandle) -> bool {
+    let Some(w) = app.get_webview_window(MAIN) else {
+        return false;
+    };
+    let shown = w.is_visible().unwrap_or(false) && !w.is_minimized().unwrap_or(false);
+    let front = unsafe { ::windows::Win32::UI::WindowsAndMessaging::GetForegroundWindow() };
+    shown && w.hwnd().is_ok_and(|h| h.0 == front.0)
+}
+
 pub fn hide_main(app: &AppHandle) {
     if let Some(w) = app.get_webview_window(MAIN) {
         let _ = w.hide();

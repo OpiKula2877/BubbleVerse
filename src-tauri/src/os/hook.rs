@@ -369,6 +369,10 @@ fn handle(msg: u32, vk: u32, time: u32) -> bool {
         keys,
     };
     let repeat = !lock(&s.held).insert(vk);
+    // Development builds: BV_HOOK_LOG=1 prints what the hook decides.
+    if cfg!(debug_assertions) && std::env::var_os("BV_HOOK_LOG").is_some() {
+        eprintln!("hook: vk {vk:#x} combo {combo:?} repeat {repeat}");
+    }
     let found = s.bindings.read().ok().and_then(|bindings| {
         bindings
             .iter()

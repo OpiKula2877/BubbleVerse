@@ -17,6 +17,9 @@ pub fn run_action(app: &AppHandle, action: &str) {
         "toggleApp" => windows::toggle_main(app),
         "stopScripts" => state.runtime.stop_all(),
         "globalSearch" => super::search::open_global(app),
+        // The app search from anywhere else (a global shortcut while another app is in
+        // front) is the global search: searching in a hidden or covered window shows nothing.
+        "search" if !windows::main_in_front(app) => super::search::open_global(app),
         // In-app actions are handled by the app window.
         other => {
             let _ = app.emit_to(windows::MAIN, events::SHORTCUT, other);
