@@ -49,6 +49,11 @@
           "Czech"
         ],
         "displayLanguageSelector": true,
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "nsis/header.bmp",
+        "customLanguageFiles": {
+          "Czech": "nsis/Czech.nsh"
+        },
         "startMenuFolder": "BubbleVerse"
       }
     }

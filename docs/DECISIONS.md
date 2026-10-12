@@ -189,3 +189,7 @@ Záznam rozhodnutí tam, kde specifikace mlčí nebo je nejasná. Formát: datum
 ### 2026-10-12 · Hledání zkratkou zvenku a spuštění z hledání
 - **Příčina chyb:** akce „Hledat“ (hledání v okně aplikace) nastavená jako globální zkratka otevírala hledání i v okně, které bylo schované nebo zakryté jiným programem. Uživatel nic neviděl, hledání zůstalo otevřené a další stisk už nic neudělal. Po Enteru na akci se zavřelo jen hledání, okno s bublinami zůstalo.
 - **Rozhodnutí:** „Hledat“ ze zkratky, když okno aplikace není vepředu, je globální hledání (vesmír nebo lišta podle nastavení). Spuštění akce z hledání schová hledání i okno aplikace vždy, i při hledání uvnitř okna (v režimu úprav se akce jen vybere jako dřív).
+
+### 2026-10-12 · Texty instalátoru
+- **Příčina:** Tauri nemá české texty svých stránek instalátoru (např. „Už nainstalováno“), takže v češtině byly přepínače bez popisků.
+- **Rozhodnutí:** vlastní české texty v `src-tauri/nsis/Czech.nsh` (soubor bez BOM, Tauri ho přidá sám; bez `$\n`), hlavička instalátoru s ikonou BubbleVerse místo loga NSIS.
